@@ -1,24 +1,30 @@
-/* Improve DNS Records Preview container */
+/**
+ * Enhanced DNS preview styles for StreamNet Panels
+ */
+
+/* Container for the entire DNS preview section */
 .dns-records-preview {
   margin-top: 16px;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: var(--item-radius);
-  padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-md);
+  padding: 14px;
+  border: 1px solid var(--border-subtle);
   animation: fadeIn 0.3s ease-out;
   width: 100%;
+  box-sizing: border-box; /* Ensure padding is included in width */
+  overflow: hidden; /* Prevent content from overflowing */
 }
 
 .records-preview-title {
   font-size: var(--font-size-xs);
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
   color: var(--text-secondary);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-/* Fix records list layout */
+/* Records list container */
 .records-list {
   display: flex;
   flex-direction: column;
@@ -26,61 +32,69 @@
   width: 100%;
 }
 
-/* Improve record item layout */
+/* Individual record item */
 .dns-record-item {
   display: flex;
-  padding: 8px 10px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: var(--item-radius);
-  transition: all var(--transition);
-  border-left: 3px solid transparent;
+  align-items: center;
+  padding: 10px;
+  background-color: var(--bg-surface-hover);
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-default);
+  border-left: 3px solid var(--border-subtle);
   width: 100%;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
 }
 
-/* Ensure the record type has fixed width */
+.dns-record-item:hover {
+  background-color: var(--bg-surface-highlight);
+  border-left-color: var(--border-highlight);
+}
+
+/* Record type badge (A or AAAA) */
 .record-type {
-  font-weight: bold;
+  font-weight: 600;
   font-size: var(--font-size-xs);
-  background-color: var(--accent);
-  color: #000;
-  padding: 3px 6px;
-  border-radius: 4px;
-  margin-right: 10px;
+  background-color: var(--primary);
+  color: var(--text-on-primary);
+  padding: 4px 6px;
+  border-radius: var(--border-radius-xs);
+  margin-right: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 36px;
-  height: 18px;
-  flex-shrink: 0; /* Prevent shrinking */
+  height: 20px;
+  flex-shrink: 0;
+  text-align: center;
 }
 
-/* Fix record details container */
+/* Record details container */
 .record-details {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Allow truncation */
-  width: 100%;
+  min-width: 0; /* Allow text truncation */
+  max-width: calc(100% - 50px); /* Prevent overflowing */
 }
 
-/* Fix domain name overflow */
+/* Domain name styling */
 .record-name {
   font-weight: 500;
   color: var(--primary-light);
   font-size: var(--font-size-sm);
   margin-bottom: 4px;
-  font-family: monospace;
+  font-family: var(--font-mono);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
 }
 
-/* Add tooltip on hover */
-.record-name:hover {
+/* Tooltip for domain name */
+.record-name[title] {
+  cursor: help;
   position: relative;
 }
 
@@ -88,18 +102,19 @@
   content: attr(title);
   position: absolute;
   left: 0;
-  top: -24px;
-  background: var(--surface);
-  color: var(--text-primary);
-  padding: 3px 6px;
-  border-radius: 3px;
+  top: -28px;
+  background: var(--bg-tooltip);
+  color: var(--text-on-tooltip);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-xs);
   font-size: 10px;
   z-index: 10;
   white-space: nowrap;
-  box-shadow: var(--shadow-small);
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
 }
 
-/* Improve record content layout */
+/* Record content container */
 .record-content {
   display: flex;
   justify-content: space-between;
@@ -107,39 +122,40 @@
   width: 100%;
 }
 
-/* Ensure IP address doesn't overflow */
+/* IP address display */
 .record-ip {
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  font-family: monospace;
+  font-family: var(--font-mono);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 60%;
 }
 
-/* Make proxy status compact */
+/* Proxy status badge */
 .proxy-status {
   font-size: 9px;
   padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: bold;
+  border-radius: var(--border-radius-xs);
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  flex-shrink: 0; /* Prevent shrinking */
-  margin-left: auto; /* Push to the right */
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .proxy-status.proxied {
-  background-color: rgba(16, 185, 129, 0.2);
+  background-color: var(--success-subtle);
   color: var(--success);
 }
 
 .proxy-status.not-proxied {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--neutral-subtle);
   color: var(--text-secondary);
 }
 
+/* Empty state message */
 .record-preview-empty {
   color: var(--text-secondary);
   font-style: italic;
@@ -151,11 +167,19 @@
 /* AAAA type records */
 .record-type.aaaa {
   background-color: var(--warning);
-  width: 40px; /* Fixed width for AAAA */
+  min-width: 40px; /* Fixed width for AAAA */
 }
 
 /* Mobile responsiveness */
 @media (max-width: 500px) {
+  .dns-records-preview {
+    padding: 10px;
+  }
+
+  .dns-record-item {
+    padding: 8px;
+  }
+
   .record-content {
     flex-direction: column;
     align-items: flex-start;
@@ -168,5 +192,6 @@
 
   .proxy-status {
     margin-left: 0;
+    margin-top: 4px;
   }
 }

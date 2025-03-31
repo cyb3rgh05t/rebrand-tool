@@ -1,48 +1,59 @@
 /**
- * Main CSS importer for Rebrands Panels
+ * Main CSS importer for StreamNet Panels
+ * This file centralizes all CSS imports for better organization
  */
 
-/* Base styles and variables */
+/* ==========================================================================
+   FOUNDATION STYLES
+   ========================================================================== */
+/* Variables and theming */
 @import "variables.css";
 
-/* Layout styles */
+/* ==========================================================================
+   LAYOUT STYLES
+   ========================================================================== */
+/* Core layout elements */
 @import "layout.css";
 
-/* Component styles */
+/* ==========================================================================
+   COMPONENT STYLES
+   ========================================================================== */
+/* Reusable UI components */
 @import "components.css";
 
-/* Module-specific styles */
+/* ==========================================================================
+   FEATURE-SPECIFIC STYLES
+   ========================================================================== */
+/* Module selection and display */
 @import "modules.css";
 
-/* Animations */
-@import "animations.css";
-
-/* Domain Analysis */
+/* Domain analysis functionality */
 @import "domain-analysis.css";
 
-/* DNS Preview */
+/* DNS preview functionality */
 @import "dns-preview.css";
 
-/**
- * Responsive mobile adjustments
- */
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-  }
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+/* All animations in one place */
+@import "animations.css";
 
-  .panel {
-    width: 100%;
-  }
-
-  .destination-panel {
-    width: 100%;
-  }
+/* ==========================================================================
+   THEME SWITCHER
+   ========================================================================== */
+/* Theme switching will be controlled by adding class to body or html */
+.theme-light {
+  /* Light theme custom overrides will come from variables.css */
 }
 
-/**
- * High-density display adjustments
- */
+.theme-dark {
+  /* Dark theme is the default in variables.css */
+}
+
+/* ==========================================================================
+   HIGH DENSITY DISPLAY ADJUSTMENTS
+   ========================================================================== */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   body {
     font-size: 15px;
@@ -53,9 +64,9 @@
   }
 }
 
-/**
- * Print styles
- */
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
 @media print {
   body {
     background: white;
@@ -64,5 +75,46 @@
 
   .no-print {
     display: none;
+  }
+
+  .container,
+  .panel {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
+
+/* ==========================================================================
+   VENDOR PREFIXES & FALLBACKS
+   ========================================================================== */
+/* For browsers that don't support backdrop-filter */
+@supports not (backdrop-filter: blur(5px)) {
+  .panel,
+  .modal-content,
+  .update-toast {
+    background-color: var(--bg-surface);
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ========================================================================== */
+/* Improved focus outlines for accessibility */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  .action-button,
+  .header-button,
+  .modal-content,
+  .panel {
+    border: 1px solid CanvasText;
+  }
+
+  .status-indicator {
+    border: 1px solid CanvasText;
   }
 }

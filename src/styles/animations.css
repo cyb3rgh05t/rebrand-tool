@@ -1,7 +1,10 @@
 /**
- * Animation styles for Rebrands Panels
+ * Animation styles for StreamNet Panels
  */
 
+/* ==========================================================================
+   BASIC ANIMATIONS
+   ========================================================================== */
 /* Fade in animation */
 @keyframes fadeIn {
   from {
@@ -138,7 +141,33 @@
   }
 }
 
-/* Apply animations to elements */
+/* Progress bar animation */
+@keyframes progressAnimation {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* Blink animation */
+@keyframes blink {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+/* ==========================================================================
+   APPLYING ANIMATIONS TO ELEMENTS
+   ========================================================================== */
+/* Panel animations */
 .panel {
   animation: fadeIn 0.4s ease-out forwards;
 }
@@ -165,6 +194,17 @@
 }
 .module-subsection:nth-child(6) {
   animation-delay: 0.35s;
+}
+
+/* Domain analysis animations */
+.domain-analysis-section,
+.analysis-status,
+.installed-module {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.installed-modules {
+  animation: fadeIn 0.5s ease-out;
 }
 
 /* Toast notification animation */
@@ -205,40 +245,8 @@
   animation: pulse 1.5s infinite;
 }
 
-/* Progress bar animation */
-@keyframes progressAnimation {
-  0% {
-    width: 0%;
-  }
-  100% {
-    width: 100%;
-  }
-}
-
 .progress-bar .progress {
   animation: progressAnimation var(--progress-duration, 2s) linear forwards;
-}
-
-/* Alert fade animations */
-.status-message {
-  animation: fadeIn 0.4s ease-out;
-}
-
-/* Checkbox state change animation */
-@keyframes checkboxPop {
-  0% {
-    transform: scale(0.8);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.module-checkbox:checked {
-  animation: checkboxPop 0.3s ease;
 }
 
 /* Page load animation sequence */
@@ -268,4 +276,14 @@
 .version-badge:contains("loading")::after {
   content: "";
   animation: loadingDots 1.5s infinite;
+}
+
+/* DNS records preview animation */
+.dns-records-preview {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.dns-record-item {
+  animation: fadeIn 0.4s ease-out;
+  animation-delay: calc(var(--item-index, 0) * 0.05s);
 }

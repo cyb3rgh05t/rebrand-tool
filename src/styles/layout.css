@@ -1,8 +1,10 @@
 /**
- * Layout styles for Rebrands Panels
+ * Layout styles for StreamNet Panels
  */
 
-/* Header layout */
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
 .header {
   background-color: var(--primary-dark);
   padding: 0 20px;
@@ -12,8 +14,8 @@
   justify-content: space-between;
   position: relative;
   z-index: 10;
-  color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
 }
 
 /* Left side with title and version */
@@ -24,14 +26,14 @@
 
 .title-container {
   display: flex;
-  align-items: center; /* Changed from baseline to center for vertical alignment */
+  align-items: center;
   gap: 12px;
 }
 
 .header h1 {
   margin: 0;
   font-size: 22px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   background: linear-gradient(120deg, var(--primary-light), var(--accent));
   -webkit-background-clip: text;
   background-clip: text;
@@ -50,8 +52,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
-  color: white;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
 }
 
 .header-actions {
@@ -59,7 +61,9 @@
   gap: 10px;
 }
 
-/* Main container - full width with room for panels */
+/* ==========================================================================
+     MAIN CONTAINER
+     ========================================================================== */
 .container {
   display: flex;
   height: calc(100vh - var(--header-height));
@@ -74,11 +78,13 @@
   );
 }
 
-/* Panels base styles */
+/* ==========================================================================
+     PANELS
+     ========================================================================== */
 .panel {
-  background-color: var(--surface);
+  background-color: var(--bg-surface);
   border-radius: var(--panel-radius);
-  box-shadow: var(--shadow-medium);
+  box-shadow: var(--shadow-md);
   padding: var(--spacing-lg);
   display: flex;
   flex-direction: column;
@@ -86,7 +92,7 @@
   overflow: hidden;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -102,7 +108,7 @@
 }
 
 .panel:hover {
-  box-shadow: var(--shadow-large);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Source panel (left side) */
@@ -119,11 +125,11 @@
   width: 30%; /* Fixed width percentage */
   display: flex;
   flex-direction: column;
-  /* Allow panel to expand to content - from main.css fixes */
+  /* Allow panel to expand to content */
   height: auto !important;
-  /* Prevent height restrictions - from main.css fixes */
+  /* Prevent height restrictions */
   max-height: none !important;
-  /* Make the entire panel scrollable - from main.css fixes */
+  /* Make the entire panel scrollable */
   overflow-y: auto !important;
 }
 
@@ -132,9 +138,9 @@
   margin-top: 0;
   margin-bottom: var(--spacing-md);
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
   font-size: var(--font-size-xl);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   flex-shrink: 0; /* Prevent title from shrinking */
   letter-spacing: -0.01em;
@@ -151,11 +157,14 @@
   background-color: var(--accent);
 }
 
-/* Scrollable content area styling */
+/* ==========================================================================
+     CONTENT AREAS
+     ========================================================================== */
+/* Destination content - scrollable area */
 .destination-content {
-  /* Remove individual scrolling from content sections - from main.css fixes */
+  /* Remove individual scrolling from content sections */
   overflow: visible !important;
-  /* Ensure proper display - from main.css fixes */
+  /* Ensure proper display */
   display: block !important;
 }
 
@@ -173,38 +182,40 @@
 .destination-fixed-bottom {
   position: relative; /* Changed from sticky to prevent overlapping */
   bottom: 0;
-  background-color: var(--surface);
+  background-color: var(--bg-surface);
   padding-top: var(--spacing-md);
   z-index: 5;
   flex-shrink: 0; /* Prevent shrinking */
   margin-top: var(--spacing-md); /* Add margin instead of auto push */
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-subtle);
   padding: var(--spacing-md);
   border-radius: 0 0 var(--panel-radius) var(--panel-radius);
   box-shadow: none; /* Remove shadow causing visual overlap */
 
-  /* Group buttons together - from main.css fixes */
+  /* Group buttons together */
   display: flex !important;
   flex-direction: column !important;
   gap: 10px !important;
-  /* Add space above buttons - from main.css fixes */
+  /* Add space above buttons */
   margin-top: 20px !important;
-  /* Add space at bottom - from main.css fixes */
+  /* Add space at bottom */
   margin-bottom: 10px !important;
 }
 
-/* Selection categories */
+/* ==========================================================================
+     CATEGORY SECTIONS
+     ========================================================================== */
 .selection-category {
   margin-bottom: var(--spacing-lg);
 }
 
 .category-title {
   font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--primary-light);
   margin-bottom: 16px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   position: relative;
@@ -222,15 +233,22 @@
   box-shadow: 0 0 5px var(--accent);
 }
 
-/* Module subsections */
+/* ==========================================================================
+     MODULE SUBSECTIONS
+     ========================================================================== */
 .module-subsection {
   margin-bottom: 24px;
   padding: var(--spacing-lg);
-  background-color: #192231 !important;
+  background-color: rgba(
+    25,
+    34,
+    49,
+    1
+  ) !important; /* #192231 - darker than surface */
   border-radius: var(--item-radius);
   border-left: none !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  box-shadow: var(--shadow-small);
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-sm);
   transition: transform var(--transition), box-shadow var(--transition);
   position: relative;
   overflow: hidden;
@@ -249,17 +267,17 @@
 
 .module-subsection:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-medium);
+  box-shadow: var(--shadow-md);
 }
 
 .subsection-title {
   font-size: var(--font-size-md);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin-top: 0;
   margin-bottom: var(--spacing-md);
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
 }
@@ -276,16 +294,18 @@
   gap: 12px;
 }
 
-/* Destination panel sections */
+/* ==========================================================================
+     DESTINATION SECTIONS
+     ========================================================================== */
 .destination-section {
   margin-bottom: 0; /* No bottom margin as we use gap */
   padding: var(--spacing-lg);
-  background-color: var(--surface-elevated);
+  background-color: var(--bg-surface-elevated);
   border-radius: var(--item-radius);
   box-shadow: var(--shadow-inner);
   position: relative;
   overflow: visible !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--border-subtle) !important;
   margin-bottom: 20px !important;
 }
 
@@ -300,18 +320,18 @@
   pointer-events: none;
 }
 
-/* Restore original destination label styling */
+/* Destination label styling */
 .destination-label {
   display: block;
   margin-bottom: var(--spacing-sm);
   font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--primary-light);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-/* Make text wrap and not overflow */
+/* Empty section message */
 .empty-section-message {
   word-break: break-word;
   white-space: normal;
@@ -320,11 +340,11 @@
   width: 100%;
   box-sizing: border-box;
   padding: 16px;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--bg-surface-dark);
   border-radius: var(--item-radius);
   color: var(--text-secondary);
   font-style: italic;
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border: 1px dashed var(--border-subtle);
 }
 
 /* Domain analysis content fix */
@@ -333,6 +353,9 @@
   overflow-x: hidden;
 }
 
+/* ==========================================================================
+     DOMAIN SELECTION AND DNS FORM
+     ========================================================================== */
 /* Domain selection container */
 .domain-selection-container {
   display: flex;
@@ -355,9 +378,11 @@
   border-radius: var(--item-radius);
   margin-top: 12px;
   border-left: 3px solid var(--primary);
-  box-shadow: var(--shadow-small);
+  box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .dns-form::before {
@@ -376,25 +401,15 @@
   color: var(--text-secondary);
   line-height: 1.6;
   margin-top: 14px;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--bg-surface-dark);
   padding: 12px;
   border-radius: var(--item-radius);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
 }
 
-/* Transfer button adjustments */
-.big-action-button {
-  margin-top: 0;
-  margin-bottom: var(--spacing-sm);
-}
-
-/* Spacer to push content away from bottom fixed elements */
-.flex-spacer {
-  flex-grow: 1;
-  min-height: var(--spacing-sm);
-}
-
-/* Modal layout */
+/* ==========================================================================
+     MODALS
+     ========================================================================== */
 .modal {
   display: none;
   position: fixed;
@@ -410,14 +425,14 @@
 }
 
 .modal-content {
-  background-color: var(--surface);
+  background-color: var(--bg-surface);
   margin: 8% auto;
   width: 550px;
   max-width: 90%;
   border-radius: var(--panel-radius);
-  box-shadow: var(--shadow-large);
+  box-shadow: var(--shadow-lg);
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
   animation: modalFadeIn 0.3s ease;
 }
 
@@ -437,14 +452,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .modal-header h3 {
   margin: 0;
   color: var(--text-primary);
   font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .modal-body {
@@ -459,7 +474,7 @@
   margin-bottom: var(--spacing-md);
 }
 
-/* Form actions */
+/* Form actions for modals */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -467,39 +482,54 @@
   margin-top: 24px;
 }
 
-/* Fix refresh buttons styling - from main.css fixes */
-button[id*="Refresh"],
-button:has(.refresh-icon) {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border: none !important;
-  border-radius: 4px !important;
-  width: 28px !important;
-  height: 28px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  padding: 0 !important;
+/* ==========================================================================
+     DEBUG MODAL
+     ========================================================================== */
+.debug-modal-content {
+  width: 80%;
+  max-width: 900px;
+  height: 80%;
+  max-height: 700px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Hover effect for refresh buttons - from main.css fixes */
-button[id*="Refresh"]:hover,
-button:has(.refresh-icon):hover {
-  background-color: rgba(255, 255, 255, 0.2) !important;
+.debug-modal-content .modal-header {
+  padding: 12px 16px;
+  background: linear-gradient(90deg, var(--bg-surface), var(--primary-dark));
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-/* Fix refresh icon - from main.css fixes */
-.refresh-icon {
-  display: inline-block !important;
-  font-size: 14px !important;
+.debug-modal-content .modal-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+  padding: 16px;
 }
 
-/* Remove duplicate refresh spinner - from main.css fixes */
-button:has(.refresh-icon) .refresh-icon + .refresh-icon {
-  display: none !important;
+.debug-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-/* Responsive adjustments */
+/* ==========================================================================
+     RESPONSIVE LAYOUT
+     ========================================================================== */
+/* Tablet and smaller desktops */
+@media (max-width: 1200px) {
+  .selection-items {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+/* Mobile devices */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -529,16 +559,22 @@ button:has(.refresh-icon) .refresh-icon + .refresh-icon {
     max-height: none;
   }
 
-  .selection-items {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  }
-
   .panel {
     padding: var(--spacing-md);
   }
+
+  .debug-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .debug-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
-/* Ultra-small screens */
+/* Small mobile devices */
 @media (max-width: 500px) {
   .title-container {
     flex-direction: column;
@@ -559,5 +595,19 @@ button:has(.refresh-icon) .refresh-icon + .refresh-icon {
 
   .button-text {
     display: none;
+  }
+
+  .php-config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .dns-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }

@@ -1,97 +1,212 @@
 /**
- * CSS Variables for Rebrands Panels
+ * CSS Variables for StreamNet Panels with theme support
  */
 
 :root {
-  /* Color System - Modern Dark Theme */
+  /* Theme support: light/dark mode base variables */
+  --theme-mode: dark; /* default theme mode */
+
+  /* ==========================================================================
+     COLOR SYSTEM
+     ========================================================================== */
+
+  /* Primary colors */
   --primary: #4f46e5; /* Indigo 600 */
   --primary-dark: #0f172a; /* Slate 900 */
   --primary-light: #818cf8; /* Indigo 400 */
   --secondary: #6366f1; /* Indigo 500 */
   --accent: #14b8a6; /* Teal 500 */
-  --background: #0f172a; /* Slate 900 */
-  --surface: #1e293b; /* Slate 800 */
-  --surface-elevated: #334155; /* Slate 700 */
+
+  /* Status colors */
   --error: #ef4444; /* Red 500 */
   --warning: #f59e0b; /* Amber 500 */
   --success: #10b981; /* Emerald 500 */
   --info: #3b82f6; /* Blue 500 */
+
+  /* Status subtle backgrounds */
+  --error-subtle: rgba(239, 68, 68, 0.15);
+  --warning-subtle: rgba(245, 158, 11, 0.15);
+  --success-subtle: rgba(16, 185, 129, 0.15);
+  --info-subtle: rgba(59, 130, 246, 0.15);
+  --neutral-subtle: rgba(255, 255, 255, 0.1);
+
+  /* Background colors */
+  --bg-primary: #0f172a; /* Slate 900 */
+  --bg-surface: #1e293b; /* Slate 800 */
+  --bg-surface-elevated: #334155; /* Slate 700 */
+  --bg-surface-dark: rgba(0, 0, 0, 0.2);
+  --bg-surface-hover: rgba(255, 255, 255, 0.05);
+  --bg-surface-highlight: rgba(255, 255, 255, 0.1);
+  --bg-tooltip: var(--bg-surface);
+
+  /* Text colors */
   --text-primary: #f8fafc; /* Slate 50 */
   --text-secondary: #cbd5e1; /* Slate 300 */
-  --border: #475569; /* Slate 600 */
+  --text-tertiary: #94a3b8; /* Slate 400 */
+  --text-on-primary: #ffffff;
+  --text-on-tooltip: var(--text-primary);
+
+  /* Border colors */
+  --border-default: #475569; /* Slate 600 */
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-highlight: var(--primary-light);
   --divider: #64748b; /* Slate 500 */
 
-  /* Border radius */
-  --panel-radius: 12px;
-  --item-radius: 8px;
-  --button-radius: 6px;
+  /* ==========================================================================
+     BORDER RADIUS
+     ========================================================================== */
+  --border-radius-xs: 4px;
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-full: 9999px;
 
-  /* Transitions */
-  --transition: 0.2s ease;
-  --transition-long: 0.3s ease;
+  /* Legacy alias variables for backward compatibility */
+  --panel-radius: var(--border-radius-lg);
+  --item-radius: var(--border-radius-md);
+  --button-radius: var(--border-radius-sm);
 
-  /* Shadows */
-  --shadow-small: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  /* ==========================================================================
+     TRANSITIONS
+     ========================================================================== */
+  --transition-default: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  --transition-fast: 0.1s ease;
+
+  /* Legacy alias for backward compatibility */
+  --transition: var(--transition-default);
+  --transition-long: var(--transition-slow);
+
+  /* ==========================================================================
+     SHADOWS
+     ========================================================================== */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.15);
 
-  /* Spacing */
+  /* Legacy aliases for backward compatibility */
+  --shadow-small: var(--shadow-sm);
+  --shadow-medium: var(--shadow-md);
+  --shadow-large: var(--shadow-lg);
+
+  /* ==========================================================================
+     SPACING
+     ========================================================================== */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
 
-  /* Font sizes */
+  /* ==========================================================================
+     TYPOGRAPHY
+     ========================================================================== */
   --font-size-xs: 11px;
   --font-size-sm: 12px;
   --font-size-md: 14px;
   --font-size-lg: 16px;
   --font-size-xl: 18px;
   --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
 
-  /* Component sizes */
+  /* Font families */
+  --font-primary: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+    system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Consolas", "Monaco", "Courier New", monospace;
+
+  /* Font weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line heights */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ==========================================================================
+     COMPONENT SIZES
+     ========================================================================== */
   --header-height: 64px;
   --form-control-height: 42px;
   --icon-size: 24px;
+  --icon-size-sm: 16px;
+  --icon-size-lg: 32px;
+}
+
+/* Light theme variables - will be activated with theme toggle */
+.theme-light {
+  --theme-mode: light;
+
+  /* Invert colors for light mode */
+  --bg-primary: #f8fafc; /* Slate 50 */
+  --bg-surface: #e2e8f0; /* Slate 200 */
+  --bg-surface-elevated: #cbd5e1; /* Slate 300 */
+  --bg-surface-dark: rgba(0, 0, 0, 0.05);
+  --bg-surface-hover: rgba(0, 0, 0, 0.03);
+  --bg-surface-highlight: rgba(79, 70, 229, 0.05);
+
+  /* Text colors for light mode */
+  --text-primary: #0f172a; /* Slate 900 */
+  --text-secondary: #334155; /* Slate 700 */
+  --text-tertiary: #475569; /* Slate 600 */
+
+  /* Border colors for light mode */
+  --border-default: #94a3b8; /* Slate 400 */
+  --border-subtle: rgba(0, 0, 0, 0.1);
+  --divider: #cbd5e1; /* Slate 300 */
+
+  /* Adjust shadows for light mode */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
+    0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05),
+    0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
 }
 
 /* Base styles for commonly used elements */
 html,
 body {
-  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui,
-    sans-serif;
+  font-family: var(--font-primary);
   margin: 0;
   padding: 0;
-  background-color: var(--background);
+  background-color: var(--bg-primary);
   color: var(--text-primary);
   height: 100%;
   width: 100%;
   overflow: hidden;
   font-size: var(--font-size-md);
-  line-height: 1.5;
+  line-height: var(--line-height-normal);
   display: flex;
   flex-direction: column;
 }
 
-/* Scrollbar styling */
+/* Improved scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: var(--bg-surface-dark);
+  border-radius: var(--border-radius-xs);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background: var(--neutral-subtle);
+  border-radius: var(--border-radius-xs);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -106,39 +221,39 @@ h4,
 h5,
 h6 {
   margin-top: 0;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
 h1 {
   font-size: var(--font-size-2xl);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 h2 {
   font-size: var(--font-size-xl);
   color: var(--primary-light);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 h3 {
   font-size: var(--font-size-lg);
   color: var(--accent);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 h4 {
   font-size: var(--font-size-md);
   color: var(--primary-light);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Link styles */
 a {
   color: var(--primary-light);
   text-decoration: none;
-  transition: color var(--transition);
+  transition: color var(--transition-default);
 }
 
 a:hover {
@@ -150,6 +265,11 @@ a:hover {
 :focus {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+
+/* Remove redundant outline on buttons when focused */
+button:focus {
+  outline: none;
 }
 
 /* Utility classes */
@@ -178,7 +298,7 @@ a:hover {
 }
 
 .bg-elevated {
-  background-color: var(--surface-elevated);
+  background-color: var(--bg-surface-elevated);
 }
 
 .hidden {

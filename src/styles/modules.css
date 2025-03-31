@@ -1,26 +1,36 @@
 /**
- * Module-specific styles for Rebrands Panels
+ * Module-specific styles for StreamNet Panels
  */
 
-/* Module controls */
+/* ==========================================================================
+   MODULE SELECTION CONTROLS
+   ========================================================================== */
 .module-controls {
   display: flex;
   gap: 10px;
   margin-bottom: 18px;
 }
 
-/* Selection item styling */
+/* ==========================================================================
+     SELECTION ITEMS
+     ========================================================================== */
 .selection-item {
-  background-color: #192231 !important; /* Match the main panel background - from main.css fixes */
+  background-color: rgba(
+    25,
+    34,
+    49,
+    1
+  ) !important; /* #192231 - Match the main panel background */
   border-radius: var(--item-radius);
   padding: 14px;
   display: flex;
   align-items: center;
   transition: all var(--transition);
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--border-subtle) !important;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .selection-item::after,
@@ -29,10 +39,11 @@
 }
 
 .selection-item:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-color: var(--bg-surface-hover) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
+/* Module checkbox style */
 .module-checkbox {
   margin-right: 12px;
   accent-color: var(--primary);
@@ -75,7 +86,7 @@
 }
 
 .panel-icon {
-  background-color: rgba(245, 158, 11, 0.15);
+  background-color: var(--warning-subtle);
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.1);
 }
 
@@ -85,6 +96,7 @@
   fill: currentColor;
 }
 
+/* Module icon image */
 .icon-image {
   width: var(--icon-size);
   height: var(--icon-size);
@@ -96,9 +108,10 @@
   transition: none !important;
 }
 
+/* Module name */
 .module-name {
   font-size: var(--font-size-md);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   color: var(--text-primary);
   white-space: nowrap;
@@ -112,20 +125,53 @@
   transform: translateX(2px);
 }
 
+/* Selection item tooltip */
+.selection-item {
+  position: relative;
+}
+
+.selection-item[data-tooltip]:after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: var(--item-radius);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  border: 1px solid var(--border-subtle);
+  font-weight: var(--font-weight-medium);
+}
+
+.selection-item[data-tooltip]:hover:after {
+  opacity: 1;
+  visibility: visible;
+  bottom: 130%;
+}
+
 /* Selection summary */
 .selection-summary {
   margin-top: 28px;
   padding: 16px;
-  background-color: var(--surface-elevated);
+  background-color: var(--bg-surface-elevated);
   border-radius: var(--item-radius);
   text-align: center;
   font-size: var(--font-size-md);
   color: var(--text-secondary);
-  box-shadow: var(--shadow-small);
+  box-shadow: var(--shadow-sm);
   border-left: 3px solid var(--primary);
   position: relative;
   overflow: hidden;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .selection-summary::after {
@@ -144,73 +190,52 @@
   text-align: center;
   font-style: italic;
   color: var(--text-secondary);
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--bg-surface-dark);
   border-radius: var(--item-radius);
   width: 100%;
   grid-column: 1 / -1;
   font-size: var(--font-size-sm);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border: 1px dashed var(--border-subtle);
 }
 
-/* DNS-specific styles */
+/* ==========================================================================
+     DNS SPECIFIC STYLES
+     ========================================================================== */
+/* DNS domain preview */
 .dns-domain-preview {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: 0.02em;
   transition: all var(--transition);
   border-bottom: 1px dashed var(--accent);
   padding-bottom: 2px;
 }
 
-.field-hint {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  margin-top: 6px;
-  line-height: 1.6;
-}
-
 #newDomainPreview {
   color: var(--primary-light);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   transition: all var(--transition);
   border-bottom: 1px dashed var(--primary-light);
   padding-bottom: 2px;
 }
 
-/* Form controls for specific modules */
-.form-row {
-  display: flex;
-  gap: 14px;
-  margin-bottom: 16px;
-}
-
-.form-field.half {
-  flex: 1;
-}
-
-.password-field {
-  display: flex;
-  gap: 10px;
-}
-
-.password-field .text-input {
-  flex: 1;
-}
-
-/* Domain settings info sections */
+/* ==========================================================================
+     DOMAIN SETTINGS
+     ========================================================================== */
+/* Virtualmin info sections */
 .virtualmin-info {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   line-height: 1.6;
   margin-top: 16px;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--bg-surface-dark);
   padding: 12px;
   border-radius: var(--item-radius);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
 }
 
 .info-label {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--accent);
   margin-bottom: 6px;
 }
@@ -235,7 +260,9 @@
   background: linear-gradient(135deg, var(--accent), var(--primary));
 }
 
-/* Improved DNS toggle */
+/* ==========================================================================
+     DNS TOGGLE
+     ========================================================================== */
 .dns-header {
   margin-bottom: 16px;
 }
@@ -249,6 +276,9 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+/* ==========================================================================
+     FIXES FOR MODULE SELECTION ITEMS
+     ========================================================================== */
 /* Selection item icon hover - no hover transforms */
 .selection-item:hover .icon-image,
 .selection-item .icon-image {
@@ -263,4 +293,21 @@
   transform: none !important;
   box-shadow: none !important;
   background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Checkbox animation */
+@keyframes checkboxPop {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.module-checkbox:checked {
+  animation: checkboxPop 0.3s ease;
 }
