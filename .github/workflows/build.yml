@@ -90,7 +90,6 @@ jobs:
 
       - name: Extract release notes from CHANGELOG.md
         if: startsWith(github.ref, 'refs/tags/v')
-        id: extract-release-notes
         run: |
           if [ -n "${{ env.VERSION }}" ]; then
             echo "Looking for version ${{ env.VERSION }} in CHANGELOG.md"
@@ -107,11 +106,33 @@ jobs:
             echo "$RELEASE_NOTES" > release_notes.md
             echo "Release notes extracted to release_notes.md"
             
-            # Show the first few lines for debugging
-            head -n 5 release_notes.md || true
+            # Show the content for debugging
+            echo "===== BEGIN RELEASE NOTES ====="
+            cat release_notes.md
+            echo "===== END RELEASE NOTES ====="
           else
             echo "No version found, using default release notes"
             echo "Latest build from branch ${GITHUB_REF#refs/heads/}" > release_notes.md
+          fi
+
+          # Make sure the file is not empty
+          if [ ! -s release_notes.md ]; then
+            echo "Warning: release_notes.md is empty! Adding default content."
+            echo "Release ${{ env.TAG || github.ref_name }}" > release_notes.md
+          fi
+
+      - name: Generate release notes manually if not found
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          # Explicitly check if release notes content was found
+          if ! grep -q "[A-Za-z]" release_notes.md; then
+            echo "No specific release notes found for version ${{ env.VERSION }}."
+            echo "Creating manual release notes."
+            echo "### Release ${{ env.TAG }}" > release_notes.md
+            echo "" >> release_notes.md
+            echo "This release includes various improvements and bug fixes." >> release_notes.md
+            echo "" >> release_notes.md
+            echo "For detailed information, please check the [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) file." >> release_notes.md
           fi
 
       - name: Download artifacts
@@ -125,9 +146,9 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'Latest Build' }}
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}
-          body_path: ${{ startsWith(github.ref, 'refs/tags/v') && 'release_notes.md' || '' }}
+          name: "Release ${{ env.TAG || github.ref_name }}"
+          tag_name: "${{ env.TAG || github.ref_name }}"
+          body_path: release_notes.md
           files: |
             dist/**/*.exe
             dist/**/*.dmg

@@ -2,6 +2,12 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.4.1] - 2025-04-01
+
+### Fixed
+
+Update dialog now displays release notes directly from CHANGELOG
+
 ## [2.4.0] - 2025-04-01
 
 ### Added
