@@ -73,9 +73,9 @@ const MODULE_PATHS = {
     api: "api/flixvision",
     panel: "panel/flixvision",
   },
-  smartube: {
-    api: "api/smartube",
-    panel: "panel/smartube",
+  smarttube: {
+    api: "api/smarttube",
+    panel: "panel/smarttube",
   },
   stremio: {
     api: "api/stremio",

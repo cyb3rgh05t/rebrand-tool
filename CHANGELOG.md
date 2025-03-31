@@ -2,6 +2,12 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.3.1] - 2025-03-31
+
+### Fixed
+
+- SmartTube Module
+
 ## [2.3.0] - 2025-03-30
 
 ### Added

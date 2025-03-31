@@ -252,7 +252,7 @@ function getModuleDisplayName(moduleName) {
     "1stream": "1Stream",
     "9xtream": "9Xtream",
     flixvision: "FlixVision",
-    smartube: "SmartTube",
+    smarttube: "SmartTube",
     stremio: "Stremio",
     orvpn: "ORVPN",
     ipvanish: "IPVanish",
@@ -351,7 +351,7 @@ export function renderDomainAnalysis(analysis) {
 
         // VOD Applications
         flixvision: "flixvision",
-        smartube: "smartube",
+        smarttube: "smarttube",
         stremio: "stremio",
 
         // VPN Applications
