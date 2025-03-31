@@ -1,0 +1,152 @@
+/**
+ * Animation styles for StreamNet Rebrands Panels
+ */
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse animation for connection status */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+/* Spin animation for loading */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Slide right animation */
+@keyframes slideRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Button shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+/* Apply animations to elements */
+.panel {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Staggered animation for module sections */
+.module-subsection:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.module-subsection:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.module-subsection:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.module-subsection:nth-child(4) {
+  animation-delay: 0.25s;
+}
+.module-subsection:nth-child(5) {
+  animation-delay: 0.3s;
+}
+.module-subsection:nth-child(6) {
+  animation-delay: 0.35s;
+}
+
+/* Modal animation */
+.modal-content {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Refresh icon spinning animation */
+.refresh-icon.spinning {
+  animation: spin 1.5s linear infinite;
+}
+
+/* Button shimmer animation */
+.action-button::before {
+  animation: slideRight 1.5s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.action-button:hover::before {
+  animation-play-state: running;
+}
+
+/* Status indicator animations */
+.status-indicator.checking {
+  animation: pulse 1.5s infinite;
+}
+
+/* Progress bar animation */
+@keyframes progressAnimation {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.progress-bar .progress {
+  animation: progressAnimation var(--progress-duration, 2s) linear forwards;
+}
+
+/* Alert fade animations */
+.status-message {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Checkbox state change animation */
+@keyframes checkboxPop {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.module-checkbox:checked {
+  animation: checkboxPop 0.3s ease;
+}
+
+/* Icon hover animation */
+.selection-item:hover .icon-image {
+  animation: pulse 1s ease-in-out;
+}

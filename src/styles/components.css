@@ -1,0 +1,628 @@
+/**
+ * Component styles for StreamNet Rebrands Panels
+ */
+
+/* Button styles */
+.action-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 16px;
+  border: none;
+  border-radius: var(--button-radius);
+  background-color: var(--primary);
+  color: white;
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition), transform var(--transition),
+    box-shadow var(--transition);
+  height: var(--form-control-height);
+  box-shadow: var(--shadow-small);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.action-button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.action-button:hover::before {
+  left: 100%;
+}
+
+.action-button:disabled {
+  background-color: #444;
+  color: #777;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.action-button:disabled::before {
+  display: none;
+}
+
+.action-button.primary {
+  background-color: var(--accent);
+}
+
+.action-button.primary:hover {
+  background-color: #1ab6c7; /* Darker shade of accent */
+}
+
+.action-button.secondary {
+  background-color: #555;
+}
+
+.action-button.secondary:hover {
+  background-color: #666;
+}
+
+.action-button.full-width {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  font-size: var(--font-size-md);
+}
+
+.big-action-button {
+  margin-top: 24px;
+  padding: 16px;
+  font-size: var(--font-size-lg);
+  height: auto;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Icon buttons */
+.action-button.icon-button {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.small-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  border-radius: var(--button-radius);
+  padding: 5px 10px;
+  margin-left: 10px;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background-color var(--transition), transform var(--transition);
+}
+
+.small-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.button-icon {
+  margin-right: 8px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Status messages */
+.status-message {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: var(--item-radius);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  max-height: 80px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-small);
+}
+
+.status-message.success {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #81c784;
+  border-left: 4px solid var(--success);
+}
+
+.status-message.error {
+  background-color: rgba(244, 67, 54, 0.2);
+  color: #e57373;
+  border-left: 4px solid var(--error);
+}
+
+.status-message.info {
+  background-color: rgba(33, 150, 243, 0.2);
+  color: #64b5f6;
+  border-left: 4px solid var(--info);
+}
+
+.status-message.warning {
+  background-color: rgba(255, 152, 0, 0.2);
+  color: #ffb74d;
+  border-left: 4px solid var(--warning);
+}
+
+/* Connection status */
+.connection-status {
+  position: absolute;
+  top: 0;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: white;
+  height: var(--header-height);
+  padding: 0 10px;
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background-color: #666;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.status-indicator.connected {
+  background-color: var(--success);
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.status-indicator.disconnected {
+  background-color: var(--error);
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+}
+
+.status-indicator.checking {
+  background-color: var(--warning);
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+  animation: pulse 1.5s infinite;
+}
+
+/* Form controls */
+.form-field {
+  margin-bottom: 12px;
+}
+
+.field-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--primary-light);
+  margin-bottom: 6px;
+}
+
+.field-label.small {
+  font-size: var(--font-size-xs);
+  margin-bottom: 4px;
+}
+
+.text-input {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--item-radius);
+  font-size: var(--font-size-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  box-sizing: border-box;
+}
+
+.text-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.3);
+}
+
+/* Tooltip styles */
+.selection-item {
+  position: relative;
+}
+
+.selection-item:after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: var(--item-radius);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+  box-shadow: var(--shadow-small);
+  z-index: 100;
+}
+
+.selection-item[data-tooltip]:hover:after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Configuration badge */
+.configuration-badge {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: var(--item-radius);
+  font-size: var(--font-size-sm);
+  margin-top: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.configuration-badge.php-fpm {
+  background-color: rgba(38, 198, 218, 0.1);
+  border-left: 3px solid var(--accent);
+}
+
+.badge-icon {
+  font-size: 14px;
+  margin-right: 8px;
+  color: var(--accent);
+}
+
+.badge-text {
+  color: var(--text-primary);
+}
+
+.configuration-badge.notice {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-left: 3px solid #ffc107;
+}
+
+.configuration-badge.notice .badge-icon {
+  color: #ffc107;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.toggle-input {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+  position: absolute;
+}
+
+.toggle-label {
+  cursor: pointer;
+  width: 40px;
+  height: 20px;
+  background: #444;
+  display: inline-block;
+  border-radius: 20px;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+.toggle-label:after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #999;
+  border-radius: 16px;
+  transition: 0.3s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.toggle-input:checked + .toggle-label {
+  background: var(--primary);
+}
+
+.toggle-input:checked + .toggle-label:after {
+  left: calc(100% - 2px);
+  transform: translateX(-100%);
+  background: #fff;
+}
+
+/* Module/Panel controls style */
+.module-controls,
+.panel-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  justify-content: flex-start;
+}
+
+/* Enhanced Select/Unselect Buttons */
+.select-all-button,
+.unselect-all-button {
+  padding: 5px 8px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  height: 26px;
+  white-space: nowrap;
+  transition: background-color var(--transition), transform var(--transition);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 1 auto; /* Allow buttons to shrink but not grow */
+  min-width: 100px; /* Set minimum width to ensure text fits */
+}
+
+.select-all-button {
+  background-color: var(--primary);
+}
+
+.select-all-button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.select-all-button:before {
+  content: "✓";
+  margin-right: 5px;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.unselect-all-button {
+  background-color: #555;
+}
+
+.unselect-all-button:hover {
+  background-color: #666;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.unselect-all-button:before {
+  content: "✕";
+  margin-right: 5px;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+/* Active state for both buttons */
+.select-all-button:active,
+.unselect-all-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Make category titles have space for buttons */
+.category-title {
+  margin-bottom: 8px !important;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 1200px) {
+  .select-all-button,
+  .unselect-all-button {
+    font-size: 10px;
+    padding: 4px 6px;
+    min-width: 90px;
+  }
+
+  .select-all-button:before,
+  .unselect-all-button:before {
+    margin-right: 3px;
+  }
+}
+
+/* Ultra-small screens */
+@media (max-width: 800px) {
+  .module-controls,
+  .panel-controls {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .select-all-button,
+  .unselect-all-button {
+    width: 100%;
+  }
+}
+
+/* Console log box styling */
+.console-log-box {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  font-size: 12px;
+  height: 150px;
+  margin-top: 8px;
+  overflow-y: auto;
+  padding: 8px;
+  position: relative;
+}
+
+.console-log-box .log-content {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Log message styles */
+.log-message {
+  margin: 2px 0;
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.log-message:last-child {
+  border-bottom: none;
+}
+
+.log-timestamp {
+  color: #888;
+  margin-right: 6px;
+  font-size: 10px;
+}
+
+.log-level {
+  display: inline-block;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-right: 6px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.log-level-info {
+  background-color: var(--info);
+  color: #000;
+}
+
+.log-level-error {
+  background-color: var(--error);
+  color: #fff;
+}
+
+.log-level-warning {
+  background-color: var(--warning);
+  color: #000;
+}
+
+.log-level-success {
+  background-color: var(--success);
+  color: #fff;
+}
+
+.log-level-debug {
+  background-color: #555;
+  color: #fff;
+}
+
+.log-text {
+  color: #e0e0e0;
+}
+
+/* Command message style */
+.log-command {
+  color: #9cdcfe;
+  font-style: italic;
+}
+
+/* Output message style */
+.log-output {
+  color: #ce9178;
+}
+
+/* Add auto-scroll button */
+.console-log-box .autoscroll {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 3px;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 10px;
+  padding: 2px 5px;
+}
+
+.console-log-box .autoscroll:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* Loading animation for in-progress operations */
+@keyframes blink {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+.log-loading {
+  animation: blink 1.5s infinite;
+  color: #64b5f6;
+}
+
+/* Make the log box expand when domain creation starts */
+.console-log-box.active {
+  height: 200px;
+  transition: height 0.3s ease;
+}
+
+/* Input validation styles */
+.text-input.valid-input {
+  border-color: var(--success);
+  background-color: rgba(76, 175, 80, 0.05);
+}
+
+.text-input.invalid-input {
+  border-color: var(--error);
+  background-color: rgba(244, 67, 54, 0.05);
+}
+
+/* Add an indicator icon for validated inputs */
+.form-field {
+  position: relative;
+}
+
+.text-input.valid-input + .validation-icon,
+.text-input.invalid-input + .validation-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.text-input.valid-input + .validation-icon::before {
+  content: "✓";
+  color: var(--success);
+}
+
+.text-input.invalid-input + .validation-icon::before {
+  content: "✗";
+  color: var(--error);
+}

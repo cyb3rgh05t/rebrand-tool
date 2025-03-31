@@ -1,0 +1,197 @@
+name: Build Electron Apps
+
+on:
+  push:
+    branches: [main, dev]
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build (e.g., v1.2.0)"
+        required: false
+      branch:
+        description: "Branch to build (main or dev)"
+        required: false
+        default: "main"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
+
+      # For Windows, we might need to set build configuration first
+      - name: Configure build environment (Windows only)
+        if: matrix.os == 'windows-latest'
+        run: |
+          npm config set msvs_version 2019
+        shell: bash
+
+      # Set build date for reference
+      - name: Set build date
+        run: echo "BUILD_DATE=$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
+        shell: bash
+
+      # Install all dependencies from package.json
+      - name: Install dependencies
+        run: npm ci
+
+      # Build the app
+      - name: Build Electron app
+        run: |
+          if [ "${{ matrix.os }}" == "macos-latest" ]; then
+            CSC_IDENTITY_AUTO_DISCOVERY=false npm run build:mac
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            CSC_IDENTITY_AUTO_DISCOVERY=false npm run build:win
+          fi
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.PACKAGES }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-artifacts
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+
+  release:
+    needs: build
+    # Only create releases for tagged versions
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Display artifacts
+        run: ls -R dist
+
+      # Delete existing assets if present
+      - name: Delete existing assets
+        uses: actions/github-script@v6
+        with:
+          script: |
+            try {
+              const tagName = process.env.GITHUB_REF.replace('refs/tags/', '');
+              console.log(`Looking for release with tag: ${tagName}`);
+              
+              const release = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: tagName
+              });
+              
+              if (release && release.data.assets.length > 0) {
+                console.log(`Found existing release. Deleting ${release.data.assets.length} assets...`);
+                for (const asset of release.data.assets) {
+                  await github.rest.repos.deleteReleaseAsset({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    asset_id: asset.id
+                  });
+                }
+              }
+            } catch (error) {
+              console.log(`No existing release found or error: ${error.message}`);
+            }
+
+      # Create the release
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body: |
+            Release ${{ github.ref_name }}
+
+            Built on: ${{ env.BUILD_DATE }}
+            Commit: ${{ github.sha }}
+          files: |
+            dist/**/*.exe
+            dist/**/*.dmg
+            dist/**/*.zip
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGES }}
+
+      # Discord notification
+      - name: Send Discord Notification
+        if: success()
+        run: |
+          # Get short SHA
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+
+          # Get release info
+          RELEASE_TAG="${GITHUB_REF#refs/tags/}"
+          RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/$RELEASE_TAG"
+
+          # Create Discord payload
+          cat > discord-payload.json << EOF
+          {
+            "embeds": [{
+              "title": "🚀 New Release: StreamNet Rebrands Panels",
+              "color": 2201331,
+              "description": "A new version has been built and released!",
+              "fields": [
+                {
+                  "name": "🏷️ Version",
+                  "value": "$RELEASE_TAG",
+                  "inline": true
+                },
+                {
+                  "name": "🧠 Commit",
+                  "value": "[\`$SHORT_SHA\`]($COMMIT_URL)",
+                  "inline": true
+                },
+                {
+                  "name": "📦 Download",
+                  "value": "[Release Page]($RELEASE_URL)",
+                  "inline": false
+                },
+                {
+                  "name": "💻 Platforms",
+                  "value": "Windows, macOS",
+                  "inline": false
+                }
+              ],
+              "thumbnail": {
+                "url": "https://github.com/cyb3rgh05t/rebrand-tool/blob/main/assets/icons/png/256x256.png?raw=true"
+              },
+              "footer": {
+                "text": "StreamNet Rebrands Panels",
+                "icon_url": "https://github.com/${{ github.repository_owner }}.png"
+              },
+              "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            }]
+          }
+          EOF
+
+          # Send the webhook if DISCORD_WEBHOOK exists
+          if [ -n "${{ secrets.DISCORD_WEBHOOK }}" ]; then
+            curl -X POST ${{ secrets.DISCORD_WEBHOOK }} \
+              -H "Content-Type: application/json" \
+              -d @discord-payload.json
+          fi
+        shell: bash

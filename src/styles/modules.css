@@ -1,0 +1,232 @@
+/**
+ * Module-specific styles for StreamNet Rebrands Panels
+ */
+
+/* Module controls */
+.module-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Selection item styling */
+.selection-item {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: var(--item-radius);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  transition: background-color var(--transition), transform var(--transition);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.selection-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  border-color: var(--primary-light);
+}
+
+.module-checkbox {
+  margin-right: 10px;
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity var(--transition);
+}
+
+.module-checkbox:hover {
+  opacity: 1;
+}
+
+.module-checkbox:checked {
+  opacity: 1;
+}
+
+/* Module icon styling */
+.module-icon {
+  margin-right: 12px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+}
+
+.panel-icon {
+  background-color: rgba(255, 193, 7, 0.2);
+}
+
+.module-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.icon-image {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  object-fit: contain;
+  vertical-align: middle;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  transition: transform var(--transition);
+}
+
+.selection-item:hover .icon-image {
+  transform: scale(1.1);
+}
+
+.module-name {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--transition);
+}
+
+.selection-item:hover .module-name {
+  color: var(--primary-light);
+}
+
+/* Selection summary */
+.selection-summary {
+  margin-top: 24px;
+  padding: 12px;
+  background-color: var(--surface-elevated);
+  border-radius: var(--item-radius);
+  text-align: center;
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-small);
+  border-left: 3px solid var(--primary);
+}
+
+/* Empty section message */
+.empty-section-message {
+  padding: 12px;
+  text-align: center;
+  font-style: italic;
+  color: var(--text-secondary);
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: var(--item-radius);
+  width: 100%;
+  grid-column: 1 / -1;
+  font-size: var(--font-size-sm);
+}
+
+/* DNS-specific styles */
+.dns-domain-preview {
+  color: var(--primary-light);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.field-hint {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+#newDomainPreview {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.close-modal {
+  color: var(--text-secondary);
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
+.close-modal:hover {
+  color: var(--error);
+}
+
+/* Destination select styles */
+.destination-select {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--item-radius);
+  margin-bottom: 10px;
+  font-size: var(--font-size-sm);
+  height: var(--form-control-height);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaaaaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+}
+
+.destination-select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.3);
+}
+
+.destination-select option {
+  background-color: #333;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  padding: 8px;
+}
+
+/* Form controls for specific modules */
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.form-field.half {
+  flex: 1;
+}
+
+.password-field {
+  display: flex;
+  gap: 8px;
+}
+
+.password-field .text-input {
+  flex: 1;
+}
+
+/* Domain settings info sections */
+.virtualmin-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 12px;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  border-radius: var(--item-radius);
+}
+
+.info-label {
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+.feature-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: var(--font-size-xs);
+}
+
+.feature-list li {
+  margin-bottom: 3px;
+}

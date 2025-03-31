@@ -1,0 +1,289 @@
+/**
+ * Layout styles for StreamNet Rebrands Panels
+ */
+
+/* Header styling */
+.header {
+  background-color: var(--primary-dark);
+  padding: 0 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+  color: white;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Main container */
+.container {
+  display: flex;
+  height: calc(100vh - var(--header-height));
+  padding: var(--spacing-md);
+  box-sizing: border-box;
+  gap: var(--spacing-md);
+}
+
+/* Panels */
+.panel {
+  background-color: var(--surface);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--shadow-medium);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+.source-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.destination-panel {
+  width: 300px;
+}
+
+.panel-title {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--primary-light);
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: var(--spacing-sm);
+  position: relative;
+}
+
+/* Selection categories */
+.selection-category {
+  margin-bottom: var(--spacing-lg);
+}
+
+.category-title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--divider);
+  display: flex;
+  align-items: center;
+}
+
+.category-title::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background-color: var(--accent);
+  display: inline-block;
+  margin-right: var(--spacing-sm);
+  border-radius: 50%;
+}
+
+/* Module subsections */
+.module-subsection {
+  margin-bottom: 20px;
+  padding: var(--spacing-md);
+  background-color: var(--surface-elevated);
+  border-radius: var(--item-radius);
+  border-left: 3px solid var(--secondary);
+  box-shadow: var(--shadow-small);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.module-subsection:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.subsection-title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--primary-light);
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--divider);
+  display: flex;
+  align-items: center;
+}
+
+.subsection-title::before {
+  content: "•";
+  margin-right: var(--spacing-sm);
+  color: var(--secondary);
+  font-size: 18px;
+}
+
+/* Selection items grid */
+.selection-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+/* Destination panel sections */
+.destination-section {
+  margin-bottom: 20px;
+  padding: var(--spacing-md);
+  background-color: var(--surface-elevated);
+  border-radius: var(--item-radius);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.destination-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Domain selection container */
+.domain-selection-container {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: stretch;
+  height: var(--form-control-height);
+}
+
+/* DNS form */
+.dns-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dns-form {
+  padding: 14px;
+  background-color: rgba(30, 136, 229, 0.1);
+  border-radius: var(--item-radius);
+  margin-top: 10px;
+  border-left: 3px solid var(--primary);
+  box-shadow: var(--shadow-small);
+}
+
+.dns-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 12px;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: var(--spacing-sm);
+  border-radius: var(--item-radius);
+}
+
+/* Modal layout */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  overflow: auto;
+}
+
+.modal-content {
+  background-color: var(--surface);
+  margin: 10% auto;
+  width: 500px;
+  max-width: 90%;
+  border-radius: var(--panel-radius);
+  box-shadow: var(--shadow-large);
+  position: relative;
+}
+
+.modal-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--primary));
+}
+
+.modal-header {
+  padding: var(--spacing-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--accent);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+}
+
+.modal-body {
+  padding: var(--spacing-md);
+}
+
+/* PHP Configuration grid */
+.php-config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Form actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .panel {
+    width: 100%;
+  }
+
+  .destination-panel {
+    width: 100%;
+  }
+
+  .selection-items {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}

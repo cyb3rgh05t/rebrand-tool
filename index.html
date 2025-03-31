@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>StreamNet Rebrands Panel Tool</title>
+    <link rel="stylesheet" href="src/styles/main.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div class="header">
+      <h1>App Panels Tool</h1>
+      <div class="connection-status">
+        <span id="connectionIndicator" class="status-indicator"></span>
+        <span id="connectionText">Checking connection...</span>
+        <button id="testConnectionButton" class="small-button">
+          Test Connection
+        </button>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Source Panel (Panels & Modules Selection) -->
+      <div class="panel source-panel">
+        <h2 class="panel-title">Panels & Modules</h2>
+
+        <div class="panel-content">
+          <!-- Panels Section -->
+          <div class="selection-category">
+            <h3 class="category-title">Panels</h3>
+
+            <div class="panel-controls">
+              <button id="selectAllPanels" class="select-all-button">
+                Select All Panels
+              </button>
+              <button id="unselectAllPanels" class="unselect-all-button">
+                Unselect All
+              </button>
+            </div>
+            <div class="selection-items">
+              <!-- Cockpit Panel -->
+              <div
+                class="selection-item"
+                data-tooltip="Main control panel for StreamNet Rebrands"
+              >
+                <input
+                  type="checkbox"
+                  id="cockpitPanel"
+                  class="module-checkbox"
+                  data-type="panel"
+                  data-name="cockpitpanel"
+                  data-source="cockpitpanel"
+                />
+                <span class="module-icon panel-icon">
+                  <img
+                    src="src/icons/rebrands.png"
+                    alt="Cockpit Panel"
+                    class="icon-image"
+                  />
+                </span>
+                <label for="cockpitPanel" class="module-name"
+                  >Cockpit Panel</label
+                >
+              </div>
+
+              <!-- Support Panel -->
+              <div
+                class="selection-item"
+                data-tooltip="Customer support interface"
+              >
+                <input
+                  type="checkbox"
+                  id="supportPanel"
+                  class="module-checkbox"
+                  data-type="panel"
+                  data-name="support"
+                  data-source="support"
+                />
+                <span class="module-icon panel-icon">
+                  <img
+                    src="src/icons/telegram.png"
+                    alt="Support Panel"
+                    class="icon-image"
+                  />
+                </span>
+                <label for="supportPanel" class="module-name">Support</label>
+              </div>
+
+              <!-- MultiProxy Panel -->
+              <div
+                class="selection-item"
+                data-tooltip="Multi-proxy configuration panel"
+              >
+                <input
+                  type="checkbox"
+                  id="multiProxyPanel"
+                  class="module-checkbox"
+                  data-type="panel"
+                  data-name="multiproxy"
+                  data-source="multiproxy"
+                />
+                <span class="module-icon panel-icon">
+                  <img
+                    src="src/icons/multi.png"
+                    alt="MultiProxy Panel"
+                    class="icon-image"
+                  />
+                </span>
+                <label for="multiProxyPanel" class="module-name"
+                  >MultiProxy</label
+                >
+              </div>
+
+              <!-- WebViews Panel -->
+              <div
+                class="selection-item"
+                data-tooltip="Web-based Android Views panel"
+              >
+                <input
+                  type="checkbox"
+                  id="webviewsPanel"
+                  class="module-checkbox"
+                  data-type="panel"
+                  data-name="webviews"
+                  data-source="webviews"
+                />
+                <span class="module-icon panel-icon">
+                  <img
+                    src="src/icons/android.png"
+                    alt="WebViews Panel"
+                    class="icon-image"
+                  />
+                </span>
+                <label for="webviewsPanel" class="module-name">WebViews</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modules Section -->
+          <div class="selection-category">
+            <h3 class="category-title">App Modules</h3>
+
+            <div class="module-controls">
+              <button id="selectAllModules" class="select-all-button">
+                Select All Modules
+              </button>
+              <button id="unselectAllModules" class="unselect-all-button">
+                Unselect All
+              </button>
+            </div>
+
+            <!-- OTT Applications Subsection -->
+            <div class="module-subsection">
+              <h4 class="subsection-title">OTT Applications</h4>
+              <div class="selection-items">
+                <!-- XCIPTV Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="IPTV client application"
+                >
+                  <input
+                    type="checkbox"
+                    id="xciptvModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="xciptv"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/xciptv.png"
+                      alt="XCIPTV"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="xciptvModule" class="module-name">XCIPTV</label>
+                </div>
+
+                <!-- TiviMate Module -->
+                <div class="selection-item" data-tooltip="Premium IPTV player">
+                  <input
+                    type="checkbox"
+                    id="tiviMateModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="tivimate"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/tivimate.png"
+                      alt="TiviMate"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="tiviMateModule" class="module-name"
+                    >TiviMate</label
+                  >
+                </div>
+
+                <!-- Smarters Pro Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="IPTV Smarters Pro player"
+                >
+                  <input
+                    type="checkbox"
+                    id="smartersProModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="smarterspro"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/smarters.png"
+                      alt="Smarters Pro"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="smartersProModule" class="module-name"
+                    >Smarters Pro</label
+                  >
+                </div>
+
+                <!-- IBO Module -->
+                <div class="selection-item" data-tooltip="IBO Player for IPTV">
+                  <input
+                    type="checkbox"
+                    id="iboModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="ibo"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/ibosol.png"
+                      alt="IBO"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="iboModule" class="module-name">IBO</label>
+                </div>
+
+                <!-- Neutro Module -->
+                <div class="selection-item" data-tooltip="Neutro streaming app">
+                  <input
+                    type="checkbox"
+                    id="neutroModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="neutro"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/neutro.png"
+                      alt="Neutro"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="neutroModule" class="module-name">Neutro</label>
+                </div>
+
+                <!-- Purple Neu Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="Purple Neu streaming client"
+                >
+                  <input
+                    type="checkbox"
+                    id="neuModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="neu"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/pneu.png"
+                      alt="Purple Neu"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="neuModule" class="module-name">Purple Neu</label>
+                </div>
+
+                <!-- Purple Easy Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="Purple Easy streaming app"
+                >
+                  <input
+                    type="checkbox"
+                    id="easyModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="easy"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/peasy.png"
+                      alt="Purple Easy"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="easyModule" class="module-name"
+                    >Purple Easy</label
+                  >
+                </div>
+
+                <!-- Sparkle Module -->
+                <div class="selection-item" data-tooltip="Sparkle media player">
+                  <input
+                    type="checkbox"
+                    id="sparkleModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="sparkle"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/sparkle.png"
+                      alt="Sparkle"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="sparkleModule" class="module-name">Sparkle</label>
+                </div>
+
+                <!-- 1Stream Module -->
+                <div class="selection-item" data-tooltip="1Stream media player">
+                  <input
+                    type="checkbox"
+                    id="1streamModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="1stream"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/1stream.png"
+                      alt="1Stream"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="1streamModule" class="module-name">1Stream</label>
+                </div>
+
+                <!-- 9Xtream Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="9Xtream streaming app"
+                >
+                  <input
+                    type="checkbox"
+                    id="9xtreamModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="9xtream"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/9xtream.png"
+                      alt="9Xtream"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="9xtreamModule" class="module-name">9Xtream</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- VOD Applications Subsection -->
+            <div class="module-subsection">
+              <h4 class="subsection-title">VOD Applications</h4>
+              <div class="selection-items">
+                <!-- FlixVision Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="Video-on-demand streaming app"
+                >
+                  <input
+                    type="checkbox"
+                    id="flixvisionModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="flixvision"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/flixvision.png"
+                      alt="FlixVision"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="flixvisionModule" class="module-name"
+                    >FlixVision</label
+                  >
+                </div>
+
+                <!-- SmartTube Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="Enhanced YouTube client"
+                >
+                  <input
+                    type="checkbox"
+                    id="smartubeModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="smartube"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/smartube.png"
+                      alt="SmartTube"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="smartubeModule" class="module-name"
+                    >SmartTube</label
+                  >
+                </div>
+
+                <!-- Stremio Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="Multi-source media center"
+                >
+                  <input
+                    type="checkbox"
+                    id="stremioModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="stremio"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/stremio.png"
+                      alt="Stremio"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="stremioModule" class="module-name">Stremio</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- VPN Applications Subsection -->
+            <div class="module-subsection">
+              <h4 class="subsection-title">VPN Applications</h4>
+              <div class="selection-items">
+                <!-- ORVPN Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="Open-source VPN client"
+                >
+                  <input
+                    type="checkbox"
+                    id="orvpnModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="orvpn"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/orvpn.png"
+                      alt="ORVPN"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="orvpnModule" class="module-name">ORVPN</label>
+                </div>
+
+                <!-- IPVanish Module -->
+                <div class="selection-item" data-tooltip="IPVanish VPN service">
+                  <input
+                    type="checkbox"
+                    id="ipvanishModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="ipvanish"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/ipvanish.png"
+                      alt="IPVanish"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="ipvanishModule" class="module-name"
+                    >IPVanish</label
+                  >
+                </div>
+
+                <!-- PIA Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="Private Internet Access VPN"
+                >
+                  <input
+                    type="checkbox"
+                    id="piaModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="pia"
+                  />
+                  <span class="module-icon">
+                    <img src="src/icons/pia.png" alt="PIA" class="icon-image" />
+                  </span>
+                  <label for="piaModule" class="module-name">PIA</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- STORE Applications Subsection -->
+            <div class="module-subsection">
+              <h4 class="subsection-title">STORE Applications</h4>
+              <div class="selection-items">
+                <!-- Downloader Module -->
+                <div
+                  class="selection-item"
+                  data-tooltip="File download manager"
+                >
+                  <input
+                    type="checkbox"
+                    id="downloaderModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="downloader"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/downloader.png"
+                      alt="Downloader"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="downloaderModule" class="module-name"
+                    >Downloader</label
+                  >
+                </div>
+
+                <!-- SH9 Store Module -->
+                <div class="selection-item" data-tooltip="SH9 App Store">
+                  <input
+                    type="checkbox"
+                    id="sh9storeModule"
+                    class="module-checkbox"
+                    data-type="module"
+                    data-name="sh9store"
+                  />
+                  <span class="module-icon">
+                    <img
+                      src="src/icons/sh9.png"
+                      alt="SH9 Store"
+                      class="icon-image"
+                    />
+                  </span>
+                  <label for="sh9storeModule" class="module-name"
+                    >SH9 Store</label
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="selection-summary">
+              <div id="selectedCount">0 items selected</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Destination Panel -->
+      <div class="panel destination-panel">
+        <h2 class="panel-title">Transfer Files</h2>
+
+        <!-- Create Domain Section -->
+        <div class="destination-section">
+          <label class="destination-label">Create New Domain</label>
+          <button id="newDomainBtn" class="action-button full-width">
+            <span class="button-icon">+</span> Create New Domain
+          </button>
+        </div>
+
+        <!-- Domain Selection Section -->
+        <div class="destination-section">
+          <label class="destination-label">Select Destination Domain</label>
+          <div class="domain-selection-container">
+            <select id="domainSelect" class="destination-select">
+              <option value="">Select a domain...</option>
+              <!-- Will be populated dynamically with Virtualmin domains -->
+            </select>
+            <button
+              id="refreshDomainsBtn"
+              class="action-button icon-button"
+              title="Refresh domain list"
+            >
+              <span class="refresh-icon">↻</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- DNS Settings Section -->
+        <div class="destination-section">
+          <div class="dns-header">
+            <label class="destination-label">
+              Cloudflare DNS Setup
+              <div class="toggle-switch">
+                <input type="checkbox" id="dnsToggle" class="toggle-input" />
+                <label for="dnsToggle" class="toggle-label"></label>
+              </div>
+            </label>
+          </div>
+
+          <div id="dnsForm" class="dns-form" style="display: none">
+            <div class="form-field">
+              <label class="field-label">Subdomain</label>
+              <input
+                type="text"
+                id="subdomainInput"
+                class="text-input"
+                placeholder="e.g., blabla"
+              />
+            </div>
+            <div class="dns-info">
+              Will create 6 DNS records for:<br />
+              <span id="dnsPreview" class="dns-domain-preview"
+                >subdomain.streamnet.live</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Transfer Button -->
+        <button
+          id="transferButton"
+          class="action-button big-action-button"
+          disabled
+        >
+          Transfer Files
+        </button>
+
+        <div
+          id="statusMessage"
+          class="status-message"
+          style="display: none"
+        ></div>
+      </div>
+
+      <!-- Domain Creation Modal -->
+      <div id="domainModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Create New Virtualmin Domain</h3>
+            <span class="close-modal">&times;</span>
+          </div>
+          <div class="modal-body">
+            <div class="form-field">
+              <label class="field-label">Subdomain Name</label>
+              <input
+                type="text"
+                id="newSubdomainInput"
+                class="text-input"
+                placeholder="e.g., client1"
+              />
+              <div class="field-hint">
+                This will create:
+                <span id="newDomainPreview">subdomain.streamnet.live</span>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">Description</label>
+              <input
+                type="text"
+                id="newDescriptionInput"
+                class="text-input"
+                placeholder="e.g., Client Website"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">PHP Configuration (Optional)</label>
+              <div class="php-config-grid">
+                <div class="php-mode-select">
+                  <label class="field-label small">PHP Mode</label>
+                  <select id="phpModeSelect" class="text-input">
+                    <option value="fpm" selected>PHP-FPM</option>
+                    <option value="cgi">PHP-CGI</option>
+                    <option value="mod_php">mod_php</option>
+                  </select>
+                </div>
+                <div class="php-version-select">
+                  <label class="field-label small">PHP Version</label>
+                  <select id="phpVersionSelect" class="text-input">
+                    <option value="8.1" selected>PHP 8.1</option>
+                    <option value="8.0">PHP 8.0</option>
+                    <option value="7.4">PHP 7.4</option>
+                    <option value="7.3">PHP 7.3</option>
+                  </select>
+                </div>
+              </div>
+              <div class="configuration-badge notice">
+                <span class="badge-icon">ℹ️</span>
+                <span class="badge-text"
+                  >PHP configuration will be applied if supported by your
+                  Virtualmin installation</span
+                >
+              </div>
+            </div>
+
+            <!-- New Log Output Box -->
+            <div class="form-field">
+              <label class="field-label">Process Output</label>
+              <div id="domainCreationLog" class="console-log-box">
+                <div class="log-content"></div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button id="createDomainBtn" class="action-button">
+                Create Subdomain
+              </button>
+              <button id="cancelDomainBtn" class="action-button secondary">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load the main script as a module -->
+    <script type="module" src="src/renderer/script.js"></script>
+
+    <!-- Debug panel (hidden by default) -->
+    <div id="debugPanel" class="debug-panel" style="display: none">
+      <h3>Debug Panel</h3>
+      <div class="debug-controls">
+        <select id="logLevelSelect" class="text-input">
+          <option value="0">Debug</option>
+          <option value="1">Info</option>
+          <option value="2">Warning</option>
+          <option value="3">Error</option>
+        </select>
+        <button id="clearLogsBtn" class="action-button">Clear Logs</button>
+        <button id="toggleDebugPanelBtn" class="action-button">Close</button>
+      </div>
+      <div id="logOutput" class="log-output"></div>
+    </div>
+  </body>
+</html>

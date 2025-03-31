@@ -1,0 +1,186 @@
+/**
+ * CSS Variables for StreamNet Rebrands Panels
+ */
+
+:root {
+  /* Colors */
+  --primary: #1e88e5;
+  --primary-dark: #121212;
+  --primary-light: #90caf9;
+  --secondary: #42a5f5;
+  --accent: #26c6da;
+  --background: #121212;
+  --surface: #1e1e1e;
+  --surface-elevated: #252525;
+  --error: #f44336;
+  --warning: #ff9800;
+  --success: #4caf50;
+  --info: #2196f3;
+  --text-primary: #e0e0e0;
+  --text-secondary: #aaaaaa;
+  --border: #333333;
+  --divider: #383838;
+
+  /* Border radius */
+  --panel-radius: 8px;
+  --item-radius: 6px;
+  --button-radius: 4px;
+
+  /* Transitions */
+  --transition: 0.2s ease;
+  --transition-long: 0.3s ease;
+
+  /* Shadows */
+  --shadow-small: 0 2px 5px rgba(0, 0, 0, 0.2);
+  --shadow-medium: 0 4px 10px rgba(0, 0, 0, 0.3);
+  --shadow-large: 0 5px 25px rgba(0, 0, 0, 0.5);
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Font sizes */
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+
+  /* Component sizes */
+  --header-height: 56px;
+  --form-control-height: 40px;
+  --icon-size: 22px;
+}
+
+/* Base styles for commonly used elements */
+html,
+body {
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui,
+    sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  color: var(--text-primary);
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Typography base styles */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: var(--font-size-xl);
+}
+
+h2 {
+  font-size: var(--font-size-lg);
+  color: var(--primary-light);
+}
+
+h3 {
+  font-size: var(--font-size-md);
+  color: var(--accent);
+}
+
+h4 {
+  font-size: var(--font-size-md);
+  color: var(--primary-light);
+}
+
+/* Link styles */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--primary-light);
+  text-decoration: underline;
+}
+
+/* Custom focus styles */
+:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Utility classes */
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-error {
+  color: var(--error);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+.text-info {
+  color: var(--info);
+}
+
+.bg-elevated {
+  background-color: var(--surface-elevated);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

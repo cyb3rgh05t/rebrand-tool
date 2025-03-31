@@ -1,0 +1,60 @@
+/**
+ * Main CSS importer for StreamNet Rebrands Panels
+ */
+
+/* Base styles and variables */
+@import "variables.css";
+
+/* Layout styles */
+@import "layout.css";
+
+/* Component styles */
+@import "components.css";
+
+/* Module-specific styles */
+@import "modules.css";
+
+/* Animations */
+@import "animations.css";
+
+/**
+ * Additional styles and overrides can be added here
+ */
+
+/* Responsive mobile adjustments */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .panel {
+    width: 100%;
+  }
+
+  .destination-panel {
+    width: 100%;
+  }
+}
+
+/* High-density display adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    font-size: 15px;
+  }
+
+  .icon-image {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none;
+  }
+}
