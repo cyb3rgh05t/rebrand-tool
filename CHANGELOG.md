@@ -2,6 +2,12 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.3.3] - 2025-03-31
+
+### Added
+
+- Better Workflows
+
 ## [2.3.2] - 2025-03-31
 
 ### Added

@@ -1,0 +1,99 @@
+name: Version and Tag Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "package.json"
+      - "CHANGELOG.md"
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ env.VERSION }}
+      tag_created: ${{ env.TAG_EXISTS == 'false' }}
+      release_notes_path: release_notes.md
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetches all history for all tags and branches
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "16"
+
+      - name: Extract version from package.json
+        id: package-version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=v$VERSION" >> $GITHUB_ENV
+          echo "Raw version from package.json: $VERSION"
+          echo "Version with 'v' prefix: v$VERSION"
+
+      - name: Check if tag already exists
+        id: check-tag
+        run: |
+          if git rev-parse "${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+            echo "Tag ${{ env.VERSION }} already exists"
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+            echo "Tag ${{ env.VERSION }} does not exist yet"
+          fi
+
+      - name: Create Git tag
+        if: env.TAG_EXISTS == 'false'
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag -a ${{ env.VERSION }} -m "Release ${{ env.VERSION }}"
+          git push origin ${{ env.VERSION }}
+          echo "Created and pushed tag ${{ env.VERSION }}"
+
+      - name: Extract release notes from CHANGELOG.md
+        id: extract-release-notes
+        run: |
+          # Extract version without 'v' prefix for matching in CHANGELOG
+          VERSION_NO_V="${VERSION#v}"
+          echo "Looking for version $VERSION_NO_V in CHANGELOG.md"
+
+          # Use awk to extract the content for the current version from CHANGELOG.md
+          # This extracts everything between the version header and the next version header
+          RELEASE_NOTES=$(awk -v version="## [$VERSION_NO_V]" '
+            BEGIN { found=0; }
+            $0 ~ version { found=1; next; }
+            found && $0 ~ /^## \[/ { found=0; }
+            found { print $0; }
+          ' CHANGELOG.md)
+
+          # Create a temporary file for the release notes
+          echo "$RELEASE_NOTES" > release_notes.md
+          echo "Release notes extracted to release_notes.md"
+
+          # Upload release notes as an artifact for the build job
+          mkdir -p ./artifacts
+          cp release_notes.md ./artifacts/
+
+          # Show the first few lines for debugging
+          head -n 5 release_notes.md || true
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: ./artifacts/release_notes.md
+
+  # This workflow will trigger the build workflow when a new tag is created
+  trigger-build:
+    needs: create-tag
+    if: needs.create-tag.outputs.tag_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger build workflow
+        run: |
+          echo "New tag ${{ needs.create-tag.outputs.version }} created, build workflow will be triggered automatically"
+          echo "The build workflow will create the release with the binaries and release notes"
