@@ -4,6 +4,8 @@
 const { app, dialog, shell } = require("electron");
 const { createLogger } = require("./utils/logger");
 const https = require("https");
+const path = require("path");
+const fs = require("fs");
 const configManager = require("./config-manager");
 
 // Create update-specific logger
@@ -305,30 +307,165 @@ function getLatestRelease(owner, repo, token) {
 }
 
 /**
- * Show update dialog with options to download or skip
+ * Check for updates, but respect user preferences for skipped versions
+ * @returns {Promise<Object>} Update check result
+ */
+async function checkForUpdatesRespectingPreferences() {
+  try {
+    // Check if we have user preferences
+    const configPath = path.join(app.getPath("userData"), "update-config.json");
+    let updateConfig = {};
+
+    if (fs.existsSync(configPath)) {
+      updateConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    }
+
+    // Get update information
+    const updateInfo = await checkForUpdates();
+
+    // Respect user preferences for ignored versions
+    if (updateInfo.updateAvailable) {
+      // Skip if this version is in the ignored list
+      if (
+        updateConfig.ignoredVersions &&
+        updateConfig.ignoredVersions.includes(updateInfo.version)
+      ) {
+        logger.info(
+          `Skipping notification for ignored version ${updateInfo.version}`
+        );
+        return { ...updateInfo, notifyUser: false };
+      }
+
+      // Skip if user chose to skip this specific version
+      if (updateConfig.skippedVersion === updateInfo.version) {
+        logger.info(
+          `Skipping notification for user-skipped version ${updateInfo.version}`
+        );
+        return { ...updateInfo, notifyUser: false };
+      }
+
+      // Otherwise, notify the user
+      return { ...updateInfo, notifyUser: true };
+    }
+
+    return updateInfo;
+  } catch (error) {
+    logger.error(
+      `Error in checkForUpdatesRespectingPreferences: ${error.message}`
+    );
+    throw error;
+  }
+}
+
+/**
+ * Show enhanced update dialog with more options and information
  * @param {Object} updateInfo Update information
  * @param {BrowserWindow} parentWindow Parent window
  */
 function showUpdateDialog(updateInfo, parentWindow) {
-  logger.info("Showing update dialog");
+  logger.info("Showing enhanced update dialog");
 
+  // Format release notes for display
+  let releaseNotes = updateInfo.releaseNotes || "New version available!";
+  // Limit release notes length for dialog
+  if (releaseNotes.length > 500) {
+    releaseNotes = releaseNotes.substring(0, 500) + "...";
+  }
+
+  // Create a more detailed message
+  const message = `A new version of Rebrands Panels is available: v${updateInfo.version}`;
+
+  // Create more descriptive detail text
+  const detail = `Current version: v${updateInfo.currentVersion}
+Latest version: v${updateInfo.version}
+
+What's new:
+${releaseNotes}
+
+Would you like to download it now?`;
+
+  // Create enhanced dialog options
   const dialogOptions = {
     type: "info",
-    buttons: ["Download Now", "Later"],
-    title: "Update Available",
-    message: `A new version of Rebrands Panels is available: v${updateInfo.version}`,
-    detail: updateInfo.releaseNotes || "Would you like to download it now?",
-    cancelId: 1,
+    buttons: ["Download Now", "Remind Me Later", "Skip This Version"],
     defaultId: 0,
+    cancelId: 1,
+    title: "Update Available",
+    message: message,
+    detail: detail,
+    checkboxLabel: "Don't show again for this version",
+    checkboxChecked: false,
+    icon: path.join(app.getAppPath(), "assets/icons/png/64x64.png"),
   };
 
+  // Show the dialog
   dialog
     .showMessageBox(parentWindow, dialogOptions)
-    .then(({ response }) => {
-      if (response === 0) {
-        // User clicked "Download Now"
-        logger.info(`Opening download URL: ${updateInfo.downloadUrl}`);
-        shell.openExternal(updateInfo.downloadUrl);
+    .then(({ response, checkboxChecked }) => {
+      switch (response) {
+        case 0: // Download Now
+          logger.info(`Opening download URL: ${updateInfo.downloadUrl}`);
+          // Open download URL in default browser
+          shell.openExternal(updateInfo.downloadUrl);
+          break;
+
+        case 1: // Remind Me Later
+          logger.info("User chose to be reminded later about the update");
+          // You could set a flag in user settings to remind later
+          break;
+
+        case 2: // Skip This Version
+          logger.info(`User chose to skip version ${updateInfo.version}`);
+          // Store this version as skipped
+          try {
+            const configPath = path.join(
+              app.getPath("userData"),
+              "update-config.json"
+            );
+            let updateConfig = {};
+
+            if (fs.existsSync(configPath)) {
+              updateConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+            }
+
+            updateConfig.skippedVersion = updateInfo.version;
+            updateConfig.skipTimestamp = new Date().toISOString();
+
+            fs.writeFileSync(configPath, JSON.stringify(updateConfig, null, 2));
+          } catch (err) {
+            logger.error(`Error storing skipped version: ${err.message}`);
+          }
+          break;
+      }
+
+      // Handle "Don't show again" checkbox
+      if (checkboxChecked) {
+        logger.info(
+          `User chose not to be notified about version ${updateInfo.version} again`
+        );
+        try {
+          const configPath = path.join(
+            app.getPath("userData"),
+            "update-config.json"
+          );
+          let updateConfig = {};
+
+          if (fs.existsSync(configPath)) {
+            updateConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+          }
+
+          if (!updateConfig.ignoredVersions) {
+            updateConfig.ignoredVersions = [];
+          }
+
+          if (!updateConfig.ignoredVersions.includes(updateInfo.version)) {
+            updateConfig.ignoredVersions.push(updateInfo.version);
+          }
+
+          fs.writeFileSync(configPath, JSON.stringify(updateConfig, null, 2));
+        } catch (err) {
+          logger.error(`Error storing ignored version: ${err.message}`);
+        }
       }
     })
     .catch((err) => {
@@ -339,4 +476,5 @@ function showUpdateDialog(updateInfo, parentWindow) {
 module.exports = {
   checkForUpdates,
   showUpdateDialog,
+  checkForUpdatesRespectingPreferences,
 };

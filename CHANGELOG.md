@@ -2,6 +2,27 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.4.0] - 2025-04-01
+
+### Added
+
+Enhanced update notification system with user preferences
+Option to skip specific versions or dismiss update notifications
+Improved Git tag and release automation workflow
+Better integration between version management and build system
+
+### Changed
+
+Update dialog now displays release notes directly from CHANGELOG
+Release notes are now automatically extracted during the build process
+Streamlined GitHub Actions workflow to improve reliability
+
+### Fixed
+
+Fixed permission issues in GitHub Actions workflows
+Resolved tag creation errors in CI/CD pipeline
+Improved error handling in the update notification system
+
 ## [2.3.4] - 2025-03-31
 
 ### Added
