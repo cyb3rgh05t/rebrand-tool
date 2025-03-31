@@ -1,49 +1,45 @@
 /**
  * Server connection configuration file for StreamNet Panels
  */
-const {
-  getEnvVar,
-  getBoolEnvVar,
-  getNumEnvVar,
-} = require("../main/utils/env-loader");
+const configManager = require("../main/config-manager");
 
 module.exports = {
   // Server connection details
   connection: {
-    host: getEnvVar("STREAMNET_SERVER_HOST"),
-    username: getEnvVar("STREAMNET_SERVER_USER"),
-    password: getEnvVar("STREAMNET_SERVER_PASSWORD"),
-    port: getNumEnvVar("STREAMNET_SERVER_PORT"),
+    host: configManager.get("connection.host", ""),
+    username: configManager.get("connection.username", ""),
+    password: configManager.get("connection.password", ""),
+    port: configManager.get("connection.port", 22),
   },
 
   // File paths on the remote Linux server
   paths: {
-    basePath: getEnvVar("SOURCE_BASE_PATH"),
-    localDestination: getEnvVar("DESTINATION_BASE_PATH"),
+    basePath: configManager.get("paths.basePath", "/home/"),
+    localDestination: configManager.get("paths.localDestination", "/home/"),
   },
 
   // Application settings
   settings: {
-    useSimulatedMode: getBoolEnvVar("USE_SIMULATED_MODE"),
-    logSftpCommands: getBoolEnvVar("DEBUG_MODE"),
-    logLevel: getEnvVar("APP_LOG_LEVEL"),
+    useSimulatedMode: configManager.get("settings.useSimulatedMode", false),
+    logSftpCommands: configManager.get("settings.logSftpCommands", false),
+    logLevel: configManager.get("settings.logLevel", "debug"),
   },
 
   // Virtualmin configuration
   virtualmin: {
     // Virtualmin server information
     server: {
-      host: getEnvVar("STREAMNET_SERVER_HOST"),
-      port: getNumEnvVar("VIRTUALMIN_PORT"),
-      username: getEnvVar("STREAMNET_SERVER_USER"),
-      password: getEnvVar("STREAMNET_SERVER_PASSWORD"),
+      host: configManager.get("connection.host", ""),
+      port: configManager.get("virtualmin.port", 10000),
+      username: configManager.get("connection.username", ""),
+      password: configManager.get("connection.password", ""),
     },
 
     // Virtualmin domain settings
     domain: {
-      parentDomain: getEnvVar("CLOUDFLARE_ROOT_DOMAIN"),
-      template: getEnvVar("VIRTUALMIN_TEMPLATE"),
-      plan: getEnvVar("VIRTUALMIN_PLAN"),
+      parentDomain: configManager.get("cloudflare.rootDomain", ""),
+      template: configManager.get("virtualmin.template", "default"),
+      plan: configManager.get("virtualmin.plan", "Default"),
 
       // Default features to enable
       features: [
@@ -55,8 +51,8 @@ module.exports = {
 
       // Default quotas and limits
       quota: {
-        diskSpace: getNumEnvVar("VIRTUALMIN_DISK_QUOTA"), // MB
-        bandwidth: getNumEnvVar("VIRTUALMIN_BANDWIDTH_QUOTA"), // MB
+        diskSpace: configManager.get("virtualmin.diskQuota", 500), // MB
+        bandwidth: configManager.get("virtualmin.bandwidthQuota", 1000), // MB
       },
     },
   },

@@ -2,27 +2,49 @@
  * Theme system for StreamNet Panels
  */
 
+// Define allowed themes for validation
+const ALLOWED_THEMES = [
+  "dark",
+  "light",
+  "nord",
+  "dracula",
+  "onedark",
+  "overseerr",
+  "spacegray",
+  "hotline",
+  "aquamarine",
+  "hotpink",
+  "maroon",
+  "organizr",
+  "plex",
+];
+
 // Initialize theme system
 function initThemeSystem() {
   // Check for saved theme preference
   const savedTheme = localStorage.getItem("streamnet-theme") || "dark";
 
+  // Validate the saved theme
+  const theme = ALLOWED_THEMES.includes(savedTheme) ? savedTheme : "dark";
+
   // Apply the saved theme
-  document.documentElement.className = `theme-${savedTheme}`;
+  document.documentElement.className = `theme-${theme}`;
 
   // Log theme initialization
-  console.info(`Theme system initialized with theme: ${savedTheme}`);
+  console.info(`Theme system initialized with theme: ${theme}`);
 }
 
 // Function to set a specific theme
 function setTheme(themeName) {
-  // We only support 'dark' and 'light' themes for now
-  if (themeName !== "dark" && themeName !== "light") {
+  // Validate theme
+  if (!ALLOWED_THEMES.includes(themeName)) {
     themeName = "dark"; // Default to dark
   }
 
   // Remove all existing theme classes
-  document.documentElement.classList.remove("theme-dark", "theme-light");
+  document.documentElement.classList.remove(
+    ...ALLOWED_THEMES.map((theme) => `theme-${theme}`)
+  );
 
   // Add the selected theme class
   document.documentElement.classList.add(`theme-${themeName}`);
@@ -87,4 +109,5 @@ window.themeSystem = {
   setTheme,
   saveCustomTheme,
   loadCustomTheme,
+  ALLOWED_THEMES,
 };

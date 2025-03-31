@@ -10,6 +10,7 @@ const dns = require("./dns");
 const virtualmin = require("./virtualmin");
 const path = require("path");
 const fs = require("fs");
+const configManager = require("./config-manager");
 
 // Create a logger for IPC handlers
 const logger = createLogger("ipc");
@@ -119,7 +120,14 @@ function registerIpcHandlers() {
   // Root domain getter
   ipcMain.handle("get-root-domain", async (event) => {
     logger.debug("IPC: get-root-domain called");
-    return await dns.getRootDomain();
+    // Use config manager now instead of directly calling DNS module
+    const rootDomain = configManager.get("cloudflare.rootDomain", "");
+    if (!rootDomain) {
+      logger.warn("Root domain not configured in config manager");
+    } else {
+      logger.info(`Using root domain from config: ${rootDomain}`);
+    }
+    return rootDomain;
   });
 
   // Scan Domain structure
@@ -509,7 +517,160 @@ function registerIpcHandlers() {
     }
   });
 
+  // Register config manager handlers
+  registerConfigHandlers();
+
   logger.info("All IPC handlers registered");
+}
+
+/**
+ * Register handlers for config manager operations
+ */
+function registerConfigHandlers() {
+  // Get configuration for a specific section
+  ipcMain.handle("get-config", async (event, section) => {
+    logger.debug(`IPC: get-config called for section: ${section}`);
+    try {
+      if (!section) {
+        return { error: "Section name is required" };
+      }
+
+      return configManager.getSection(section);
+    } catch (error) {
+      logger.error(`Error getting config section ${section}: ${error.message}`);
+      return { error: error.message };
+    }
+  });
+
+  // Update configuration for a specific section
+  ipcMain.handle("update-config", async (event, section, values) => {
+    logger.debug(`IPC: update-config called for section: ${section}`);
+    try {
+      if (!section) {
+        return { success: false, error: "Section name is required" };
+      }
+
+      if (!values || typeof values !== "object") {
+        return { success: false, error: "Values must be an object" };
+      }
+
+      configManager.updateSection(section, values);
+
+      // Save in .env format for backward compatibility
+      configManager.saveAsEnvFile();
+
+      return { success: true };
+    } catch (error) {
+      logger.error(
+        `Error updating config section ${section}: ${error.message}`
+      );
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Get a specific config value
+  ipcMain.handle("get-config-value", async (event, path, defaultValue) => {
+    logger.debug(`IPC: get-config-value called for path: ${path}`);
+    try {
+      if (!path) {
+        return { error: "Path is required" };
+      }
+
+      const value = configManager.get(path, defaultValue);
+      return { value };
+    } catch (error) {
+      logger.error(`Error getting config value ${path}: ${error.message}`);
+      return { error: error.message };
+    }
+  });
+
+  // Set a specific config value
+  ipcMain.handle("set-config-value", async (event, path, value) => {
+    logger.debug(`IPC: set-config-value called for path: ${path}`);
+    try {
+      if (!path) {
+        return { success: false, error: "Path is required" };
+      }
+
+      configManager.set(path, value);
+
+      // Save in .env format for backward compatibility
+      configManager.saveAsEnvFile();
+
+      return { success: true };
+    } catch (error) {
+      logger.error(`Error setting config value ${path}: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Export configuration as .env format
+  ipcMain.handle("export-config-env", async (event) => {
+    logger.debug(`IPC: export-config-env called`);
+    try {
+      const envContent = configManager.exportAsEnvFormat();
+      return { success: true, content: envContent };
+    } catch (error) {
+      logger.error(`Error exporting config as ENV: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Import configuration from .env format
+  ipcMain.handle("import-config-env", async (event, envContent) => {
+    logger.debug(`IPC: import-config-env called`);
+    try {
+      if (!envContent) {
+        return { success: false, error: "No content provided" };
+      }
+
+      // Write to temporary file
+      const tempPath = path.join(app.getPath("temp"), ".env.import");
+      fs.writeFileSync(tempPath, envContent, "utf8");
+
+      // Create a new config manager instance to parse it
+      const newConfig = { ...configManager.config };
+
+      // Read .env content and process each line
+      const envLines = envContent.split("\n");
+      for (const line of envLines) {
+        // Skip comments and empty lines
+        if (line.trim().startsWith("#") || line.trim() === "") continue;
+
+        // Parse key and value
+        const match = line.match(
+          /^\s*([\w.-]+)\s*=\s*["']?([^"'\r\n]+)["']?\s*$/
+        );
+        if (match) {
+          const key = match[1];
+          const value = match[2].trim();
+
+          // Map .env variables to config structure
+          configManager.mapEnvVarToConfig(newConfig, key, value);
+        }
+      }
+
+      // Update all sections
+      Object.keys(newConfig).forEach((section) => {
+        configManager.updateSection(section, newConfig[section]);
+      });
+
+      // Clean up
+      try {
+        fs.unlinkSync(tempPath);
+      } catch (e) {
+        logger.warn(`Failed to delete temp file: ${e.message}`);
+      }
+
+      // Save in .env format for backward compatibility
+      configManager.saveAsEnvFile();
+
+      return { success: true };
+    } catch (error) {
+      logger.error(`Error importing config from ENV: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
 }
 
 module.exports = {

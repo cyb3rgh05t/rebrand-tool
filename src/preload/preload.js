@@ -8,11 +8,11 @@ const { contextBridge, ipcRenderer } = require("electron");
  * Define which APIs will be exposed to the renderer process
  */
 contextBridge.exposeInMainWorld("streamNetAPI", {
-  // Connection testing
-  testConnection: () => ipcRenderer.invoke("test-connection"),
-
   // App version
   getAppVersion: () => ipcRenderer.invoke("get-app-version"),
+
+  // Connection testing
+  testConnection: () => ipcRenderer.invoke("test-connection"),
 
   // Domain operations
   getRootDomain: () => ipcRenderer.invoke("get-root-domain"),
@@ -63,6 +63,23 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
       callback(action, data);
     });
   },
+
+  // Configuration API
+  getConfig: (section) => ipcRenderer.invoke("get-config", section),
+
+  updateConfig: (section, values) =>
+    ipcRenderer.invoke("update-config", section, values),
+
+  getConfigValue: (path, defaultValue) =>
+    ipcRenderer.invoke("get-config-value", path, defaultValue),
+
+  setConfigValue: (path, value) =>
+    ipcRenderer.invoke("set-config-value", path, value),
+
+  exportConfigEnv: () => ipcRenderer.invoke("export-config-env"),
+
+  importConfigEnv: (content) =>
+    ipcRenderer.invoke("import-config-env", content),
 });
 
 // Log preload script execution

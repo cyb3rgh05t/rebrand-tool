@@ -1,7 +1,7 @@
 {
   "name": "streamnet-rebrands-panels",
-  "version": "2.2.0",
-  "description": "",
+  "version": "2.3.0",
+  "description": "An Electron-based desktop application for streamlined management of IPTV app panels, domain creation, and file deployment",
   "main": "src/main/index.js",
   "scripts": {
     "start": "electron .",
@@ -83,7 +83,9 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Rebrand Tool",
-      "uninstallDisplayName": "Rebrand Tool"
+      "uninstallDisplayName": "Rebrand Tool",
+      "deleteAppDataOnUninstall": false,
+      "allowElevation": true
     },
     "portable": {
       "artifactName": "rebrandTool.v${version}-portable.${platform}.${arch}.${ext}"

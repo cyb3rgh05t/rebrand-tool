@@ -5,16 +5,15 @@ const { app, BrowserWindow, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
-// Load environment variables first
-const { loadEnvVars } = require("./utils/env-loader");
-const envLoaded = loadEnvVars();
-console.log("Environment variables loaded:", envLoaded);
+// Load configuration manager first (this will handle env vars too)
+const configManager = require("./config-manager");
+console.log("Configuration manager initialized");
 
-// Now load other modules that may depend on environment variables
+// Now load other modules that may depend on configuration
 const { createLogger } = require("./utils/logger");
 const { registerIpcHandlers } = require("./ipc-handlers");
 
-// Import configuration (will now use env variables)
+// Import configuration (will now use config manager)
 const CONFIG = require("../config/serverConfig");
 
 // Import menu after configuration is loaded
@@ -25,6 +24,36 @@ const logger = createLogger("main");
 
 // Global reference to the main window
 let mainWindow;
+
+/**
+ * Check for first run after update and handle configuration migration
+ */
+function checkFirstRunAfterUpdate() {
+  const userDataPath = app.getPath("userData");
+  const firstRunFlagPath = path.join(userDataPath, ".first-run-completed");
+  const appVersion = app.getVersion();
+  const versionFlagPath = path.join(userDataPath, `.version-${appVersion}`);
+
+  // If this version flag doesn't exist but first-run flag does, it's an update
+  if (!fs.existsSync(versionFlagPath) && fs.existsSync(firstRunFlagPath)) {
+    logger.info("First run after update detected");
+
+    // The config manager already handles migration on initialization,
+    // but we can add additional update logic here if needed in the future
+  }
+
+  // Create version flag file
+  try {
+    fs.writeFileSync(versionFlagPath, new Date().toISOString());
+
+    // Also create first-run flag if it doesn't exist
+    if (!fs.existsSync(firstRunFlagPath)) {
+      fs.writeFileSync(firstRunFlagPath, new Date().toISOString());
+    }
+  } catch (err) {
+    logger.error(`Failed to create version flag: ${err.message}`);
+  }
+}
 
 /**
  * Create the main application window
@@ -125,6 +154,9 @@ function ensureDirectories() {
 // Initialize the app when ready
 app.whenReady().then(() => {
   logger.info("Application starting");
+
+  // Check for first run after update
+  checkFirstRunAfterUpdate();
 
   // Ensure required directories exist
   ensureDirectories();

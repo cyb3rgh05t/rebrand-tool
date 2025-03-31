@@ -4,20 +4,13 @@
 const { app, dialog, shell } = require("electron");
 const { createLogger } = require("./utils/logger");
 const https = require("https");
-const { getEnvVar } = require("./utils/env-loader");
+const configManager = require("./config-manager");
 
 // Create update-specific logger
 const logger = createLogger("updater");
 
 // Current app version from package.json
 const currentVersion = app.getVersion();
-
-// Get GitHub token from environment if available
-const githubToken = getEnvVar("GITHUB_API_TOKEN", "");
-
-// GitHub repository information
-const REPO_OWNER = "cyb3rgh05t";
-const REPO_NAME = "rebrand-tool";
 
 /**
  * Check for updates by comparing with GitHub releases
@@ -27,8 +20,31 @@ async function checkForUpdates() {
   logger.info(`Checking for updates (current version: ${currentVersion})`);
 
   try {
+    // Get GitHub configuration from config manager
+    const githubToken = configManager.get("github.apiToken", "");
+    const REPO_OWNER = configManager.get("github.owner", "cyb3rgh05t");
+    const REPO_NAME = configManager.get("github.repo", "rebrand-tool");
+
+    // Log the GitHub settings being used (without the full token for security)
+    logger.debug(`Using GitHub repository: ${REPO_OWNER}/${REPO_NAME}`);
+    logger.debug(`GitHub token available: ${githubToken ? "Yes" : "No"}`);
+
+    if (!REPO_OWNER || !REPO_NAME) {
+      logger.error("GitHub repository owner or name is not configured");
+      return {
+        updateAvailable: false,
+        currentVersion,
+        error: "GitHub repository not properly configured",
+        message: "GitHub repository not properly configured",
+      };
+    }
+
     // Get the latest release from GitHub API
-    const latestRelease = await getLatestRelease();
+    const latestRelease = await getLatestRelease(
+      REPO_OWNER,
+      REPO_NAME,
+      githubToken
+    );
 
     if (!latestRelease) {
       logger.warn("Could not fetch latest release information");
@@ -156,107 +172,135 @@ async function checkForUpdates() {
 
 /**
  * Get the latest release information from GitHub
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {string} token - GitHub API token
  * @returns {Promise<Object>} Release information
  */
-function getLatestRelease() {
+function getLatestRelease(owner, repo, token) {
   return new Promise((resolve, reject) => {
-    // Try to get all releases first, as the /latest endpoint might not work in private repos
-    const path = `/repos/${REPO_OWNER}/${REPO_NAME}/releases`;
-    const options = {
-      hostname: "api.github.com",
-      path: path,
-      method: "GET",
-      headers: {
-        "User-Agent": "StreamNet-Rebrands-Panels",
-        Accept: "application/vnd.github.v3+json",
-      },
-    };
+    // First try to get the latest release directly
+    const path = `/repos/${owner}/${repo}/releases/latest`;
+    let retryWithAllReleases = false;
 
-    // Add authorization header if token is available
-    if (githubToken) {
-      logger.debug("Using GitHub API token for authentication");
-      options.headers["Authorization"] = `token ${githubToken}`;
-    }
+    const makeRequest = (requestPath) => {
+      logger.debug(`Fetching GitHub releases from: ${requestPath}`);
 
-    logger.debug(`Fetching GitHub releases from: ${path}`);
+      const options = {
+        hostname: "api.github.com",
+        path: requestPath,
+        method: "GET",
+        headers: {
+          "User-Agent": "StreamNet-Rebrands-Panels",
+          Accept: "application/vnd.github.v3+json",
+        },
+      };
 
-    const req = https.request(options, (res) => {
-      let data = "";
-
-      // Check for rate limit issues
-      if (res.statusCode === 403) {
-        logger.warn(
-          "GitHub API rate limit exceeded. Consider adding a GITHUB_API_TOKEN in your .env file"
-        );
+      // Add authorization header if token is available
+      if (token) {
+        logger.debug("Using GitHub API token for authentication");
+        options.headers["Authorization"] = `Bearer ${token}`;
       }
 
-      res.on("data", (chunk) => {
-        data += chunk;
-      });
+      const req = https.request(options, (res) => {
+        let data = "";
 
-      res.on("end", () => {
-        if (res.statusCode === 200) {
-          try {
-            const releases = JSON.parse(data);
-
-            // Check if we have any releases
-            if (releases.length === 0) {
-              logger.warn("No releases found for the repository");
-              reject(new Error("No releases found for the repository"));
-              return;
-            }
-
-            // Find the latest release (should be the first one, but we'll verify)
-            // We're sorting by the created_at date in descending order
-            const sortedReleases = releases.sort((a, b) => {
-              return new Date(b.created_at) - new Date(a.created_at);
-            });
-
-            const latestRelease = sortedReleases[0];
-            logger.debug(
-              `Found latest release: ${latestRelease.tag_name} (${latestRelease.created_at})`
-            );
-
-            // Log available assets for debugging
-            if (latestRelease.assets && latestRelease.assets.length > 0) {
-              logger.debug(`Available assets for this release:`);
-              latestRelease.assets.forEach((asset) => {
-                logger.debug(`- ${asset.name} (${asset.browser_download_url})`);
-              });
-            }
-
-            resolve(latestRelease);
-          } catch (error) {
-            reject(
-              new Error(`Failed to parse GitHub API response: ${error.message}`)
-            );
-          }
-        } else {
-          logger.error(
-            `GitHub API responded with status code: ${res.statusCode}`
+        // Check for rate limit issues
+        if (res.statusCode === 403) {
+          logger.warn(
+            "GitHub API rate limit exceeded. Consider adding a GITHUB_API_TOKEN in your configuration"
           );
-          if (res.statusCode === 404) {
-            reject(
-              new Error(
-                "Releases not found. Repository might be private or not have any releases."
-              )
-            );
-          } else {
-            reject(
-              new Error(
-                `GitHub API responded with status code: ${res.statusCode}`
-              )
-            );
-          }
         }
+
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+
+        res.on("end", () => {
+          // Log status code to help debug
+          logger.debug(`GitHub API response status: ${res.statusCode}`);
+
+          if (res.statusCode === 200) {
+            try {
+              const responseData = JSON.parse(data);
+
+              // If we requested /latest and got a successful response
+              if (requestPath.includes("/latest")) {
+                logger.debug(`Found latest release: ${responseData.tag_name}`);
+                resolve(responseData);
+              }
+              // If we requested all releases
+              else {
+                // Check if we have any releases
+                if (!Array.isArray(responseData) || responseData.length === 0) {
+                  logger.warn("No releases found for the repository");
+                  reject(new Error("No releases found for the repository"));
+                  return;
+                }
+
+                // Get the latest release from the array
+                const sortedReleases = responseData.sort((a, b) => {
+                  return new Date(b.created_at) - new Date(a.created_at);
+                });
+
+                const latestRelease = sortedReleases[0];
+                logger.debug(
+                  `Found latest release from list: ${latestRelease.tag_name} (${latestRelease.created_at})`
+                );
+
+                resolve(latestRelease);
+              }
+            } catch (error) {
+              reject(
+                new Error(
+                  `Failed to parse GitHub API response: ${error.message}`
+                )
+              );
+            }
+          } else {
+            logger.error(
+              `GitHub API responded with status code: ${res.statusCode}`
+            );
+
+            // If we got a 404 from /latest, try getting all releases instead
+            if (
+              res.statusCode === 404 &&
+              requestPath.includes("/latest") &&
+              !retryWithAllReleases
+            ) {
+              retryWithAllReleases = true;
+              logger.debug(
+                "No latest release found, trying to get all releases"
+              );
+              makeRequest(`/repos/${owner}/${repo}/releases`);
+            } else {
+              if (res.statusCode === 404) {
+                reject(
+                  new Error(
+                    "Releases not found. Repository might be private, not have any releases, or doesn't exist."
+                  )
+                );
+              } else {
+                reject(
+                  new Error(
+                    `GitHub API responded with status code: ${res.statusCode}`
+                  )
+                );
+              }
+            }
+          }
+        });
       });
-    });
 
-    req.on("error", (error) => {
-      reject(new Error(`Failed to connect to GitHub API: ${error.message}`));
-    });
+      req.on("error", (error) => {
+        reject(new Error(`Failed to connect to GitHub API: ${error.message}`));
+      });
 
-    req.end();
+      req.end();
+    };
+
+    // Start with the /latest endpoint
+    makeRequest(path);
   });
 }
 

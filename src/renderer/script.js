@@ -10,6 +10,7 @@ import * as uiHelpers from "./modules/ui-helpers.js";
 import * as domainLogging from "./modules/domain-logging.js";
 import * as dnsPreview from "./modules/dns-preview.js";
 import * as settings from "./modules/settings.js";
+import * as configSettings from "./modules/config-settings.js";
 
 // Global app state to avoid duplicate API calls
 window.appState = {
@@ -20,6 +21,14 @@ window.appState = {
 
 // Initialize the app
 document.addEventListener("DOMContentLoaded", async () => {
+  // Set default theme class if not already set
+  if (
+    !document.documentElement.classList.contains("theme-dark") &&
+    !document.documentElement.className.includes("theme-")
+  ) {
+    document.documentElement.classList.add("theme-dark");
+  }
+
   log.info("Application initializing");
 
   // Set version badge
@@ -49,6 +58,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function initializeComponents() {
   // Initialize settings functionality first
   settings.initializeSettings();
+
+  // Initialize config settings
+  configSettings.initConfigSettings();
 
   // Load domain folders
   await domainManagement.loadDomainFolders();

@@ -787,7 +787,11 @@
           </div>
 
           <div class="settings-nav">
-            <button class="settings-nav-item active" data-tab="theme">
+            <button class="settings-nav-item active" data-tab="server">
+              <span class="settings-nav-icon">🔌</span>
+              <span class="settings-nav-text">Server Config</span>
+            </button>
+            <button class="settings-nav-item" data-tab="theme">
               <span class="settings-nav-icon">🎨</span>
               <span class="settings-nav-text">Appearance</span>
             </button>
@@ -813,8 +817,170 @@
 
         <!-- Right content area -->
         <div class="settings-content">
-          <!-- Theme Tab (First by default) -->
-          <div class="settings-tab-pane active" id="themeTab">
+          <!-- Configuration Tab-->
+          <div class="settings-tab-pane active" id="serverTab">
+            <div class="settings-tab-header">
+              <h3>Server Configuration</h3>
+              <p class="settings-tab-description">
+                Configure server connection and domain settings
+              </p>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-section-title">Connection Settings</h4>
+              <div class="settings-card">
+                <div class="settings-form-field">
+                  <label for="configServerHost" class="settings-label"
+                    >Server Host</label
+                  >
+                  <input
+                    type="text"
+                    id="configServerHost"
+                    class="settings-input"
+                    placeholder="Enter server hostname or IP"
+                  />
+                </div>
+
+                <div class="settings-form-field">
+                  <label for="configServerUser" class="settings-label"
+                    >Username</label
+                  >
+                  <input
+                    type="text"
+                    id="configServerUser"
+                    class="settings-input"
+                    placeholder="Enter server username"
+                  />
+                </div>
+
+                <div class="settings-form-field">
+                  <label for="configServerPassword" class="settings-label"
+                    >Password</label
+                  >
+                  <input
+                    type="password"
+                    id="configServerPassword"
+                    class="settings-input"
+                    placeholder="Enter server password"
+                  />
+                </div>
+
+                <div class="settings-form-field">
+                  <label for="configServerPort" class="settings-label"
+                    >SSH Port</label
+                  >
+                  <input
+                    type="number"
+                    id="configServerPort"
+                    class="settings-input"
+                    placeholder="22"
+                  />
+                </div>
+
+                <button
+                  id="saveConnectionConfig"
+                  class="settings-action-button"
+                >
+                  Save Connection Settings
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-section-title">Cloudflare Settings</h4>
+              <div class="settings-card">
+                <div class="settings-form-field">
+                  <label for="configRootDomain" class="settings-label"
+                    >Root Domain</label
+                  >
+                  <input
+                    type="text"
+                    id="configRootDomain"
+                    class="settings-input"
+                    placeholder="example.com"
+                  />
+                </div>
+
+                <div class="settings-form-field">
+                  <label for="configCloudflareToken" class="settings-label"
+                    >API Token</label
+                  >
+                  <input
+                    type="password"
+                    id="configCloudflareToken"
+                    class="settings-input"
+                    placeholder="Enter Cloudflare API token"
+                  />
+                </div>
+
+                <div class="settings-form-field">
+                  <label for="configCloudflareZoneId" class="settings-label"
+                    >Zone ID</label
+                  >
+                  <input
+                    type="text"
+                    id="configCloudflareZoneId"
+                    class="settings-input"
+                    placeholder="Enter Cloudflare Zone ID"
+                  />
+                </div>
+
+                <div class="settings-form-field">
+                  <label for="configIpv4" class="settings-label"
+                    >Server IPv4</label
+                  >
+                  <input
+                    type="text"
+                    id="configIpv4"
+                    class="settings-input"
+                    placeholder="Enter server IPv4 address"
+                  />
+                </div>
+
+                <button
+                  id="saveCloudflareConfig"
+                  class="settings-action-button"
+                >
+                  Save Cloudflare Settings
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-section-title">Paths Configuration</h4>
+              <div class="settings-card">
+                <div class="settings-form-field">
+                  <label for="configBasePath" class="settings-label"
+                    >Source Base Path</label
+                  >
+                  <input
+                    type="text"
+                    id="configBasePath"
+                    class="settings-input"
+                    placeholder="/home/"
+                  />
+                </div>
+
+                <div class="settings-form-field">
+                  <label for="configDestPath" class="settings-label"
+                    >Destination Base Path</label
+                  >
+                  <input
+                    type="text"
+                    id="configDestPath"
+                    class="settings-input"
+                    placeholder="/home/"
+                  />
+                </div>
+
+                <button id="savePathsConfig" class="settings-action-button">
+                  Save Path Settings
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Theme Tab -->
+          <div class="settings-tab-pane" id="themeTab">
             <div class="settings-tab-header">
               <h3>Appearance</h3>
               <p class="settings-tab-description">
@@ -826,6 +992,7 @@
               <h4 class="settings-section-title">Color Theme</h4>
               <div class="settings-card">
                 <div class="theme-options">
+                  <!-- Dark Theme (Default) -->
                   <div class="theme-option">
                     <input
                       type="radio"
@@ -846,6 +1013,7 @@
                     </label>
                   </div>
 
+                  <!-- Light Theme -->
                   <div class="theme-option">
                     <input
                       type="radio"
@@ -862,6 +1030,253 @@
                         </div>
                       </div>
                       <span class="theme-name">Light</span>
+                    </label>
+                  </div>
+
+                  <!-- Nord Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeNord"
+                      name="theme"
+                      value="nord"
+                    />
+                    <label for="themeNord" class="theme-preview nord-preview">
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Nord</span>
+                    </label>
+                  </div>
+
+                  <!-- Dracula Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeDracula"
+                      name="theme"
+                      value="dracula"
+                    />
+                    <label
+                      for="themeDracula"
+                      class="theme-preview dracula-preview"
+                    >
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Dracula</span>
+                    </label>
+                  </div>
+
+                  <!-- One Dark Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeOneDark"
+                      name="theme"
+                      value="onedark"
+                    />
+                    <label
+                      for="themeOneDark"
+                      class="theme-preview onedark-preview"
+                    >
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">One Dark</span>
+                    </label>
+                  </div>
+
+                  <!-- Overseerr Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeOverseerr"
+                      name="theme"
+                      value="overseerr"
+                    />
+                    <label
+                      for="themeOverseerr"
+                      class="theme-preview overseerr-preview"
+                    >
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Overseerr</span>
+                    </label>
+                  </div>
+
+                  <!-- Space Gray Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeSpaceGray"
+                      name="theme"
+                      value="spacegray"
+                    />
+                    <label
+                      for="themeSpaceGray"
+                      class="theme-preview spacegray-preview"
+                    >
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Space Gray</span>
+                    </label>
+                  </div>
+
+                  <!-- Hotline Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeHotline"
+                      name="theme"
+                      value="hotline"
+                    />
+                    <label
+                      for="themeHotline"
+                      class="theme-preview hotline-preview"
+                    >
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Hotline</span>
+                    </label>
+                  </div>
+
+                  <!-- Aquamarine Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeAquamarine"
+                      name="theme"
+                      value="aquamarine"
+                    />
+                    <label
+                      for="themeAquamarine"
+                      class="theme-preview aquamarine-preview"
+                    >
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Aquamarine</span>
+                    </label>
+                  </div>
+
+                  <!-- Hot Pink Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeHotPink"
+                      name="theme"
+                      value="hotpink"
+                    />
+                    <label
+                      for="themeHotPink"
+                      class="theme-preview hotpink-preview"
+                    >
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Hot Pink</span>
+                    </label>
+                  </div>
+
+                  <!-- Maroon Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeMaroon"
+                      name="theme"
+                      value="maroon"
+                    />
+                    <label
+                      for="themeMaroon"
+                      class="theme-preview maroon-preview"
+                    >
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Maroon</span>
+                    </label>
+                  </div>
+
+                  <!-- Organizr Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeOrganizr"
+                      name="theme"
+                      value="organizr"
+                    />
+                    <label
+                      for="themeOrganizr"
+                      class="theme-preview organizr-preview"
+                    >
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Organizr</span>
+                    </label>
+                  </div>
+
+                  <!-- Plex Theme -->
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themePlex"
+                      name="theme"
+                      value="plex"
+                    />
+                    <label for="themePlex" class="theme-preview plex-preview">
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Plex</span>
                     </label>
                   </div>
                 </div>
@@ -987,6 +1402,57 @@
             </div>
 
             <div class="settings-section">
+              <!-- Add this to the About tab section, before the about-card div -->
+              <div class="settings-section">
+                <h4 class="settings-section-title">GitHub Update Settings</h4>
+                <div class="settings-card">
+                  <div class="settings-form-field">
+                    <label for="configGithubToken" class="settings-label"
+                      >GitHub API Token</label
+                    >
+                    <input
+                      type="password"
+                      id="configGithubToken"
+                      class="settings-input"
+                      placeholder="Enter GitHub API Token"
+                    />
+                  </div>
+
+                  <div class="settings-form-field">
+                    <label for="configGithubOwner" class="settings-label"
+                      >Repository Owner</label
+                    >
+                    <input
+                      type="text"
+                      id="configGithubOwner"
+                      class="settings-input"
+                      placeholder="cyb3rgh05t"
+                    />
+                  </div>
+
+                  <div class="settings-form-field">
+                    <label for="configGithubRepo" class="settings-label"
+                      >Repository Name</label
+                    >
+                    <input
+                      type="text"
+                      id="configGithubRepo"
+                      class="settings-input"
+                      placeholder="rebrand-tool"
+                    />
+                  </div>
+
+                  <div class="settings-description">
+                    These settings control how the application checks for
+                    updates. A GitHub API token is required to check private
+                    repositories and to avoid rate limits.
+                  </div>
+
+                  <button id="saveGithubConfig" class="settings-action-button">
+                    Save GitHub Settings
+                  </button>
+                </div>
+              </div>
               <div class="settings-card about-card">
                 <div class="app-logo-container">
                   <div class="app-logo"></div>

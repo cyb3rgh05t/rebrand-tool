@@ -12,13 +12,22 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--bg-primary);
+  background-color: rgba(15, 23, 42, 0.6); /* Semi-transparent dark color */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
   z-index: 1000;
   overflow: hidden;
   animation: settingsFadeIn 0.3s ease-out;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Fallback for browsers that don't support backdrop-filter */
+@supports not (backdrop-filter: blur(10px)) {
+  .settings-fullpage {
+    background-color: rgba(15, 23, 42, 0.85); /* More opaque as fallback */
+  }
 }
 
 .settings-container {
@@ -35,8 +44,8 @@
 }
 
 /* ==========================================================================
-     SETTINGS SIDEBAR
-     ========================================================================== */
+         SETTINGS SIDEBAR
+         ========================================================================== */
 .settings-sidebar {
   width: 260px;
   background-color: var(--bg-surface-dark);
@@ -147,8 +156,8 @@
 }
 
 /* ==========================================================================
-     SETTINGS CONTENT AREA
-     ========================================================================== */
+         SETTINGS CONTENT AREA
+         ========================================================================== */
 .settings-content {
   flex: 1;
   overflow-y: auto;
@@ -188,8 +197,8 @@
 }
 
 /* ==========================================================================
-     SETTINGS SECTIONS
-     ========================================================================== */
+         SETTINGS SECTIONS
+         ========================================================================== */
 .settings-section {
   margin-bottom: 32px;
   animation: slideInRight 0.5s ease-out;
@@ -244,17 +253,20 @@
 }
 
 /* ==========================================================================
-     THEME OPTIONS
-     ========================================================================== */
+         SIMPLE THEME OPTIONS GRID
+         ========================================================================== */
+/* Simplified theme card styling that focuses just on the essentials */
 .theme-options {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
   margin-bottom: 20px;
+  padding: 10px;
 }
 
 .theme-option {
   position: relative;
+  margin-bottom: 10px;
 }
 
 .theme-option input[type="radio"] {
@@ -264,54 +276,69 @@
   height: 0;
 }
 
+/* Make theme previews simple but attractive */
 .theme-preview {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
   width: 100%;
-  height: 180px;
-  border-radius: 12px;
+  height: 100px;
+  border-radius: 8px;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-  padding: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: block;
 }
 
-.theme-preview-content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+/* Theme name label */
+.theme-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5px;
+  text-align: center;
+  font-size: 13px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-weight: 500;
 }
 
-.theme-preview-header {
-  height: 16px;
-  border-radius: 4px;
-  margin-bottom: 8px;
+/* Selection style */
+.theme-option input[type="radio"]:checked + .theme-preview {
+  border-color: var(--primary, #4f46e5);
+  box-shadow: 0 0 0 2px var(--primary, #4f46e5);
 }
 
-.theme-preview-body {
-  flex: 1;
-  display: flex;
-  gap: 4px;
+/* Hover style */
+.theme-preview:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.theme-preview-sidebar {
-  width: 25%;
-  border-radius: 4px;
+/* Basic responsive adjustment */
+@media (min-width: 1200px) {
+  .theme-options {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 
-.theme-preview-main {
-  flex: 1;
-  border-radius: 4px;
+@media (max-width: 1199px) and (min-width: 768px) {
+  .theme-options {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-/* Dark theme preview */
+@media (max-width: 767px) {
+  .theme-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==========================================================================
+       THEME PREVIEW STYLES
+       ========================================================================== */
+
+/* Dark Theme Preview */
 .dark-preview {
   background-color: #0f172a;
 }
@@ -328,7 +355,7 @@
   background-color: #334155;
 }
 
-/* Light theme preview */
+/* Light Theme Preview */
 .light-preview {
   background-color: #f8fafc;
 }
@@ -347,38 +374,274 @@
 
 .light-preview .theme-name {
   color: #1e293b;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
-.theme-name {
-  font-size: 14px;
-  font-weight: 500;
-  background-color: rgba(0, 0, 0, 0.3);
-  color: white;
-  padding: 6px 16px;
-  border-radius: 20px;
-  margin-top: 12px;
-  position: relative;
-  z-index: 1;
-  transition: all 0.3s ease;
+/* Nord Theme Preview */
+.nord-preview {
+  background-color: #2e3440;
 }
 
-.theme-option input[type="radio"]:checked + .theme-preview {
-  border-color: var(--primary);
-  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.3);
-  transform: translateY(-4px) scale(1.02);
+.nord-preview .theme-preview-header {
+  background-color: #3b4252;
 }
 
-.theme-option input[type="radio"]:checked + .theme-preview .theme-name {
-  background-color: var(--primary);
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+.nord-preview .theme-preview-sidebar {
+  background-color: #3b4252;
+}
+
+.nord-preview .theme-preview-main {
+  background-color: #434c5e;
+}
+
+.nord-preview .theme-name {
+  background-color: rgba(129, 161, 193, 0.9);
+}
+
+/* Dracula Theme Preview */
+.dracula-preview {
+  background-color: #282a36;
+}
+
+.dracula-preview .theme-preview-header {
+  background-color: #1e2029;
+}
+
+.dracula-preview .theme-preview-sidebar {
+  background-color: #1e2029;
+}
+
+.dracula-preview .theme-preview-main {
+  background-color: #44475a;
+}
+
+.dracula-preview .theme-name {
+  background-color: rgba(189, 147, 249, 0.9);
+  color: #f8f8f2;
+}
+
+/* One Dark Theme Preview */
+.onedark-preview {
+  background-color: #282c34;
+}
+
+.onedark-preview .theme-preview-header {
+  background-color: #1e222a;
+}
+
+.onedark-preview .theme-preview-sidebar {
+  background-color: #1e222a;
+}
+
+.onedark-preview .theme-preview-main {
+  background-color: #21252b;
+}
+
+.onedark-preview .theme-name {
+  background-color: rgba(97, 175, 239, 0.9);
+  color: #ffffff;
+}
+
+/* Overseerr Theme Preview */
+.overseerr-preview {
+  background-color: #111827;
+}
+
+.overseerr-preview .theme-preview-header {
+  background-color: #1f2937;
+}
+
+.overseerr-preview .theme-preview-sidebar {
+  background-color: #1f2937;
+}
+
+.overseerr-preview .theme-preview-main {
+  background-color: #374151;
+}
+
+.overseerr-preview .theme-name {
+  background-color: rgba(79, 70, 229, 0.9);
+  color: #ffffff;
+}
+
+/* Space Gray Theme Preview */
+.spacegray-preview {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(87, 108, 117, 0.8) 0%,
+    rgba(37, 50, 55, 0.8) 100.2%
+  );
+}
+
+.spacegray-preview .theme-preview-header {
+  background-color: #576c75;
+}
+
+.spacegray-preview .theme-preview-sidebar {
+  background-color: #576c75;
+}
+
+.spacegray-preview .theme-preview-main {
+  background-color: #6b848f;
+}
+
+.spacegray-preview .theme-name {
+  background-color: rgba(129, 166, 183, 0.9);
+  color: #ffffff;
+}
+
+/* Hotline Theme Preview */
+.hotline-preview {
+  background: linear-gradient(
+    0deg,
+    rgba(247, 101, 184, 0.8) 0%,
+    rgba(21, 95, 165, 0.8) 100%
+  );
+}
+
+.hotline-preview .theme-preview-header {
+  background-color: #5e61ab;
+}
+
+.hotline-preview .theme-preview-sidebar {
+  background-color: #5e61ab;
+}
+
+.hotline-preview .theme-preview-main {
+  background-color: #7072bc;
+}
+
+.hotline-preview .theme-name {
+  background-color: rgba(249, 141, 201, 0.9);
+  color: #ffffff;
+}
+
+/* Aquamarine Theme Preview */
+.aquamarine-preview {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(71, 145, 138, 0.8) 0%,
+    rgba(11, 49, 97, 0.8) 100%
+  );
+}
+
+.aquamarine-preview .theme-preview-header {
+  background-color: #265c74;
+}
+
+.aquamarine-preview .theme-preview-sidebar {
+  background-color: #265c74;
+}
+
+.aquamarine-preview .theme-preview-main {
+  background-color: #326f8a;
+}
+
+.aquamarine-preview .theme-name {
+  background-color: rgba(0, 150, 136, 0.9);
+  color: #ffffff;
+}
+
+/* Hot Pink Theme Preview */
+.hotpink-preview {
+  background: linear-gradient(
+    45deg,
+    rgba(251, 63, 98, 0.8) 0%,
+    rgba(32, 76, 128, 0.8) 37%,
+    rgba(0, 66, 73, 0.8) 97%
+  );
+}
+
+.hotpink-preview .theme-preview-header {
+  background-color: #204c80;
+}
+
+.hotpink-preview .theme-preview-sidebar {
+  background-color: #204c80;
+}
+
+.hotpink-preview .theme-preview-main {
+  background-color: #2a5c96;
+}
+
+.hotpink-preview .theme-name {
+  background-color: rgba(251, 63, 98, 0.9);
+  color: #ffffff;
+}
+
+/* Maroon Theme Preview */
+.maroon-preview {
+  background: radial-gradient(
+    circle at 48.4% 47.5%,
+    rgba(76, 21, 51, 0.8) 0%,
+    rgba(34, 10, 37, 0.8) 90%
+  );
+}
+
+.maroon-preview .theme-preview-header {
+  background-color: #4c1533;
+}
+
+.maroon-preview .theme-preview-sidebar {
+  background-color: #4c1533;
+}
+
+.maroon-preview .theme-preview-main {
+  background-color: #5e1a3e;
+}
+
+.maroon-preview .theme-name {
+  background-color: rgba(162, 28, 101, 0.9);
+  color: #ffffff;
+}
+
+/* Organizr Theme Preview */
+.organizr-preview {
+  background-color: #1f1f1f;
+}
+
+.organizr-preview .theme-preview-header {
+  background-color: #232323;
+}
+
+.organizr-preview .theme-preview-sidebar {
+  background-color: #333333;
+}
+
+.organizr-preview .theme-preview-main {
+  background-color: #444444;
+}
+
+.organizr-preview .theme-name {
+  background-color: rgba(44, 171, 227, 0.9);
+  color: #ffffff;
+}
+
+/* Plex Theme Preview */
+.plex-preview {
+  background-color: #1f1f1f;
+}
+
+.plex-preview .theme-preview-header {
+  background-color: #282828;
+}
+
+.plex-preview .theme-preview-sidebar {
+  background-color: #282828;
+}
+
+.plex-preview .theme-preview-main {
+  background-color: #333333;
+}
+
+.plex-preview .theme-name {
+  background-color: rgba(229, 160, 13, 0.9);
+  color: #ffffff;
 }
 
 /* ==========================================================================
-     DENSITY OPTIONS
-     ========================================================================== */
+         DENSITY OPTIONS
+         ========================================================================== */
 .density-options {
   display: flex;
   gap: 20px;
@@ -425,7 +688,7 @@
   height: 12px;
   margin-bottom: 12px;
   border-radius: 3px;
-  background-color: var(--border-default);
+  background-color: var(--border-subtle);
 }
 
 .compact-preview::before,
@@ -435,7 +698,7 @@
   height: 8px;
   margin-bottom: 6px;
   border-radius: 2px;
-  background-color: var(--border-default);
+  background-color: var(--border-subtle);
 }
 
 .compact-preview::before,
@@ -467,8 +730,8 @@
 }
 
 /* ==========================================================================
-     CONNECTION STATUS
-     ========================================================================== */
+         CONNECTION STATUS
+         ========================================================================== */
 .connection-test-container {
   display: flex;
   flex-direction: column;
@@ -508,8 +771,8 @@
 }
 
 /* ==========================================================================
-     SETTINGS CONTROLS & INPUTS
-     ========================================================================== */
+         SETTINGS CONTROLS & INPUTS
+         ========================================================================== */
 .settings-form-field {
   margin-bottom: 16px;
 }
@@ -603,8 +866,8 @@
 }
 
 /* ==========================================================================
-     DEBUG TOOLS CONTAINER
-     ========================================================================== */
+         DEBUG TOOLS CONTAINER
+         ========================================================================== */
 .debug-tools-container {
   margin-top: 20px;
   padding-top: 20px;
@@ -612,8 +875,8 @@
 }
 
 /* ==========================================================================
-     ABOUT SECTION
-     ========================================================================== */
+         ABOUT SECTION
+         ========================================================================== */
 .about-card {
   text-align: center;
   padding: 30px;
@@ -708,8 +971,54 @@
 }
 
 /* ==========================================================================
-     ANIMATIONS
-     ========================================================================== */
+         STATUS MESSAGES IN SETTINGS
+         ========================================================================== */
+.settings-status-message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  position: relative;
+  border-left: 4px solid transparent;
+}
+
+.settings-status-message.checking {
+  background-color: var(--info-subtle);
+  border-left-color: var(--info);
+  color: var(--info);
+}
+
+.settings-status-message.update-available {
+  background-color: var(--success-subtle);
+  border-left-color: var(--success);
+  color: var(--success);
+}
+
+.settings-status-message.update-not-available {
+  background-color: var(--neutral-subtle);
+  border-left-color: var(--text-secondary);
+  color: var(--text-secondary);
+}
+
+.settings-status-message.error {
+  background-color: var(--error-subtle);
+  border-left-color: var(--error);
+  color: var(--error);
+}
+
+.settings-status-message a {
+  color: var(--primary-light);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.settings-status-message a:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+         ANIMATIONS
+         ========================================================================== */
 @keyframes settingsFadeIn {
   from {
     opacity: 0;
@@ -742,8 +1051,8 @@
 }
 
 /* ==========================================================================
-     RESPONSIVE ADJUSTMENTS
-     ========================================================================== */
+         RESPONSIVE ADJUSTMENTS
+         ========================================================================== */
 @media (max-width: 1024px) {
   .settings-container {
     width: 95%;
@@ -791,6 +1100,10 @@
     flex-direction: column;
     align-items: center;
   }
+
+  .density-options {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 480px) {
@@ -798,15 +1111,133 @@
     padding: 20px;
   }
 
-  .theme-options {
-    grid-template-columns: 1fr;
-  }
-
-  .density-options {
-    flex-direction: column;
-  }
-
   .update-section {
     margin-bottom: 20px;
   }
+}
+
+/* Add a settings description below grid */
+.settings-description {
+  margin-top: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+/* Settings inputs styling */
+.settings-input {
+  width: 100%;
+  padding: 12px 14px;
+  background-color: var(--bg-surface-dark);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.settings-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  background-color: var(--bg-surface-hover);
+}
+
+.settings-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Settings form field spacing */
+.settings-form-field {
+  margin-bottom: 16px;
+}
+
+/* Settings card content */
+.settings-card {
+  padding: 24px;
+  background-color: var(--bg-surface-elevated);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Settings labels */
+.settings-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+/* Settings buttons */
+.settings-action-button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.settings-action-button:hover {
+  background-color: var(--secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.settings-action-button:active {
+  transform: translateY(0);
+}
+
+/* Disable button styles */
+.settings-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Server tab specific styles */
+#serverTab .settings-section {
+  margin-bottom: 30px;
+}
+
+#serverTab .settings-card {
+  position: relative;
+  overflow: hidden;
+}
+
+#serverTab .settings-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+/* Password field styling */
+#serverTab input[type="password"] {
+  letter-spacing: 2px;
+  font-family: var(--font-mono);
+}
+
+/* Number input styling */
+#serverTab input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+#serverTab input[type="number"]::-webkit-outer-spin-button,
+#serverTab input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

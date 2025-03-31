@@ -2,6 +2,33 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.3.0] - 2025-03-30
+
+### Added
+
+- New configuration manager system replacing .env files
+- Enhanced settings UI with all configuration options
+- DNS preview feature showing records that will be created
+- Themepark.dev - Multiple color themes including Dark, Light, Nord, Dracula, etc.
+- Support for domain analysis to detect installed modules
+- GitHub-based update system with release notes display
+- App version display in UI header and settings
+
+### Changed
+
+- Restructured DNS handling with improved error management
+- Enhanced domain creation with live logging
+- Improved UI with animations and transitions
+- Better error handling throughout the application
+- Upgraded to Electron 25.0.0
+
+### Fixed
+
+- Connection issues with SFTP on some server configurations
+- Domain selection not preserving state after refresh
+- DNS records creation failing on certain Cloudflare accounts
+- Module selection UI not properly updating selected items count
+
 ## [2.2.0] - 2025-03-15
 
 ### Added

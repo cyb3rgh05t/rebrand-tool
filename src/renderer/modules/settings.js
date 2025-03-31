@@ -226,15 +226,29 @@ function initializeThemeSelection() {
   // Load saved theme if available
   const savedTheme = localStorage.getItem("streamnet-theme") || "dark";
 
-  // Set the saved theme as checked but only if it's dark or light
+  // Define allowed themes
+  const allowedThemes = [
+    "dark",
+    "light",
+    "nord",
+    "dracula",
+    "onedark",
+    "overseerr",
+    "spacegray",
+    "hotline",
+    "aquamarine",
+    "hotpink",
+    "maroon",
+    "organizr",
+    "plex",
+  ];
+
+  // Set the saved theme as checked but only if it's a valid theme
   themeOptions.forEach((option) => {
-    if (
-      option.value === savedTheme &&
-      (option.value === "dark" || option.value === "light")
-    ) {
+    if (option.value === savedTheme && allowedThemes.includes(option.value)) {
       option.checked = true;
-    } else if (savedTheme !== "dark" && savedTheme !== "light") {
-      // Default to dark theme if saved theme is not dark or light
+    } else if (!allowedThemes.includes(savedTheme)) {
+      // Default to dark theme if saved theme is not valid
       if (option.value === "dark") {
         option.checked = true;
       }
@@ -250,19 +264,47 @@ function initializeThemeSelection() {
         localStorage.setItem("streamnet-theme", e.target.value);
 
         log.info(`Theme changed to: ${e.target.value}`);
-        showStatus("info", `Theme changed to ${e.target.value}`);
+        showStatus(
+          "info",
+          `Theme changed to ${getThemeDisplayName(e.target.value)}`
+        );
       }
     });
   });
 
-  // Apply theme on load but only if it's dark or light
-  if (savedTheme === "dark" || savedTheme === "light") {
+  // Apply theme on load but only if it's a valid theme
+  if (allowedThemes.includes(savedTheme)) {
     document.documentElement.className = `theme-${savedTheme}`;
   } else {
     document.documentElement.className = "theme-dark";
   }
 
   log.debug(`Theme initialized: ${savedTheme}`);
+}
+
+/**
+ * Get a user-friendly display name for a theme
+ * @param {string} themeValue - The theme value/id
+ * @return {string} The display name of the theme
+ */
+function getThemeDisplayName(themeValue) {
+  const themeNames = {
+    dark: "Dark",
+    light: "Light",
+    nord: "Nord",
+    dracula: "Dracula",
+    onedark: "One Dark",
+    overseerr: "Overseerr",
+    spacegray: "Space Gray",
+    hotline: "Hotline",
+    aquamarine: "Aquamarine",
+    hotpink: "Hot Pink",
+    maroon: "Maroon",
+    organizr: "Organizr",
+    plex: "Plex",
+  };
+
+  return themeNames[themeValue] || themeValue;
 }
 
 /**

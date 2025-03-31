@@ -1,34 +1,29 @@
 /**
  * Cloudflare API configuration file for DNS operations
- *
  */
-const {
-  getEnvVar,
-  getBoolEnvVar,
-  getNumEnvVar,
-} = require("../main/utils/env-loader");
+const configManager = require("../main/config-manager");
 
 module.exports = {
   // API Authentication
   auth: {
     // Your Cloudflare API token (preferred authentication method)
-    apiToken: getEnvVar("CLOUDFLARE_API_TOKEN"),
+    apiToken: configManager.get("cloudflare.apiToken", ""),
 
     // Alternative authentication (if not using API token)
-    email: getEnvVar("CLOUDFLARE_EMAIL"),
-    globalApiKey: getEnvVar("CLOUDFLARE_API_KEY"),
+    email: configManager.get("cloudflare.email", ""),
+    globalApiKey: configManager.get("cloudflare.apiKey", ""),
   },
 
   // DNS Settings
   dns: {
     // Your zone ID (found in the Cloudflare dashboard)
-    zoneId: getEnvVar("CLOUDFLARE_ZONE_ID"),
+    zoneId: configManager.get("cloudflare.zoneId", ""),
 
     // Root domain (e.g., streamnet.live)
-    rootDomain: getEnvVar("CLOUDFLARE_ROOT_DOMAIN"),
+    rootDomain: configManager.get("cloudflare.rootDomain", ""),
 
     // Default TTL for DNS records (in seconds)
-    defaultTTL: getNumEnvVar("CLOUDFLARE_DEFAULT_TTL"),
+    defaultTTL: configManager.get("cloudflare.defaultTTL", 3600),
   },
 
   // DNS Record Templates
@@ -37,7 +32,7 @@ module.exports = {
     aRecords: [
       {
         name: "admin.{{subdomain}}", // e.g., admin.blabla.streamnet.live
-        content: getEnvVar("CLOUDFLARE_IPV4_ADDRESS"),
+        content: configManager.get("cloudflare.ipv4Address", ""),
         type: "A",
         ttl: 1, // Auto TTL
         proxied: true,
@@ -51,14 +46,14 @@ module.exports = {
       },
       {
         name: "{{subdomain}}", // e.g., blabla.streamnet.live
-        content: getEnvVar("CLOUDFLARE_IPV4_ADDRESS"),
+        content: configManager.get("cloudflare.ipv4Address", ""),
         type: "A",
         ttl: 1, // Auto TTL
         proxied: true,
       },
       {
         name: "www.{{subdomain}}", // e.g., www.blabla.streamnet.live
-        content: getEnvVar("CLOUDFLARE_IPV4_ADDRESS"),
+        content: configManager.get("cloudflare.ipv4Address", ""),
         type: "A",
         ttl: 1, // Auto TTL
         proxied: true,
@@ -69,14 +64,14 @@ module.exports = {
     aaaaRecords: [
       {
         name: "{{subdomain}}", // e.g., blabla.streamnet.live
-        content: getEnvVar("CLOUDFLARE_IPV6_ADDRESS"),
+        content: configManager.get("cloudflare.ipv6Address", ""),
         type: "AAAA",
         ttl: 1, // Auto TTL
         proxied: true,
       },
       {
         name: "www.{{subdomain}}", // e.g., www.blabla.streamnet.live
-        content: getEnvVar("CLOUDFLARE_IPV6_ADDRESS"),
+        content: configManager.get("cloudflare.ipv6Address", ""),
         type: "AAAA",
         ttl: 1, // Auto TTL
         proxied: true,
@@ -87,14 +82,15 @@ module.exports = {
   // Application Settings
   settings: {
     // Whether to automatically create DNS records when setting up a new domain
-    autoCreateDns: getBoolEnvVar("CLOUDFLARE_AUTO_CREATE_DNS"),
+    autoCreateDns: configManager.get("cloudflare.autoCreateDns", true),
 
     // Whether to create DNS records for subdomains automatically
-    autoCreateSubdomainDns: getBoolEnvVar(
-      "CLOUDFLARE_AUTO_CREATE_SUBDOMAIN_DNS"
+    autoCreateSubdomainDns: configManager.get(
+      "cloudflare.autoCreateSubdomainDns",
+      true
     ),
 
     // Whether to log DNS operations for debugging
-    logDnsOperations: getBoolEnvVar("CLOUDFLARE_LOG_DNS_OPERATIONS"),
+    logDnsOperations: configManager.get("cloudflare.logDnsOperations", true),
   },
 };
