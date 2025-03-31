@@ -2,6 +2,35 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.3.2] - 2025-03-31
+
+### Added
+
+- Status message system for settings page
+- Toast-style notifications in settings UI
+- Visual feedback for configuration actions
+- Selected modules preview in destination panel showing what's selected for transfer
+- Automatic reset of all UI states after successful transfer or DNS creation
+- Improved count logic for modules to treat both API and Panel components as one item
+
+### Changed
+
+- Enhanced UI feedback system throughout application
+- Improved status messages with animations
+- Refined user experience in settings interface
+- Enhanced UI feedback for transfer operations
+- Better visual consistency between domain analysis and selected modules preview
+- Refined handling of module/panel selections for a more intuitive user experience
+
+### Fixed
+
+- Status message positioning in settings panel
+- UI feedback consistency across different sections
+- Visual indication of operation success/failure
+- Count display when selecting modules showing incorrect number of items
+- UI states persisting after transfer operations
+- Inconsistent styling between domain analysis and selected modules preview
+
 ## [2.3.1] - 2025-03-31
 
 ### Fixed

@@ -600,6 +600,39 @@
             </button>
           </div>
 
+          <!-- DNS Settings Section -->
+          <div class="destination-section">
+            <div class="dns-header">
+              <label class="destination-label">
+                Cloudflare DNS Setup
+                <div class="toggle-switch">
+                  <input type="checkbox" id="dnsToggle" class="toggle-input" />
+                  <label for="dnsToggle" class="toggle-label"></label>
+                </div>
+              </label>
+            </div>
+
+            <div id="dnsForm" class="dns-form" style="display: none">
+              <div class="form-field">
+                <label class="field-label">Subdomain</label>
+                <input
+                  type="text"
+                  id="subdomainInput"
+                  class="text-input"
+                  placeholder="e.g., exampleSubDomain"
+                />
+              </div>
+              <div class="dns-info">
+                Will create 6 DNS records for:<br />
+                <span id="dnsPreview" class="dns-domain-preview"
+                  >subdomain.streamnet.live</span
+                >
+              </div>
+              <!-- New section for DNS records preview -->
+              <div id="dnsRecordsPreviewContainer"></div>
+            </div>
+          </div>
+
           <!-- Domain Selection Section -->
           <div class="destination-section">
             <label class="destination-label">SELECT DESTINATION DOMAIN</label>
@@ -635,36 +668,17 @@
             </div>
           </div>
 
-          <!-- DNS Settings Section -->
+          <!-- Domain Transfer Preview Section -->
           <div class="destination-section">
-            <div class="dns-header">
-              <label class="destination-label">
-                Cloudflare DNS Setup
-                <div class="toggle-switch">
-                  <input type="checkbox" id="dnsToggle" class="toggle-input" />
-                  <label for="dnsToggle" class="toggle-label"></label>
-                </div>
-              </label>
+            <div class="domain-analysis-header">
+              <label class="destination-label">Selected for Transfer</label>
             </div>
-
-            <div id="dnsForm" class="dns-form" style="display: none">
-              <div class="form-field">
-                <label class="field-label">Subdomain</label>
-                <input
-                  type="text"
-                  id="subdomainInput"
-                  class="text-input"
-                  placeholder="e.g., exampleSubDomain"
-                />
+            <div class="domain-analysis-content">
+              <div id="selectedModulesPreview" class="selected-modules-preview">
+                <div class="empty-section-message">
+                  No modules selected for transfer
+                </div>
               </div>
-              <div class="dns-info">
-                Will create 6 DNS records for:<br />
-                <span id="dnsPreview" class="dns-domain-preview"
-                  >subdomain.streamnet.live</span
-                >
-              </div>
-              <!-- New section for DNS records preview -->
-              <div id="dnsRecordsPreviewContainer"></div>
             </div>
           </div>
 
@@ -804,6 +818,12 @@
               <span class="settings-nav-text">About</span>
             </button>
           </div>
+
+          <div
+            id="settingsStatusMessage"
+            class="status-message"
+            style="display: none"
+          ></div>
 
           <div class="settings-footer">
             <div class="settings-app-info">
@@ -1402,6 +1422,51 @@
             </div>
 
             <div class="settings-section">
+              <div class="settings-card about-card">
+                <div class="app-logo-container">
+                  <div class="app-logo"></div>
+                  <h2>Rebrand Panel Tool</h2>
+                  <div class="version-tag">
+                    Version: <span id="aboutVersionTag">loading...</span>
+                  </div>
+                </div>
+
+                <div class="app-description">
+                  An Electron-based desktop application for streamlined
+                  management of IPTV app panels, domain creation, and file
+                  deployment.
+                </div>
+
+                <div class="update-section">
+                  <div
+                    id="settingsUpdateStatus"
+                    class="settings-status-message"
+                  >
+                    You're using the latest version
+                  </div>
+
+                  <button
+                    id="settingsCheckUpdatesBtn"
+                    class="settings-action-button"
+                  >
+                    <span class="button-icon">↻</span>
+                    Check for Updates
+                  </button>
+                </div>
+
+                <div class="about-links">
+                  <a href="#" class="about-link" id="openGithubLink">
+                    <span class="about-link-icon">🔗</span>
+                    GitHub Repository
+                  </a>
+                  <a href="#" class="about-link" id="openReportIssueLink">
+                    <span class="about-link-icon">🐞</span>
+                    Report an Issue
+                  </a>
+                </div>
+
+                <div class="license-info">Released under the MIT License</div>
+              </div>
               <!-- Add this to the About tab section, before the about-card div -->
               <div class="settings-section">
                 <h4 class="settings-section-title">GitHub Update Settings</h4>
@@ -1453,56 +1518,12 @@
                   </button>
                 </div>
               </div>
-              <div class="settings-card about-card">
-                <div class="app-logo-container">
-                  <div class="app-logo"></div>
-                  <h2>Rebrand Panel Tool</h2>
-                  <div class="version-tag">
-                    Version: <span id="aboutVersionTag">loading...</span>
-                  </div>
-                </div>
-
-                <div class="app-description">
-                  An Electron-based desktop application for streamlined
-                  management of IPTV app panels, domain creation, and file
-                  deployment.
-                </div>
-
-                <div class="update-section">
-                  <div
-                    id="settingsUpdateStatus"
-                    class="settings-status-message"
-                  >
-                    You're using the latest version
-                  </div>
-
-                  <button
-                    id="settingsCheckUpdatesBtn"
-                    class="settings-action-button"
-                  >
-                    <span class="button-icon">↻</span>
-                    Check for Updates
-                  </button>
-                </div>
-
-                <div class="about-links">
-                  <a href="#" class="about-link" id="openGithubLink">
-                    <span class="about-link-icon">🔗</span>
-                    GitHub Repository
-                  </a>
-                  <a href="#" class="about-link" id="openReportIssueLink">
-                    <span class="about-link-icon">🐞</span>
-                    Report an Issue
-                  </a>
-                </div>
-
-                <div class="license-info">Released under the MIT License</div>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <!-- Debug panel modal (hidden by default) -->
     <div id="debugModal" class="modal" style="display: none">
       <div class="modal-content debug-modal-content">

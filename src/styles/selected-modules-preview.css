@@ -1,0 +1,157 @@
+/**
+ * Styles for selected modules preview in destination panel
+ * Styled to match the domain analysis section
+ */
+
+/* Selected modules preview container - making it consistent with domain-analysis */
+.selected-modules-preview {
+  /* Reset styles to match domain-analysis */
+  width: 100%;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Selected modules list container - styled similar to domain-analysis */
+.selected-modules-list {
+  padding: 0; /* Remove padding to match domain-analysis */
+}
+
+/* Category section for panels or modules - match domain-analysis-title */
+.selected-category {
+  margin-bottom: 16px;
+}
+
+.selected-category:last-child {
+  margin-bottom: 0;
+}
+
+.selected-category h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin: 0 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  /* Match the analysis-title styling */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.selected-category h4::after {
+  content: "";
+  display: inline-block;
+  flex-grow: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary-light), transparent);
+  margin-left: 10px;
+}
+
+/* Grid layout for selected items - match installed-modules */
+.selected-items-grid {
+  display: flex !important; /* Match installed-modules */
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  height: auto !important;
+  margin-top: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Individual selected item - match installed-module */
+.selected-item {
+  background-color: var(--bg-surface-hover);
+  border-radius: var(--item-radius);
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all var(--transition);
+  border: 1px solid var(--border-subtle);
+  position: relative;
+  overflow: hidden;
+  width: calc(33.333% - 7px); /* 3 items per row with gap */
+  box-sizing: border-box;
+}
+
+.selected-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.05), transparent);
+  pointer-events: none;
+}
+
+.selected-item:hover {
+  background-color: var(--bg-surface-highlight);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Icon container - match module-icon in domain-analysis.css */
+.selected-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 4px;
+  transition: all var(--transition);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.selected-item:hover .selected-item-icon {
+  transform: scale(1.1);
+  background-color: rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
+}
+
+.selected-item-icon img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transition: all var(--transition);
+}
+
+.selected-item:hover .selected-item-icon img {
+  transform: scale(1.1);
+}
+
+/* Module name - match module-name in domain-analysis.css */
+.selected-item-name {
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  font-weight: var(--font-weight-medium);
+  margin-top: 4px;
+  transition: all var(--transition);
+}
+
+.selected-item:hover .selected-item-name {
+  color: var(--primary-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .selected-item {
+    width: calc(50% - 5px); /* 2 items per row on tablets */
+  }
+}
+
+@media (max-width: 500px) {
+  .selected-item {
+    width: 100%; /* 1 item per row on mobile */
+  }
+}

@@ -411,6 +411,252 @@ export function closeSettingsModal() {
 }
 
 /**
+ * Save connection settings
+ */
+async function saveConnectionSettings() {
+  try {
+    // Don't proceed if the API is not available
+    if (!window.streamNetAPI || !window.streamNetAPI.updateConfig) {
+      log.error("Config API not available");
+      showStatus("error", "Configuration API not available", "settings");
+      return;
+    }
+
+    // Get form values
+    const host = getFieldValue("configServerHost");
+    const username = getFieldValue("configServerUser");
+    const password = getFieldValue("configServerPassword");
+    const port = getFieldValue("configServerPort", true);
+
+    // Simple validation
+    if (!host) {
+      showStatus("error", "Server host is required", "settings");
+      return;
+    }
+
+    // Prepare config object
+    const connectionConfig = {
+      host,
+      username,
+      password,
+      port: port || 22,
+    };
+
+    // Save through the API
+    const result = await window.streamNetAPI.updateConfig(
+      "connection",
+      connectionConfig
+    );
+
+    if (result.success) {
+      log.info("Connection settings saved successfully");
+      showStatus("success", "Connection settings saved", "settings");
+    } else {
+      log.error(`Failed to save connection settings: ${result.error}`);
+      showStatus(
+        "error",
+        `Failed to save connection settings: ${result.error}`,
+        "settings"
+      );
+    }
+  } catch (error) {
+    log.error(`Error saving connection settings: ${error.message}`);
+    showStatus(
+      "error",
+      `Error saving connection settings: ${error.message}`,
+      "settings"
+    );
+  }
+}
+
+/**
+ * Save Cloudflare settings
+ */
+async function saveCloudflareSettings() {
+  try {
+    // Don't proceed if the API is not available
+    if (!window.streamNetAPI || !window.streamNetAPI.updateConfig) {
+      log.error("Config API not available");
+      showStatus("error", "Configuration API not available", "settings");
+      return;
+    }
+
+    // Get form values
+    const rootDomain = getFieldValue("configRootDomain");
+    const apiToken = getFieldValue("configCloudflareToken");
+    const zoneId = getFieldValue("configCloudflareZoneId");
+    const ipv4Address = getFieldValue("configIpv4");
+
+    // Simple validation
+    if (!rootDomain) {
+      showStatus("error", "Root domain is required", "settings");
+      return;
+    }
+
+    // Prepare config object - only update what's provided
+    const cloudflareConfig = {
+      rootDomain,
+    };
+
+    if (apiToken) cloudflareConfig.apiToken = apiToken;
+    if (zoneId) cloudflareConfig.zoneId = zoneId;
+    if (ipv4Address) cloudflareConfig.ipv4Address = ipv4Address;
+
+    // Save through the API
+    const result = await window.streamNetAPI.updateConfig(
+      "cloudflare",
+      cloudflareConfig
+    );
+
+    if (result.success) {
+      log.info("Cloudflare settings saved successfully");
+      showStatus("success", "Cloudflare settings saved", "settings");
+
+      // Update global state for the root domain
+      window.appState.rootDomain = rootDomain;
+    } else {
+      log.error(`Failed to save Cloudflare settings: ${result.error}`);
+      showStatus(
+        "error",
+        `Failed to save Cloudflare settings: ${result.error}`,
+        "settings"
+      );
+    }
+  } catch (error) {
+    log.error(`Error saving Cloudflare settings: ${error.message}`);
+    showStatus(
+      "error",
+      `Error saving Cloudflare settings: ${error.message}`,
+      "settings"
+    );
+  }
+}
+
+/**
+ * Save path settings
+ */
+async function savePathSettings() {
+  try {
+    // Don't proceed if the API is not available
+    if (!window.streamNetAPI || !window.streamNetAPI.updateConfig) {
+      log.error("Config API not available");
+      showStatus("error", "Configuration API not available", "settings");
+      return;
+    }
+
+    // Get form values
+    const basePath = getFieldValue("configBasePath");
+    const localDestination = getFieldValue("configDestPath");
+
+    // Simple validation
+    if (!basePath || !localDestination) {
+      showStatus(
+        "error",
+        "Both source and destination paths are required",
+        "settings"
+      );
+      return;
+    }
+
+    // Prepare config object
+    const pathsConfig = {
+      basePath,
+      localDestination,
+    };
+
+    // Save through the API
+    const result = await window.streamNetAPI.updateConfig("paths", pathsConfig);
+
+    if (result.success) {
+      log.info("Path settings saved successfully");
+      showStatus("success", "Path settings saved", "settings");
+    } else {
+      log.error(`Failed to save path settings: ${result.error}`);
+      showStatus(
+        "error",
+        `Failed to save path settings: ${result.error}`,
+        "settings"
+      );
+    }
+  } catch (error) {
+    log.error(`Error saving path settings: ${error.message}`);
+    showStatus(
+      "error",
+      `Error saving path settings: ${error.message}`,
+      "settings"
+    );
+  }
+}
+
+/**
+ * Save GitHub settings
+ */
+async function saveGithubSettings() {
+  try {
+    // Don't proceed if the API is not available
+    if (!window.streamNetAPI || !window.streamNetAPI.updateConfig) {
+      log.error("Config API not available");
+      showStatus("error", "Configuration API not available", "settings");
+      return;
+    }
+
+    // Get form values
+    const apiToken = getFieldValue("configGithubToken");
+    const owner = getFieldValue("configGithubOwner");
+    const repo = getFieldValue("configGithubRepo");
+
+    // Prepare config object - only update what's provided
+    const githubConfig = {};
+
+    if (apiToken) githubConfig.apiToken = apiToken;
+    if (owner) githubConfig.owner = owner;
+    if (repo) githubConfig.repo = repo;
+
+    // Save through the API
+    const result = await window.streamNetAPI.updateConfig(
+      "github",
+      githubConfig
+    );
+
+    if (result.success) {
+      log.info("GitHub settings saved successfully");
+      showStatus("success", "GitHub settings saved", "settings");
+
+      // If we just updated the GitHub token, we should check for updates
+      if (apiToken) {
+        try {
+          // Try to check for updates with the new token
+          if (window.streamNetAPI && window.streamNetAPI.checkForUpdates) {
+            setTimeout(async () => {
+              await window.streamNetAPI.checkForUpdates();
+              log.info("Triggered update check with new GitHub token");
+            }, 1000); // Small delay to ensure settings are saved
+          }
+        } catch (updateError) {
+          log.warn(
+            `Update check after token update failed: ${updateError.message}`
+          );
+        }
+      }
+    } else {
+      log.error(`Failed to save GitHub settings: ${result.error}`);
+      showStatus(
+        "error",
+        `Failed to save GitHub settings: ${result.error}`,
+        "settings"
+      );
+    }
+  } catch (error) {
+    log.error(`Error saving GitHub settings: ${error.message}`);
+    showStatus(
+      "error",
+      `Error saving GitHub settings: ${error.message}`,
+      "settings"
+    );
+  }
+}
+
+/**
  * Test server connection and update both header and settings indicators
  */
 export async function testConnection() {
@@ -467,7 +713,7 @@ export async function testConnection() {
           window.appState.connectionStatus = "connected";
           updateHeaderConnectionStatus(true);
 
-          showStatus("success", "Connection test successful");
+          showStatus("success", "Connection test successful", "settings");
         } else {
           log.error(`Connection test failed: ${result.error}`);
 
@@ -484,7 +730,7 @@ export async function testConnection() {
           window.appState.connectionStatus = "disconnected";
           updateHeaderConnectionStatus(false);
 
-          showStatus("error", `Connection failed: ${result.error}`);
+          showStatus("error", `Connection failed: ${result.error}`, "settings");
         }
       } else {
         log.error("Connection API not available");
@@ -502,7 +748,7 @@ export async function testConnection() {
         window.appState.connectionStatus = "disconnected";
         updateHeaderConnectionStatus(false);
 
-        showStatus("error", "Connection API not available");
+        showStatus("error", "Connection API not available", "settings");
       }
     } catch (error) {
       log.error(`Error during connection test: ${error.message}`);
@@ -519,7 +765,7 @@ export async function testConnection() {
       window.appState.connectionStatus = "disconnected";
       updateHeaderConnectionStatus(false);
 
-      showStatus("error", `Connection error: ${error.message}`);
+      showStatus("error", `Connection error: ${error.message}`, "settings");
     } finally {
       // Restore button state
       restoreButton();

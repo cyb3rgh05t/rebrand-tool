@@ -36,6 +36,9 @@
 /* Settings functionality */
 @import "settings.css";
 
+/* Domain Preview functionality */
+@import "selected-modules-preview.css";
+
 /* ==========================================================================
    ANIMATIONS
    ========================================================================== */

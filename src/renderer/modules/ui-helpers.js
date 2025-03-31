@@ -8,25 +8,64 @@ import { getSelectedItems } from "./module-selection.js";
  * Show status message to the user
  * @param {string} type Message type (success|error|info|warning)
  * @param {string} message Message content
+ * @param {string} [target="main"] Target area ("main" or "settings")
  */
-export function showStatus(type, message) {
-  const statusMessage = document.getElementById("statusMessage");
+export function showStatus(type, message, target = "main") {
+  // Determine which status message element to use
+  const statusMessage = document.getElementById(
+    target === "settings" ? "settingsStatusMessage" : "statusMessage"
+  );
+
   if (!statusMessage) return;
 
+  // Set the class and text
   statusMessage.className = `status-message ${type}`;
   statusMessage.textContent = message;
-  statusMessage.style.display = "block";
+
+  // For settings status, use a different animation approach
+  if (target === "settings") {
+    // Reset animation by removing and re-adding the visible class
+    statusMessage.classList.remove("visible");
+    statusMessage.classList.remove("hiding");
+
+    // Show the message
+    statusMessage.style.display = "block";
+
+    // Trigger animation in next frame
+    requestAnimationFrame(() => {
+      statusMessage.classList.add("visible");
+    });
+
+    // Auto-hide after 5 seconds for non-error messages
+    if (type !== "error") {
+      setTimeout(() => {
+        if (statusMessage) {
+          // Add hiding animation
+          statusMessage.classList.remove("visible");
+          statusMessage.classList.add("hiding");
+
+          // Hide after animation completes
+          setTimeout(() => {
+            statusMessage.style.display = "none";
+          }, 300); // Match animation duration
+        }
+      }, 5000);
+    }
+  } else {
+    // Original behavior for main status message
+    statusMessage.style.display = "block";
+
+    // Auto-hide after 5 seconds for non-error messages
+    if (type !== "error") {
+      setTimeout(() => {
+        if (statusMessage) {
+          statusMessage.style.display = "none";
+        }
+      }, 5000);
+    }
+  }
 
   log.info(`Status message (${type}): ${message}`);
-
-  // Auto-hide after 5 seconds for non-error messages
-  if (type !== "error") {
-    setTimeout(() => {
-      if (statusMessage) {
-        statusMessage.style.display = "none";
-      }
-    }, 5000);
-  }
 }
 
 /**

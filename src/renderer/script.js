@@ -11,6 +11,7 @@ import * as domainLogging from "./modules/domain-logging.js";
 import * as dnsPreview from "./modules/dns-preview.js";
 import * as settings from "./modules/settings.js";
 import * as configSettings from "./modules/config-settings.js";
+import { updateSelectedModulesPreview } from "./modules/selected-modules-preview.js";
 
 // Global app state to avoid duplicate API calls
 window.appState = {
@@ -79,6 +80,8 @@ async function initializeComponents() {
   if (transferButton) {
     transferButton.addEventListener("click", transfer.handleTransfer);
   }
+
+  updateSelectedModulesPreview(new Map());
 
   // Set up module selection handlers
   initializeModuleHandlers();

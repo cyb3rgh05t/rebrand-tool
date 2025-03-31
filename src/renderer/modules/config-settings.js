@@ -26,8 +26,12 @@ async function loadSettings() {
     // Don't proceed if the API is not available
     if (!window.streamNetAPI || !window.streamNetAPI.getConfig) {
       log.error("Config API not available");
+      showStatus("error", "Config API not available", "settings");
       return;
     }
+
+    // Show a loading message
+    showStatus("info", "Loading configuration settings...", "settings");
 
     // Load all config sections
     const connectionConfig = await window.streamNetAPI.getConfig("connection");
@@ -57,9 +61,18 @@ async function loadSettings() {
     populateFormField("configGithubRepo", githubConfig.repo);
 
     log.info("Configuration settings loaded successfully");
+    showStatus(
+      "success",
+      "Configuration settings loaded successfully",
+      "settings"
+    );
   } catch (error) {
     log.error(`Error loading configuration settings: ${error.message}`);
-    showStatus("error", "Failed to load configuration settings");
+    showStatus(
+      "error",
+      `Failed to load configuration: ${error.message}`,
+      "settings"
+    );
   }
 }
 
@@ -81,6 +94,7 @@ function setupSaveHandlers() {
   const saveConnectionBtn = document.getElementById("saveConnectionConfig");
   if (saveConnectionBtn) {
     saveConnectionBtn.addEventListener("click", async () => {
+      showStatus("info", "Saving connection settings...", "settings");
       await saveConnectionSettings();
     });
   }
@@ -89,6 +103,7 @@ function setupSaveHandlers() {
   const saveCloudflareBtn = document.getElementById("saveCloudflareConfig");
   if (saveCloudflareBtn) {
     saveCloudflareBtn.addEventListener("click", async () => {
+      showStatus("info", "Saving Cloudflare settings...", "settings");
       await saveCloudflareSettings();
     });
   }
@@ -97,6 +112,7 @@ function setupSaveHandlers() {
   const savePathsBtn = document.getElementById("savePathsConfig");
   if (savePathsBtn) {
     savePathsBtn.addEventListener("click", async () => {
+      showStatus("info", "Saving path settings...", "settings");
       await savePathSettings();
     });
   }
@@ -105,6 +121,7 @@ function setupSaveHandlers() {
   const saveGithubBtn = document.getElementById("saveGithubConfig");
   if (saveGithubBtn) {
     saveGithubBtn.addEventListener("click", async () => {
+      showStatus("info", "Saving GitHub settings...", "settings");
       await saveGithubSettings();
     });
   }
@@ -118,7 +135,7 @@ async function saveConnectionSettings() {
     // Don't proceed if the API is not available
     if (!window.streamNetAPI || !window.streamNetAPI.updateConfig) {
       log.error("Config API not available");
-      showStatus("error", "Configuration API not available");
+      showStatus("error", "Configuration API not available", "settings");
       return;
     }
 
@@ -130,7 +147,7 @@ async function saveConnectionSettings() {
 
     // Simple validation
     if (!host) {
-      showStatus("error", "Server host is required");
+      showStatus("error", "Server host is required", "settings");
       return;
     }
 
@@ -150,17 +167,26 @@ async function saveConnectionSettings() {
 
     if (result.success) {
       log.info("Connection settings saved successfully");
-      showStatus("success", "Connection settings saved");
+      showStatus(
+        "success",
+        "Connection settings saved successfully",
+        "settings"
+      );
     } else {
       log.error(`Failed to save connection settings: ${result.error}`);
       showStatus(
         "error",
-        `Failed to save connection settings: ${result.error}`
+        `Failed to save connection settings: ${result.error}`,
+        "settings"
       );
     }
   } catch (error) {
     log.error(`Error saving connection settings: ${error.message}`);
-    showStatus("error", `Error saving connection settings: ${error.message}`);
+    showStatus(
+      "error",
+      `Error saving connection settings: ${error.message}`,
+      "settings"
+    );
   }
 }
 
@@ -172,7 +198,7 @@ async function saveCloudflareSettings() {
     // Don't proceed if the API is not available
     if (!window.streamNetAPI || !window.streamNetAPI.updateConfig) {
       log.error("Config API not available");
-      showStatus("error", "Configuration API not available");
+      showStatus("error", "Configuration API not available", "settings");
       return;
     }
 
@@ -184,7 +210,7 @@ async function saveCloudflareSettings() {
 
     // Simple validation
     if (!rootDomain) {
-      showStatus("error", "Root domain is required");
+      showStatus("error", "Root domain is required", "settings");
       return;
     }
 
@@ -205,7 +231,11 @@ async function saveCloudflareSettings() {
 
     if (result.success) {
       log.info("Cloudflare settings saved successfully");
-      showStatus("success", "Cloudflare settings saved");
+      showStatus(
+        "success",
+        "Cloudflare settings saved successfully",
+        "settings"
+      );
 
       // Update global state for the root domain
       window.appState.rootDomain = rootDomain;
@@ -213,12 +243,17 @@ async function saveCloudflareSettings() {
       log.error(`Failed to save Cloudflare settings: ${result.error}`);
       showStatus(
         "error",
-        `Failed to save Cloudflare settings: ${result.error}`
+        `Failed to save Cloudflare settings: ${result.error}`,
+        "settings"
       );
     }
   } catch (error) {
     log.error(`Error saving Cloudflare settings: ${error.message}`);
-    showStatus("error", `Error saving Cloudflare settings: ${error.message}`);
+    showStatus(
+      "error",
+      `Error saving Cloudflare settings: ${error.message}`,
+      "settings"
+    );
   }
 }
 
@@ -230,7 +265,7 @@ async function savePathSettings() {
     // Don't proceed if the API is not available
     if (!window.streamNetAPI || !window.streamNetAPI.updateConfig) {
       log.error("Config API not available");
-      showStatus("error", "Configuration API not available");
+      showStatus("error", "Configuration API not available", "settings");
       return;
     }
 
@@ -240,7 +275,11 @@ async function savePathSettings() {
 
     // Simple validation
     if (!basePath || !localDestination) {
-      showStatus("error", "Both source and destination paths are required");
+      showStatus(
+        "error",
+        "Both source and destination paths are required",
+        "settings"
+      );
       return;
     }
 
@@ -255,14 +294,22 @@ async function savePathSettings() {
 
     if (result.success) {
       log.info("Path settings saved successfully");
-      showStatus("success", "Path settings saved");
+      showStatus("success", "Path settings saved successfully", "settings");
     } else {
       log.error(`Failed to save path settings: ${result.error}`);
-      showStatus("error", `Failed to save path settings: ${result.error}`);
+      showStatus(
+        "error",
+        `Failed to save path settings: ${result.error}`,
+        "settings"
+      );
     }
   } catch (error) {
     log.error(`Error saving path settings: ${error.message}`);
-    showStatus("error", `Error saving path settings: ${error.message}`);
+    showStatus(
+      "error",
+      `Error saving path settings: ${error.message}`,
+      "settings"
+    );
   }
 }
 
@@ -274,7 +321,7 @@ async function saveGithubSettings() {
     // Don't proceed if the API is not available
     if (!window.streamNetAPI || !window.streamNetAPI.updateConfig) {
       log.error("Config API not available");
-      showStatus("error", "Configuration API not available");
+      showStatus("error", "Configuration API not available", "settings");
       return;
     }
 
@@ -298,7 +345,7 @@ async function saveGithubSettings() {
 
     if (result.success) {
       log.info("GitHub settings saved successfully");
-      showStatus("success", "GitHub settings saved");
+      showStatus("success", "GitHub settings saved successfully", "settings");
 
       // If we just updated the GitHub token, we should check for updates
       if (apiToken) {
@@ -318,11 +365,19 @@ async function saveGithubSettings() {
       }
     } else {
       log.error(`Failed to save GitHub settings: ${result.error}`);
-      showStatus("error", `Failed to save GitHub settings: ${result.error}`);
+      showStatus(
+        "error",
+        `Failed to save GitHub settings: ${result.error}`,
+        "settings"
+      );
     }
   } catch (error) {
     log.error(`Error saving GitHub settings: ${error.message}`);
-    showStatus("error", `Error saving GitHub settings: ${error.message}`);
+    showStatus(
+      "error",
+      `Error saving GitHub settings: ${error.message}`,
+      "settings"
+    );
   }
 }
 

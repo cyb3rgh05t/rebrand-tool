@@ -3,6 +3,7 @@
  */
 import { showStatus, updateTransferButton } from "./ui-helpers.js";
 import { log } from "../utils/logging.js";
+import { updateSelectedModulesPreview } from "./selected-modules-preview.js";
 
 // Selected modules and panels for transfer
 const selectedItems = new Map();
@@ -215,6 +216,9 @@ export function initializeModuleCheckboxes() {
 
       updateSelectedCount();
       updateTransferButton();
+
+      // Update the modules preview in the destination panel
+      updateSelectedModulesPreview(selectedItems);
     });
   });
 }
@@ -234,6 +238,11 @@ export function updateSelectedCount() {
 /**
  * Select all modules
  */
+/**
+ * Updated select/unselect handler functions to update the preview
+ */
+
+// Update for selectAllModulesHandler
 export function selectAllModulesHandler() {
   log.info("Selecting all modules");
   const moduleCheckboxes = document.querySelectorAll(
@@ -251,6 +260,9 @@ export function selectAllModulesHandler() {
   });
 
   showStatus("info", "All modules selected");
+
+  // Update the modules preview
+  updateSelectedModulesPreview(selectedItems);
 }
 
 /**
@@ -273,8 +285,10 @@ export function selectAllPanelsHandler() {
   });
 
   showStatus("info", "All panels selected");
-}
 
+  // Update the modules preview
+  updateSelectedModulesPreview(selectedItems);
+}
 /**
  * Unselect all panels
  */
@@ -295,6 +309,9 @@ export function unselectAllPanelsHandler() {
   });
 
   showStatus("info", "All panels unselected");
+
+  // Update the modules preview
+  updateSelectedModulesPreview(selectedItems);
 }
 
 /**
@@ -318,6 +335,9 @@ export function unselectAllModulesHandler() {
   updateSelectedCount();
   updateTransferButton();
 
+  // Update the modules preview
+  updateSelectedModulesPreview(selectedItems);
+
   showStatus("info", "All selections cleared");
 }
 
@@ -340,6 +360,9 @@ export function clearAllSelections() {
 
   // Update transfer button state
   updateTransferButton();
+
+  // Update the modules preview
+  updateSelectedModulesPreview(selectedItems);
 
   log.debug("All selections cleared");
 }

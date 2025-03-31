@@ -1241,3 +1241,106 @@
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* Toast-style status message for settings page */
+#settingsStatusMessage {
+  position: absolute;
+  bottom: 80px; /* Position right above the version/copyright line */
+  left: 10px;
+  width: auto;
+  max-width: 15%;
+  background-color: var(--bg-surface);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  padding: 12px 16px;
+  z-index: 1001;
+  border-left: 4px solid transparent;
+  transform: translateY(0);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Status colors */
+#settingsStatusMessage.success {
+  background-color: var(--success-subtle);
+  color: var(--success);
+  border-left-color: var(--success);
+}
+
+#settingsStatusMessage.error {
+  background-color: var(--error-subtle);
+  color: var(--error);
+  border-left-color: var(--error);
+}
+
+#settingsStatusMessage.info {
+  background-color: var(--info-subtle);
+  color: var(--info);
+  border-left-color: var(--info);
+}
+
+#settingsStatusMessage.warning {
+  background-color: var(--warning-subtle);
+  color: var(--warning);
+  border-left-color: var(--warning);
+}
+
+/* Status message icon */
+#settingsStatusMessage::a #settingsStatusMessage.success::after {
+  content: "✓";
+}
+
+#settingsStatusMessage.error::after {
+  content: "✕";
+}
+
+#settingsStatusMessage.info::after {
+  content: "ℹ";
+}
+
+#settingsStatusMessage.warning::after {
+  content: "!";
+}
+
+#settingsStatusMessage {
+  padding-left: 36px; /* Make room for the icon */
+}
+
+/* Animation */
+@keyframes settingsStatusSlideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+#settingsStatusMessage.visible {
+  animation: settingsStatusSlideUp 0.3s ease-out forwards;
+}
+
+/* Hide animation */
+@keyframes settingsStatusSlideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+#settingsStatusMessage.hiding {
+  animation: settingsStatusSlideDown 0.3s ease-in forwards;
+}
+
+/* Make status more toast-like */
+#settingsStatusMessage {
+  font-size: 14px;
+  padding-left: 14px;
+  text-align: center;
+  min-width: 200px;
+}

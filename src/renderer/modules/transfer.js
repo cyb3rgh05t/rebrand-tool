@@ -7,7 +7,8 @@ import { getSelectedItems, clearAllSelections } from "./module-selection.js";
 import { createDnsRecords } from "./dns-handling.js";
 
 /**
- * Handle file/folder transfer and/or DNS creation
+ * Enhanced handleTransfer function that resets all states after completion
+ * This should replace the existing handleTransfer function in src/renderer/modules/transfer.js
  */
 export async function handleTransfer() {
   const domainSelect = document.getElementById("domainSelect");
@@ -181,6 +182,12 @@ export async function handleTransfer() {
         showStatus("error", `File transfer failed.`);
       }
     }
+
+    // Reset all states after a successful transfer or DNS creation
+    if (transferSuccess || dnsSuccess) {
+      // Reset domain selection and analysis
+      resetStatesAfterTransfer();
+    }
   } catch (error) {
     log.error(`Error during operation: ${error.message}`);
     showStatus("error", `Operation failed: ${error.message}`);
@@ -192,6 +199,64 @@ export async function handleTransfer() {
         : "Transfer Files";
     }
     updateTransferButton();
+  }
+}
+
+/**
+ * Reset various states after a successful transfer
+ */
+function resetStatesAfterTransfer() {
+  try {
+    // 1. Reset domain selection
+    const domainSelect = document.getElementById("domainSelect");
+    if (domainSelect) {
+      domainSelect.selectedIndex = 0; // Select first option (usually "Select a domain...")
+    }
+
+    // 2. Clear domain analysis content
+    const domainAnalysisContent = document.getElementById(
+      "domainAnalysisContent"
+    );
+    if (domainAnalysisContent) {
+      domainAnalysisContent.innerHTML =
+        '<div class="empty-section-message">No domain selected</div>';
+    }
+
+    // 3. Reset DNS settings
+    const dnsToggle = document.getElementById("dnsToggle");
+    const dnsForm = document.getElementById("dnsForm");
+    const subdomainInput = document.getElementById("subdomainInput");
+
+    if (dnsToggle) {
+      dnsToggle.checked = false;
+    }
+
+    if (dnsForm) {
+      dnsForm.style.display = "none";
+    }
+
+    if (subdomainInput) {
+      subdomainInput.value = "";
+    }
+
+    // 4. Update DNS preview
+    const dnsPreview = document.getElementById("dnsPreview");
+    if (dnsPreview) {
+      dnsPreview.textContent =
+        window.appState?.rootDomain || "subdomain.example.com";
+    }
+
+    // 5. Reset DNS records preview if exists
+    const dnsRecordsPreviewContainer = document.getElementById(
+      "dnsRecordsPreviewContainer"
+    );
+    if (dnsRecordsPreviewContainer) {
+      dnsRecordsPreviewContainer.innerHTML = "";
+    }
+
+    log.debug("All states reset after successful transfer");
+  } catch (error) {
+    log.error(`Error resetting states: ${error.message}`);
   }
 }
 
