@@ -48,9 +48,12 @@ jobs:
       - name: Create Git tag
         if: env.TAG_EXISTS == 'false'
         run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a ${{ env.VERSION }} -m "Release ${{ env.VERSION }}"
+
+          # Use a token with appropriate permissions for pushing
+          git remote set-url origin https://x-access-token:${{ secrets.PACKAGES }}@github.com/${{ github.repository }}
           git push origin ${{ env.VERSION }}
           echo "Created and pushed tag ${{ env.VERSION }}"
 
