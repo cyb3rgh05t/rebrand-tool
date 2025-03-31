@@ -2,6 +2,21 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.0.0] - 2025-03-03
+
+### Added
+
+- Complete rewrite using Electron framework
+- Domain creation via Virtualmin API
+- Module selection interface
+- SSH/SFTP connection management
+- Configuration via .env files
+
+### Changed
+
+- Entirely new user interface
+- Improved architecture and performance
+
 ## [1.0.0] - 2025-03-01
 
 ### Added

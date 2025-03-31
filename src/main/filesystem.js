@@ -453,6 +453,220 @@ async function copyFolderContents(sourcePath, targetPath) {
   }
 }
 
+/**
+ * Scan a domain's directory structure
+ * @param {string} dirPath Directory path to scan
+ * @param {number} [depth=1] Scan depth (how many levels of subdirectories to scan)
+ * @returns {Promise<Object>} Directory structure data
+ */
+async function scanDomainStructure(dirPath, depth = 1) {
+  const logger = require("./utils/logger").createLogger("filesystem");
+  logger.info(`Scanning domain structure at ${dirPath} with depth ${depth}`);
+
+  // For simulation mode, return some dummy data
+  if (require("../config/serverConfig").settings.useSimulatedMode) {
+    logger.debug(`Using simulated domain structure for ${dirPath}`);
+
+    // Create a simulated directory structure based on the path
+    const simulatedStructure = createSimulatedStructure(dirPath);
+    return simulatedStructure;
+  }
+
+  let connection;
+  try {
+    connection = await require("./connection").createSftpConnection();
+    const { conn, sftp } = connection;
+
+    // First check if the directory exists
+    try {
+      const stats = await new Promise((resolve, reject) => {
+        sftp.stat(dirPath, (err, stats) => {
+          if (err) {
+            if (err.code === 2) {
+              // No such file
+              reject(new Error(`Directory not found: ${dirPath}`));
+            } else {
+              reject(err);
+            }
+            return;
+          }
+          resolve(stats);
+        });
+      });
+
+      if (!stats.isDirectory()) {
+        conn.end();
+        logger.error(`Path is not a directory: ${dirPath}`);
+        return { error: `Path is not a directory: ${dirPath}`, items: [] };
+      }
+    } catch (statErr) {
+      conn.end();
+      logger.error(`Error checking directory: ${statErr.message}`);
+      return { error: statErr.message, items: [] };
+    }
+
+    // Start scanning from the root directory
+    const items = await scanDirectory(sftp, dirPath, depth);
+
+    // Close connection
+    conn.end();
+
+    logger.info(`Domain structure scan complete for ${dirPath}`);
+    return { items };
+  } catch (err) {
+    logger.error(`Error scanning domain structure: ${err.message}`);
+
+    // Clean up connection
+    if (connection && connection.conn) {
+      try {
+        connection.conn.end();
+      } catch (e) {
+        logger.error(`Error closing connection: ${e.message}`);
+      }
+    }
+
+    return { error: err.message, items: [] };
+  }
+}
+
+/**
+ * Recursively scan a directory and its subdirectories
+ * @param {Object} sftp SFTP connection
+ * @param {string} dirPath Directory path
+ * @param {number} depthRemaining How many more levels to scan
+ * @returns {Promise<Array>} Directory listing
+ */
+async function scanDirectory(sftp, dirPath, depthRemaining) {
+  const logger = require("./utils/logger").createLogger("filesystem");
+
+  return new Promise((resolve, reject) => {
+    sftp.readdir(dirPath, async (err, list) => {
+      if (err) {
+        logger.error(`Error reading directory ${dirPath}: ${err.message}`);
+        return reject(err);
+      }
+
+      const items = [];
+
+      for (const item of list) {
+        const itemPath = `${dirPath}/${item.filename}`;
+        const isDirectory = item.attrs.isDirectory();
+
+        const itemInfo = {
+          name: item.filename,
+          path: itemPath,
+          isDirectory,
+          size: item.attrs.size,
+          modifyTime: new Date(item.attrs.mtime * 1000),
+        };
+
+        // If it's a directory and we haven't reached max depth, scan it too
+        if (isDirectory && depthRemaining > 0) {
+          try {
+            const children = await scanDirectory(
+              sftp,
+              itemPath,
+              depthRemaining - 1
+            );
+            itemInfo.children = children;
+          } catch (subDirErr) {
+            logger.error(
+              `Error scanning subdirectory ${itemPath}: ${subDirErr.message}`
+            );
+            itemInfo.error = subDirErr.message;
+          }
+        }
+
+        items.push(itemInfo);
+      }
+
+      resolve(items);
+    });
+  });
+}
+
+/**
+ * Create a simulated directory structure for testing
+ * @param {string} dirPath Directory path
+ * @returns {Object} Simulated structure data
+ */
+function createSimulatedStructure(dirPath) {
+  // Extract domain name from path
+  const domainParts = dirPath.split("/");
+  const domainIndex = domainParts.findIndex((part) => part.includes("."));
+
+  // Default structure with nothing installed
+  const structure = { items: [] };
+
+  if (domainIndex === -1 || !dirPath.includes("public_html")) {
+    return structure;
+  }
+
+  const domainName = domainParts[domainIndex];
+
+  // Different simulations based on domain name
+  if (domainName.includes("client")) {
+    // Simulate a domain with panel and modules
+    structure.items = [
+      {
+        name: "panel",
+        path: `${dirPath}/panel`,
+        isDirectory: true,
+        children: [
+          {
+            name: "xciptv",
+            path: `${dirPath}/panel/xciptv`,
+            isDirectory: true,
+          },
+          {
+            name: "tivimate",
+            path: `${dirPath}/panel/tivimate`,
+            isDirectory: true,
+          },
+        ],
+      },
+      {
+        name: "api",
+        path: `${dirPath}/api`,
+        isDirectory: true,
+        children: [
+          {
+            name: "xciptv",
+            path: `${dirPath}/api/xciptv`,
+            isDirectory: true,
+          },
+          {
+            name: "tivimate",
+            path: `${dirPath}/api/tivimate`,
+            isDirectory: true,
+          },
+        ],
+      },
+    ];
+  } else if (domainName.includes("demo")) {
+    // Simulate a domain with panel but no modules
+    structure.items = [
+      {
+        name: "panel",
+        path: `${dirPath}/panel`,
+        isDirectory: true,
+        children: [],
+      },
+      {
+        name: "api",
+        path: `${dirPath}/api`,
+        isDirectory: true,
+        children: [],
+      },
+    ];
+  } else if (domainName.includes("test")) {
+    // Simulate a domain with no panel
+    structure.items = [];
+  }
+
+  return structure;
+}
+
 module.exports = {
   checkRemoteFile,
   createRemoteDirectory,
@@ -461,4 +675,5 @@ module.exports = {
   listRemoteDirectory,
   listDestinationFolders,
   copyFolderContents,
+  scanDomainStructure,
 };

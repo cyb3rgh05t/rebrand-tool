@@ -2,21 +2,76 @@
  * IPC handlers for StreamNet Panels
  * This module registers all the IPC handlers that the renderer process uses
  */
-const { ipcMain } = require("electron");
+const { ipcMain, BrowserWindow, app } = require("electron");
 const { createLogger } = require("./utils/logger");
 const connection = require("./connection");
 const filesystem = require("./filesystem");
 const dns = require("./dns");
 const virtualmin = require("./virtualmin");
+const path = require("path");
+const fs = require("fs");
 
-// Create logger for IPC handlers
+// Create a logger for IPC handlers
 const logger = createLogger("ipc");
+
+/**
+ * Get the application version from multiple sources
+ * @returns {string} Application version
+ */
+function getApplicationVersion() {
+  // First try to get version from Electron app
+  let version = app.getVersion();
+
+  // If we got a valid version, return it
+  if (version && version !== "0.0.0") {
+    logger.debug(`Using version from Electron app: ${version}`);
+    return version;
+  }
+
+  // If app version is not available or is default, try package.json
+  try {
+    // Try multiple paths for package.json (development vs production)
+    const possiblePaths = [
+      path.join(app.getAppPath(), "package.json"),
+      path.join(process.cwd(), "package.json"),
+      path.join(__dirname, "../../package.json"),
+      path.join(process.resourcesPath || "", "app/package.json"),
+      path.join(process.resourcesPath || "", "app.asar/package.json"),
+    ];
+
+    // Try each path until we find a valid package.json
+    for (const packagePath of possiblePaths) {
+      if (fs.existsSync(packagePath)) {
+        logger.debug(`Reading package.json from: ${packagePath}`);
+        const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+        if (packageJson.version) {
+          logger.debug(
+            `Using version from package.json: ${packageJson.version}`
+          );
+          return packageJson.version;
+        }
+      }
+    }
+  } catch (error) {
+    logger.error(`Error reading version from package.json: ${error.message}`);
+  }
+
+  // If all else fails, return a default version
+  logger.warn("Could not determine version, using default");
+  return "1.0.0";
+}
 
 /**
  * Register all IPC handlers for the application
  */
 function registerIpcHandlers() {
   logger.info("Registering IPC handlers");
+
+  // Get app version
+  ipcMain.handle("get-app-version", async (event) => {
+    logger.debug("IPC: get-app-version called");
+    return getApplicationVersion();
+  });
 
   // Connection testing
   ipcMain.handle("test-connection", async (event) => {
@@ -33,10 +88,50 @@ function registerIpcHandlers() {
     }
   });
 
+  // Update checking handler
+  ipcMain.handle("check-for-updates", async (event) => {
+    logger.debug("IPC: check-for-updates called");
+    try {
+      // Import the updater module
+      const updater = require("./updater");
+      const result = await updater.checkForUpdates();
+
+      // If an update is available, show a dialog
+      if (result.updateAvailable) {
+        // Get the BrowserWindow that sent the request
+        const win = BrowserWindow.fromWebContents(event.sender);
+        if (win) {
+          updater.showUpdateDialog(result, win);
+        }
+      }
+
+      return result;
+    } catch (error) {
+      logger.error(`Error checking for updates: ${error.message}`);
+      return {
+        updateAvailable: false,
+        error: error.message,
+        currentVersion: getApplicationVersion(),
+      };
+    }
+  });
+
   // Root domain getter
   ipcMain.handle("get-root-domain", async (event) => {
     logger.debug("IPC: get-root-domain called");
     return await dns.getRootDomain();
+  });
+
+  // Scan Domain structure
+  ipcMain.handle("scan-domain-structure", async (event, dirPath) => {
+    logger.debug("IPC: scan-domain-structure called for", dirPath);
+
+    try {
+      return await filesystem.scanDomainStructure(dirPath);
+    } catch (err) {
+      logger.error(`Error scanning domain structure: ${err.message}`);
+      return { error: err.message, items: [] };
+    }
   });
 
   // DNS operations
@@ -168,15 +263,49 @@ function registerIpcHandlers() {
 
       for (const item of items) {
         try {
+          // Skip if item.path is undefined
+          if (!item.path) {
+            logger.error(`Item has no path defined: ${JSON.stringify(item)}`);
+            results.push({
+              name: item.name || "unknown",
+              status: "error",
+              error: "No path defined for this item",
+            });
+            continue;
+          }
+
           const remoteSrcPath = `${CONFIG.paths.basePath}${item.path}`
             .replace(/\\/g, "/")
             .replace(/\/\//g, "/");
-          const remoteDestPath = `${remoteTargetRoot}/${item.path}`.replace(
-            /\/\//g,
-            "/"
-          );
 
-          logger.debug(`Processing item: ${item.path}`);
+          // Determine proper destination path based on item type
+          let remoteDestPath;
+
+          // Check if this is a cockpitpanel item (look at flag, type, name, and path)
+          if (
+            item.isCockpitPanel ||
+            (item.type === "panel" &&
+              (item.name === "cockpitpanel" ||
+                item.path.includes("cockpitpanel")))
+          ) {
+            // For cockpitpanel, copy directly to the public_html folder root
+            remoteDestPath = remoteTargetRoot;
+            logger.debug(
+              `Special handling for cockpitpanel item: copying directly to public_html root`
+            );
+          } else {
+            // Regular module or panel - preserve the FULL directory structure
+            // Don't modify the item.path structure for regular modules and panels
+            remoteDestPath = `${remoteTargetRoot}/${item.path}`.replace(
+              /\/\//g,
+              "/"
+            );
+            logger.debug(
+              `Preserving full directory structure for module: ${item.path}`
+            );
+          }
+
+          logger.debug(`Processing item: ${item.name || item.path}`);
           logger.debug(`Source: ${remoteSrcPath}`);
           logger.debug(`Destination: ${remoteDestPath}`);
 
@@ -220,7 +349,6 @@ function registerIpcHandlers() {
           }
 
           // Create parent directory
-          const path = require("path");
           const parentDir = path.dirname(remoteDestPath).replace(/\\/g, "/");
 
           try {
@@ -251,12 +379,31 @@ function registerIpcHandlers() {
                 "Creating destination directory"
               );
 
-              // Then copy the contents (with visible feedback from verbose option)
-              await connection.execSSHCommand(
-                conn,
-                `cp -rv "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
-                "Copying directory contents"
-              );
+              // Special handling for cockpitpanel - copy content from source to public_html
+              if (
+                item.isCockpitPanel ||
+                (item.type === "panel" &&
+                  (item.name === "cockpitpanel" ||
+                    item.path.includes("cockpitpanel")))
+              ) {
+                // Copy all files from the cockpitpanel directory directly to public_html
+                await connection.execSSHCommand(
+                  conn,
+                  `cp -rv "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
+                  "Copying cockpitpanel files to public_html root"
+                );
+
+                logger.info(
+                  `Copied cockpitpanel directory directly to ${remoteDestPath}`
+                );
+              } else {
+                // For normal modules, preserve directory structure
+                await connection.execSSHCommand(
+                  conn,
+                  `cp -rv "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
+                  "Copying directory contents"
+                );
+              }
 
               // Change ownership
               await connection.execSSHCommand(

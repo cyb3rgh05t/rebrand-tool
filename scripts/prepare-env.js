@@ -11,24 +11,24 @@ const exampleEnvPath = path.join(rootDir, ".env.example");
 
 // Check if .env exists
 if (!fs.existsSync(envPath)) {
-  console.log("⚠️ .env file not found");
+  console.log("Environment .env file not found");
 
   // Check if .env.example exists
   if (fs.existsSync(exampleEnvPath)) {
-    console.log("📝 Creating .env from .env.example");
+    console.log("Creating .env from .env.example");
     fs.copyFileSync(exampleEnvPath, envPath);
-    console.log("✅ Created .env file");
+    console.log("Created .env file");
   } else {
-    console.log("⚠️ .env.example not found either");
-    console.log("📝 Creating empty .env file");
+    console.log("Environment .env.example not found either");
+    console.log("Creating empty .env file");
     fs.writeFileSync(
       envPath,
       "# Environment Variables\n# Add your configuration here\n"
     );
-    console.log("✅ Created empty .env file");
+    console.log("Created empty .env file");
   }
 } else {
-  console.log("✅ .env file exists");
+  console.log("Environment .env file exists");
 }
 
 // Make sure the scripts directory exists
@@ -37,4 +37,4 @@ if (!fs.existsSync(scriptsDir)) {
   fs.mkdirSync(scriptsDir);
 }
 
-console.log("✅ Environment preparation complete");
+console.log("Environment preparation complete");

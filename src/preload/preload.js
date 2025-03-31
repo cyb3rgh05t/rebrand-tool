@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
   // Connection testing
   testConnection: () => ipcRenderer.invoke("test-connection"),
 
+  // App version
+  getAppVersion: () => ipcRenderer.invoke("get-app-version"),
+
   // Domain operations
   getRootDomain: () => ipcRenderer.invoke("get-root-domain"),
 
@@ -45,7 +48,22 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
 
   // Debug and logging
   setLogLevel: (level) => ipcRenderer.invoke("set-log-level", level),
+
+  // Updates
+  checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+
+  // Domain Structure
+  scanDomainStructure: (dirPath) =>
+    ipcRenderer.invoke("scan-domain-structure", dirPath),
+
+  // Add this new method for menu actions
+  onMenuAction: (callback) => {
+    // Set up listener for menu-action events
+    ipcRenderer.on("menu-action", (event, action, data) => {
+      callback(action, data);
+    });
+  },
 });
 
 // Log preload script execution
-console.log("StreamNet Panels preload script executed");
+console.log("Rebrands Panel preload script executed");

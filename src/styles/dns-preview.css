@@ -1,0 +1,172 @@
+/* Improve DNS Records Preview container */
+.dns-records-preview {
+  margin-top: 16px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--item-radius);
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  animation: fadeIn 0.3s ease-out;
+  width: 100%;
+}
+
+.records-preview-title {
+  font-size: var(--font-size-xs);
+  margin: 0 0 10px 0;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Fix records list layout */
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Improve record item layout */
+.dns-record-item {
+  display: flex;
+  padding: 8px 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: var(--item-radius);
+  transition: all var(--transition);
+  border-left: 3px solid transparent;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ensure the record type has fixed width */
+.record-type {
+  font-weight: bold;
+  font-size: var(--font-size-xs);
+  background-color: var(--accent);
+  color: #000;
+  padding: 3px 6px;
+  border-radius: 4px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 18px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Fix record details container */
+.record-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Allow truncation */
+  width: 100%;
+}
+
+/* Fix domain name overflow */
+.record-name {
+  font-weight: 500;
+  color: var(--primary-light);
+  font-size: var(--font-size-sm);
+  margin-bottom: 4px;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+/* Add tooltip on hover */
+.record-name:hover {
+  position: relative;
+}
+
+.record-name[title]:hover:after {
+  content: attr(title);
+  position: absolute;
+  left: 0;
+  top: -24px;
+  background: var(--surface);
+  color: var(--text-primary);
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  z-index: 10;
+  white-space: nowrap;
+  box-shadow: var(--shadow-small);
+}
+
+/* Improve record content layout */
+.record-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Ensure IP address doesn't overflow */
+.record-ip {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+/* Make proxy status compact */
+.proxy-status {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0; /* Prevent shrinking */
+  margin-left: auto; /* Push to the right */
+}
+
+.proxy-status.proxied {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.proxy-status.not-proxied {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+}
+
+.record-preview-empty {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: var(--font-size-xs);
+  text-align: center;
+  padding: 12px;
+}
+
+/* AAAA type records */
+.record-type.aaaa {
+  background-color: var(--warning);
+  width: 40px; /* Fixed width for AAAA */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 500px) {
+  .record-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .record-ip {
+    max-width: 100%;
+  }
+
+  .proxy-status {
+    margin-left: 0;
+  }
+}

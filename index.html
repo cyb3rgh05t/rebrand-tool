@@ -2,21 +2,44 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>StreamNet Rebrands Panel Tool</title>
+    <title>StreamNet Rebrands</title>
     <link rel="stylesheet" href="src/styles/main.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
     <div class="header">
-      <h1>App Panels Tool</h1>
-      <div class="connection-status">
-        <span id="connectionIndicator" class="status-indicator"></span>
-        <span id="connectionText">Checking connection...</span>
-        <button id="testConnectionButton" class="small-button">
-          Test Connection
-        </button>
+      <!-- Left side with app title and version -->
+      <div class="header-left">
+        <div class="title-container">
+          <h1>Rebrands Panel Tool</h1>
+          <div id="versionBadge" class="version-badge">loading...</div>
+        </div>
+      </div>
+
+      <!-- Right side with actions -->
+      <div class="header-right">
+        <!-- Connection status indicator -->
+        <div class="connection-indicator-container">
+          <span id="connectionIndicator" class="status-indicator"></span>
+          <span id="connectionText">Checking connection...</span>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="header-actions">
+          <button id="testConnectionButton" class="header-button">
+            <span class="button-icon">↻</span>
+            <span class="button-text">Test Connection</span>
+          </button>
+          <button id="checkUpdatesBtn" class="header-button update-button">
+            <span class="button-icon">↻</span>
+            <span class="button-text">Check Updates</span>
+          </button>
+        </div>
       </div>
     </div>
+
+    <!-- Update notification toast that appears below header -->
+    <div id="updateStatus" class="update-toast"></div>
 
     <div class="container">
       <!-- Source Panel (Panels & Modules Selection) -->
@@ -26,7 +49,7 @@
         <div class="panel-content">
           <!-- Panels Section -->
           <div class="selection-category">
-            <h3 class="category-title">Panels</h3>
+            <h3 class="category-title">Select Panels</h3>
 
             <div class="panel-controls">
               <button id="selectAllPanels" class="select-all-button">
@@ -40,7 +63,7 @@
               <!-- Cockpit Panel -->
               <div
                 class="selection-item"
-                data-tooltip="Main control panel for StreamNet Rebrands"
+                data-tooltip="Main control panel for Rebrands"
               >
                 <input
                   type="checkbox"
@@ -137,7 +160,7 @@
 
           <!-- Modules Section -->
           <div class="selection-category">
-            <h3 class="category-title">App Modules</h3>
+            <h3 class="category-title">Select App Modules</h3>
 
             <div class="module-controls">
               <button id="selectAllModules" class="select-all-button">
@@ -566,81 +589,105 @@
         </div>
       </div>
 
-      <!-- Destination Panel -->
+      <!-- Destination Panel with Fixed Bottom Button -->
       <div class="panel destination-panel">
-        <h2 class="panel-title">Transfer Files</h2>
+        <h2 class="panel-title">Domain & Panel Setup</h2>
 
-        <!-- Create Domain Section -->
-        <div class="destination-section">
-          <label class="destination-label">Create New Domain</label>
-          <button id="newDomainBtn" class="action-button full-width">
-            <span class="button-icon">+</span> Create New Domain
-          </button>
-        </div>
-
-        <!-- Domain Selection Section -->
-        <div class="destination-section">
-          <label class="destination-label">Select Destination Domain</label>
-          <div class="domain-selection-container">
-            <select id="domainSelect" class="destination-select">
-              <option value="">Select a domain...</option>
-              <!-- Will be populated dynamically with Virtualmin domains -->
-            </select>
-            <button
-              id="refreshDomainsBtn"
-              class="action-button icon-button"
-              title="Refresh domain list"
-            >
-              <span class="refresh-icon">↻</span>
+        <!-- Scrollable content area -->
+        <div class="destination-content">
+          <!-- Create Domain Section -->
+          <div class="destination-section">
+            <label class="destination-label">Create New Domain</label>
+            <button id="newDomainBtn" class="action-button full-width">
+              <span class="button-icon">+</span> Create New Domain
             </button>
           </div>
-        </div>
 
-        <!-- DNS Settings Section -->
-        <div class="destination-section">
-          <div class="dns-header">
-            <label class="destination-label">
-              Cloudflare DNS Setup
-              <div class="toggle-switch">
-                <input type="checkbox" id="dnsToggle" class="toggle-input" />
-                <label for="dnsToggle" class="toggle-label"></label>
-              </div>
-            </label>
-          </div>
-
-          <div id="dnsForm" class="dns-form" style="display: none">
-            <div class="form-field">
-              <label class="field-label">Subdomain</label>
-              <input
-                type="text"
-                id="subdomainInput"
-                class="text-input"
-                placeholder="e.g., blabla"
-              />
-            </div>
-            <div class="dns-info">
-              Will create 6 DNS records for:<br />
-              <span id="dnsPreview" class="dns-domain-preview"
-                >subdomain.streamnet.live</span
+          <!-- Domain Selection Section -->
+          <div class="destination-section">
+            <label class="destination-label">SELECT DESTINATION DOMAIN</label>
+            <div class="domain-selection-container">
+              <select id="domainSelect" class="destination-select">
+                <option value="">Loading domains...</option>
+                <!-- Will be populated dynamically with Virtualmin domains -->
+              </select>
+              <button
+                id="refreshDomainsBtn"
+                class="action-button icon-button"
+                title="Refresh domain list"
               >
+                <span class="refresh-icon">↻</span>
+              </button>
             </div>
           </div>
+
+          <!-- Domain Analysis Section -->
+          <div class="destination-section">
+            <div class="domain-analysis-header">
+              <label class="destination-label">Domain Analysis</label>
+              <button
+                id="refreshAnalysisBtn"
+                class="refresh-analysis-btn"
+                title="Refresh analysis"
+              >
+                Refresh
+              </button>
+            </div>
+            <div id="domainAnalysisContent" class="domain-analysis-content">
+              <div class="empty-section-message">No domain selected</div>
+            </div>
+          </div>
+
+          <!-- DNS Settings Section -->
+          <div class="destination-section">
+            <div class="dns-header">
+              <label class="destination-label">
+                Cloudflare DNS Setup
+                <div class="toggle-switch">
+                  <input type="checkbox" id="dnsToggle" class="toggle-input" />
+                  <label for="dnsToggle" class="toggle-label"></label>
+                </div>
+              </label>
+            </div>
+
+            <div id="dnsForm" class="dns-form" style="display: none">
+              <div class="form-field">
+                <label class="field-label">Subdomain</label>
+                <input
+                  type="text"
+                  id="subdomainInput"
+                  class="text-input"
+                  placeholder="e.g., exampleSubDomain"
+                />
+              </div>
+              <div class="dns-info">
+                Will create 6 DNS records for:<br />
+                <span id="dnsPreview" class="dns-domain-preview"
+                  >subdomain.streamnet.live</span
+                >
+              </div>
+              <!-- New section for DNS records preview -->
+              <div id="dnsRecordsPreviewContainer"></div>
+            </div>
+          </div>
+
+          <div
+            id="statusMessage"
+            class="status-message"
+            style="display: none"
+          ></div>
+
+          <!-- Add spacer to push fixed bottom to the bottom -->
+          <div style="flex-grow: 1"></div>
         </div>
 
-        <!-- Transfer Button -->
-        <button
-          id="transferButton"
-          class="action-button big-action-button"
-          disabled
-        >
-          Transfer Files
-        </button>
-
-        <div
-          id="statusMessage"
-          class="status-message"
-          style="display: none"
-        ></div>
+        <!-- Fixed Bottom Section (outside scrollable area) -->
+        <div class="destination-fixed-bottom">
+          <!-- Transfer Button -->
+          <button id="transferButton" class="action-button full-width" disabled>
+            Transfer Files
+          </button>
+        </div>
       </div>
 
       <!-- Domain Creation Modal -->
@@ -683,7 +730,7 @@
                   <select id="phpModeSelect" class="text-input">
                     <option value="fpm" selected>PHP-FPM</option>
                     <option value="cgi">PHP-CGI</option>
-                    <option value="mod_php">mod_php</option>
+                    <option value="mod_php">MOD_PHP</option>
                   </select>
                 </div>
                 <div class="php-version-select">
@@ -729,20 +776,37 @@
     <!-- Load the main script as a module -->
     <script type="module" src="src/renderer/script.js"></script>
 
-    <!-- Debug panel (hidden by default) -->
-    <div id="debugPanel" class="debug-panel" style="display: none">
-      <h3>Debug Panel</h3>
-      <div class="debug-controls">
-        <select id="logLevelSelect" class="text-input">
-          <option value="0">Debug</option>
-          <option value="1">Info</option>
-          <option value="2">Warning</option>
-          <option value="3">Error</option>
-        </select>
-        <button id="clearLogsBtn" class="action-button">Clear Logs</button>
-        <button id="toggleDebugPanelBtn" class="action-button">Close</button>
+    <!-- Debug panel modal (hidden by default) -->
+    <div id="debugModal" class="modal" style="display: none">
+      <div class="modal-content debug-modal-content">
+        <div class="modal-header">
+          <h3>Debug Console</h3>
+          <span class="close-modal" id="closeDebugModalBtn">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="debug-controls">
+            <div class="form-field">
+              <label class="field-label">Log Level</label>
+              <select id="logLevelSelect" class="text-input">
+                <option value="0">Debug</option>
+                <option value="1">Info</option>
+                <option value="2">Warning</option>
+                <option value="3">Error</option>
+              </select>
+            </div>
+            <div class="debug-buttons">
+              <button id="clearLogsBtn" class="action-button secondary">
+                Clear Logs
+              </button>
+              <button id="downloadLogsBtn" class="action-button">
+                <span class="button-icon">↓</span>
+                Download Logs
+              </button>
+            </div>
+          </div>
+          <div id="logOutput" class="log-output"></div>
+        </div>
       </div>
-      <div id="logOutput" class="log-output"></div>
     </div>
   </body>
 </html>

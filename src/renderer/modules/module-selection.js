@@ -107,6 +107,8 @@ const MODULE_PATHS = {
   },
 };
 
+export { MODULE_PATHS };
+
 /**
  * Initialize module checkboxes
  */
@@ -124,40 +126,69 @@ export function initializeModuleCheckboxes() {
         if (type === "panel") {
           // Handle different panel types based on their structure in MODULE_PATHS
           if (name === "cockpitpanel") {
-            // Cockpit panel is still special with just sourcePath
+            // Cockpit panel is special - it's placed directly in public_html root
+            const path = this.dataset.source || "cockpitpanel";
             selectedItems.set(name, {
               type: "panel",
               name: name,
-              sourcePath: MODULE_PATHS[name].sourcePath,
+              path: path, // Ensure path is explicitly set
+              isCockpitPanel: true, // Special flag for cockpit panel
             });
-          } else if (MODULE_PATHS[name]?.api && MODULE_PATHS[name]?.panel) {
-            // Support and MultiProxy panels now have both API and panel components
-            selectedItems.set(`${name}-api`, {
-              type: "module-api",
-              name: `${name} API`,
-              sourcePath: MODULE_PATHS[name].api,
-            });
+            log.debug(
+              `Added cockpit panel with path ${path} - will be placed directly in public_html`
+            );
+          } else if (MODULE_PATHS[name]) {
+            // Support and MultiProxy panels have both API and panel components
+            const apiPath = MODULE_PATHS[name].api;
+            const panelPath = MODULE_PATHS[name].panel;
 
-            selectedItems.set(`${name}-panel`, {
-              type: "module-panel",
-              name: `${name} Panel`,
-              sourcePath: MODULE_PATHS[name].panel,
-            });
+            if (apiPath) {
+              selectedItems.set(`${name}-api`, {
+                type: "module-api",
+                name: `${name} API`,
+                path: apiPath, // Explicit path
+              });
+              log.debug(`Added panel API ${name} with path ${apiPath}`);
+            }
+
+            if (panelPath) {
+              selectedItems.set(`${name}-panel`, {
+                type: "module-panel",
+                name: `${name} Panel`,
+                path: panelPath, // Explicit path
+              });
+              log.debug(`Added panel UI ${name} with path ${panelPath}`);
+            }
+          } else {
+            // Fallback for unknown panel type
+            log.warn(`Unknown panel type: ${name}, no path mapping found`);
           }
         } else if (type === "module") {
           // For modules that have both API and panel components
           if (MODULE_PATHS[name]) {
-            selectedItems.set(`${name}-api`, {
-              type: "module-api",
-              name: `${name} API`,
-              sourcePath: MODULE_PATHS[name].api,
-            });
+            const apiPath = MODULE_PATHS[name].api;
+            const panelPath = MODULE_PATHS[name].panel;
 
-            selectedItems.set(`${name}-panel`, {
-              type: "module-panel",
-              name: `${name} Panel`,
-              sourcePath: MODULE_PATHS[name].panel,
-            });
+            if (apiPath) {
+              selectedItems.set(`${name}-api`, {
+                type: "module-api",
+                name: `${name} API`,
+                path: apiPath, // Explicit path
+              });
+              log.debug(`Added module API ${name} with path ${apiPath}`);
+            }
+
+            if (panelPath) {
+              selectedItems.set(`${name}-panel`, {
+                type: "module-panel",
+                name: `${name} Panel`,
+                path: panelPath, // Explicit path
+              });
+              log.debug(`Added module UI ${name} with path ${panelPath}`);
+            }
+          } else {
+            // Log warning for unknown module
+            log.warn(`Unknown module: ${name}, no path mapping found`);
           }
         }
       } else {
@@ -168,14 +199,17 @@ export function initializeModuleCheckboxes() {
         if (type === "panel") {
           if (name === "cockpitpanel") {
             selectedItems.delete(name);
+            log.debug(`Removed panel ${name}`);
           } else {
             // Support and MultiProxy panels now have both API and panel components
             selectedItems.delete(`${name}-api`);
             selectedItems.delete(`${name}-panel`);
+            log.debug(`Removed panel components for ${name}`);
           }
         } else if (type === "module") {
           selectedItems.delete(`${name}-api`);
           selectedItems.delete(`${name}-panel`);
+          log.debug(`Removed module components for ${name}`);
         }
       }
 
@@ -315,6 +349,20 @@ export function clearAllSelections() {
  * @returns {Map} Map of selected items
  */
 export function getSelectedItems() {
+  // Debug log all selected items to verify paths are properly set
+  if (selectedItems.size > 0) {
+    log.debug(`Selected items for transfer (${selectedItems.size}):`);
+    for (const [key, item] of selectedItems.entries()) {
+      if (item.isCockpitPanel) {
+        log.debug(
+          `- ${key}: ${item.name} (${item.path}) - will be placed in public_html root`
+        );
+      } else {
+        log.debug(`- ${key}: ${item.name} (${item.path})`);
+      }
+    }
+  }
+
   return selectedItems;
 }
 

@@ -60,6 +60,9 @@ export async function loadDomainFolders() {
         });
 
         showStatus("info", `Loaded ${response.domains.length} domains`);
+
+        // Set domains loaded flag to avoid redundant calls
+        window.appState.domainsLoaded = true;
       } else {
         log.warn("No domains found");
         domainSelect.innerHTML +=
@@ -101,6 +104,9 @@ export async function loadDomainFolders() {
             option.dataset.path = domain.path;
             domainSelect.appendChild(option);
           });
+
+          // Set domains loaded flag
+          window.appState.domainsLoaded = true;
         } else {
           log.error("Domains is not an array:", domains);
           showStatus(
@@ -124,12 +130,15 @@ export async function loadDomainFolders() {
 }
 
 /**
- * Handle domain selection change
+ * Handle domain selection change and analyze domain structure
  */
 export function handleDomainChange() {
   const domainSelect = document.getElementById("domainSelect");
   const dnsToggle = document.getElementById("dnsToggle");
   const subdomainInput = document.getElementById("subdomainInput");
+  const domainAnalysisContent = document.getElementById(
+    "domainAnalysisContent"
+  );
 
   // Extract domain name from selected value
   const selectedDomain = domainSelect ? domainSelect.value : "";
@@ -139,7 +148,19 @@ export function handleDomainChange() {
   updateTransferButton();
 
   // If no domain is selected, return early
-  if (!selectedDomain) return;
+  if (!selectedDomain) {
+    if (domainAnalysisContent) {
+      domainAnalysisContent.innerHTML =
+        '<div class="empty-section-message">No domain selected</div>';
+    }
+    return;
+  }
+
+  // Show loading message in the analysis section
+  if (domainAnalysisContent) {
+    domainAnalysisContent.innerHTML =
+      '<div class="analysis-loading">Analyzing domain structure</div>';
+  }
 
   // Auto-fill subdomain field based on selected domain if DNS toggle is on
   if (dnsToggle && dnsToggle.checked && subdomainInput) {
@@ -152,6 +173,54 @@ export function handleDomainChange() {
       updateDnsPreview();
     }
   }
+
+  // Analyze domain structure if analysis module is available
+  // Show loading message with debugging info
+  if (domainAnalysisContent) {
+    domainAnalysisContent.innerHTML =
+      '<div class="analysis-loading">Attempting to load analyzer...</div>';
+  }
+
+  // Analyze domain structure if analysis module is available
+  import("./domain-analyzer.js")
+    .then(async (analyzer) => {
+      if (domainAnalysisContent) {
+        domainAnalysisContent.innerHTML =
+          '<div class="analysis-loading">Import successful, analyzing domain...</div>';
+      }
+
+      try {
+        // Perform domain analysis
+        const analysis = await analyzer.analyzeDomainStructure(selectedDomain);
+
+        // Update UI with analysis results
+        if (domainAnalysisContent) {
+          domainAnalysisContent.innerHTML =
+            analyzer.renderDomainAnalysis(analysis);
+        }
+      } catch (error) {
+        // Show error in UI instead of console
+        if (domainAnalysisContent) {
+          domainAnalysisContent.innerHTML = `
+            <div class="empty-section-message error">
+              Error analyzing domain: ${error.message}<br>
+              <small>Stack: ${error.stack || "No stack available"}</small>
+            </div>`;
+        }
+      }
+    })
+    .catch((err) => {
+      // Show detailed import error in UI
+      if (domainAnalysisContent) {
+        domainAnalysisContent.innerHTML = `
+          <div class="empty-section-message error">
+            Failed to load domain analyzer<br>
+            <small>Error: ${err.message}</small><br>
+            <small>Type: ${err.constructor.name}</small><br>
+            <small>Stack: ${err.stack || "No stack available"}</small>
+          </div>`;
+      }
+    });
 }
 
 /**
@@ -164,7 +233,14 @@ export function updateDnsPreview() {
   if (!dnsPreview || !subdomainInput) return;
 
   const subdomain = subdomainInput.value.trim();
-  let rootDomain = "streamnet.live"; // Default domain
+
+  // Get root domain from app state
+  const rootDomain = window.appState?.rootDomain;
+
+  if (!rootDomain) {
+    log.error("Root domain not available in app state");
+    return;
+  }
 
   if (subdomain) {
     dnsPreview.textContent = `${subdomain}.${rootDomain}`;
@@ -172,23 +248,7 @@ export function updateDnsPreview() {
     dnsPreview.textContent = rootDomain;
   }
 
-  // API-based domain lookup (when available)
-  if (window.streamNetAPI && window.streamNetAPI.getRootDomain) {
-    window.streamNetAPI
-      .getRootDomain()
-      .then((domain) => {
-        rootDomain = domain;
-        if (subdomain) {
-          dnsPreview.textContent = `${subdomain}.${domain}`;
-        } else {
-          dnsPreview.textContent = domain;
-        }
-        log.debug(`Updated DNS preview with domain: ${domain}`);
-      })
-      .catch((err) => {
-        log.error(`Error getting root domain: ${err.message}`);
-      });
-  }
+  log.debug(`Updated DNS preview: ${dnsPreview.textContent}`);
 }
 
 /**
@@ -303,15 +363,24 @@ export async function handleCreateDomain() {
   initDomainCreationLog();
   clearDomainLog();
 
+  // Get root domain from app state
+  const rootDomain = window.appState?.rootDomain;
+  if (!rootDomain) {
+    log.error("Root domain not available in app state");
+    addDomainLog("Root domain not configured", "error");
+    showStatus("error", "Root domain not configured");
+    return;
+  }
+
   // Add initial log messages
-  addDomainLog(`Starting domain creation: ${subdomain}`, "info");
+  addDomainLog(`Starting domain creation: ${subdomain}.${rootDomain}`, "info");
   addDomainLog(`PHP Configuration: ${phpMode} ${phpVersion}`, "debug");
 
   // Show loading indicator
   const completeLoading = showLoading("Creating domain");
 
   log.info(
-    `Creating new domain: ${subdomain} with PHP ${phpVersion} (${phpMode})`
+    `Creating new domain: ${subdomain}.${rootDomain} with PHP ${phpVersion} (${phpMode})`
   );
 
   // Disable button and show loading state
@@ -322,7 +391,7 @@ export async function handleCreateDomain() {
   try {
     if (window.streamNetAPI && window.streamNetAPI.createVirtualminDomain) {
       addCommandLog(
-        `virtualmin create-domain --domain ${subdomain}.streamnet.live --parent streamnet.live --desc "${
+        `virtualmin create-domain --domain ${subdomain}.${rootDomain} --parent ${rootDomain} --desc "${
           description || "Created by StreamNet Panels"
         }" --web --dir`
       );
@@ -469,38 +538,21 @@ export function updateNewDomainPreview() {
 
   const subdomain = newSubdomainInput ? newSubdomainInput.value.trim() : "";
 
-  // Default root domain
-  let rootDomain = "streamnet.live";
+  // Get root domain from app state
+  const rootDomain = window.appState?.rootDomain;
 
-  // Get from API if available
-  if (window.streamNetAPI && window.streamNetAPI.getRootDomain) {
-    window.streamNetAPI
-      .getRootDomain()
-      .then((domain) => {
-        rootDomain = domain;
-        if (subdomain) {
-          newDomainPreview.textContent = `${subdomain}.${rootDomain}`;
-        } else {
-          newDomainPreview.textContent = rootDomain;
-        }
-        log.debug(`Updated domain preview: ${newDomainPreview.textContent}`);
-      })
-      .catch((err) => {
-        log.error(`Error getting root domain: ${err.message}`);
-        // Fallback to default
-        if (subdomain) {
-          newDomainPreview.textContent = `${subdomain}.${rootDomain}`;
-        } else {
-          newDomainPreview.textContent = rootDomain;
-        }
-      });
-  } else {
-    if (subdomain) {
-      newDomainPreview.textContent = `${subdomain}.${rootDomain}`;
-    } else {
-      newDomainPreview.textContent = rootDomain;
-    }
+  if (!rootDomain) {
+    log.error("Root domain not available in app state");
+    return;
   }
+
+  if (subdomain) {
+    newDomainPreview.textContent = `${subdomain}.${rootDomain}`;
+  } else {
+    newDomainPreview.textContent = rootDomain;
+  }
+
+  log.debug(`Updated domain preview: ${newDomainPreview.textContent}`);
 }
 
 /**
@@ -608,9 +660,17 @@ export function getSelectedDomainPath() {
     return selectedOption.dataset.path;
   }
 
+  // Get root domain from app state
+  const rootDomain = window.appState?.rootDomain;
+  if (!rootDomain) {
+    log.error("Root domain not available in app state");
+    return null;
+  }
+
   // If no path in dataset, construct a default path
   const domain = domainSelect.value;
   if (domain) {
+    // Use proper path format based on domain structure
     return `/home/streamnet/domains/${domain}`;
   }
 
@@ -625,4 +685,5 @@ export default {
   initDomainModal,
   getSelectedDomainPath,
   updateDnsPreview,
+  updateNewDomainPreview,
 };

@@ -96,12 +96,35 @@ export function updateTransferButton() {
 export async function checkConnectionStatus() {
   const connectionIndicator = document.getElementById("connectionIndicator");
   const connectionText = document.getElementById("connectionText");
+  const testConnectionButton = document.getElementById("testConnectionButton");
 
-  if (!connectionIndicator || !connectionText) return;
+  if (!connectionIndicator || !connectionText || !testConnectionButton) return;
+
+  // If we've already checked connection and there's no forced refresh,
+  // use the cached state to avoid redundant calls
+  if (window.appState?.connectionStatus && event?.type !== "click") {
+    if (window.appState.connectionStatus === "connected") {
+      connectionIndicator.className = "status-indicator connected";
+      connectionText.textContent = "Connected";
+      return;
+    } else if (window.appState.connectionStatus === "disconnected") {
+      connectionIndicator.className = "status-indicator disconnected";
+      connectionText.textContent = "Connection failed";
+      return;
+    }
+  }
+
+  // Store original button content to restore later
+  const originalButtonContent = testConnectionButton.innerHTML;
 
   // Set to checking state
   connectionIndicator.className = "status-indicator checking";
   connectionText.textContent = "Checking connection...";
+
+  // Update button to show it's processing
+  testConnectionButton.disabled = true;
+  testConnectionButton.innerHTML =
+    '<span class="button-icon spinning">↻</span>';
 
   log.info("Checking server connection...");
 
@@ -111,22 +134,30 @@ export async function checkConnectionStatus() {
 
       if (result.success) {
         connectionIndicator.className = "status-indicator connected";
-        connectionText.textContent = `Connected (Server ready)`;
+        connectionText.textContent = `Connected`;
+        window.appState.connectionStatus = "connected";
         log.info("Connection test successful");
       } else {
         connectionIndicator.className = "status-indicator disconnected";
         connectionText.textContent = `Connection failed: ${result.error}`;
+        window.appState.connectionStatus = "disconnected";
         log.error(`Connection test failed: ${result.error}`);
       }
     } else {
       connectionIndicator.className = "status-indicator disconnected";
       connectionText.textContent = "Connection API not available";
+      window.appState.connectionStatus = "disconnected";
       log.error("Connection API not available");
     }
   } catch (error) {
     connectionIndicator.className = "status-indicator disconnected";
     connectionText.textContent = `Connection error: ${error.message}`;
+    window.appState.connectionStatus = "disconnected";
     log.error(`Connection error: ${error.message}`);
+  } finally {
+    // Restore button state
+    testConnectionButton.disabled = false;
+    testConnectionButton.innerHTML = originalButtonContent;
   }
 }
 
@@ -138,11 +169,31 @@ export async function checkConnectionStatus() {
 export function extractSubdomainFromDomain(domain) {
   if (!domain || !domain.includes(".")) return "";
 
+  // Get root domain from app state
+  const rootDomain = window.appState?.rootDomain;
+  if (!rootDomain) {
+    log.error("Root domain not available in app state");
+    return "";
+  }
+
+  // Handle case where domain includes the root domain
+  if (domain.endsWith(`.${rootDomain}`)) {
+    const prefix = domain.slice(0, -(rootDomain.length + 1));
+    // If prefix has no dots, it's a direct subdomain
+    if (!prefix.includes(".")) {
+      return prefix;
+    }
+    // If prefix has dots (like sub.domain.example.com), take the first part
+    return prefix.split(".")[0];
+  }
+
+  // Fallback to simpler extraction if domain doesn't match root domain pattern
   const parts = domain.split(".");
-  // If it has at least 3 parts (e.g., test.streamnet.live), the first part is the subdomain
+  // If it has at least 3 parts (e.g., test.example.com), the first part is the subdomain
   if (parts.length >= 3) {
     return parts[0];
   }
+
   return "";
 }
 

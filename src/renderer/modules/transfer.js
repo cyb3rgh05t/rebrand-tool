@@ -54,8 +54,37 @@ export async function handleTransfer() {
     // If we have items to transfer, do that first
     let transferSuccess = true;
     if (selectedItems.size > 0) {
+      // Validate items before proceeding
+      const validItems = new Map();
+      let invalidCount = 0;
+
+      // Check each item for valid path
+      for (const [key, item] of selectedItems.entries()) {
+        if (!item.path) {
+          log.error(`Item ${key} (${item.name}) has no path defined`);
+          invalidCount++;
+        } else {
+          validItems.set(key, item);
+        }
+      }
+
+      if (invalidCount > 0) {
+        log.error(`Found ${invalidCount} items with missing paths`);
+        showStatus(
+          "error",
+          `Cannot transfer: ${invalidCount} items have missing paths`
+        );
+        return;
+      }
+
       // Convert Map to array for API
-      const itemsArray = Array.from(selectedItems.values());
+      const itemsArray = Array.from(validItems.values());
+
+      // Log all items being transferred for debugging
+      log.debug(`Transferring ${itemsArray.length} items:`);
+      itemsArray.forEach((item, index) => {
+        log.debug(`Item ${index + 1}: ${item.name}, path: ${item.path}`);
+      });
 
       // Call the API to transfer files
       if (!window.streamNetAPI || !window.streamNetAPI.transferItems) {
@@ -164,6 +193,16 @@ export async function handleTransfer() {
     }
     updateTransferButton();
   }
+}
+
+/**
+ * Re-export updateTransferButton to avoid circular dependencies
+ */
+function updateTransferButton() {
+  // Import dynamically to avoid circular dependency
+  import("./ui-helpers.js").then((module) => {
+    module.updateTransferButton();
+  });
 }
 
 export default {

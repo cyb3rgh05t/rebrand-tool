@@ -1,46 +1,93 @@
 /**
- * Layout styles for StreamNet Rebrands Panels
+ * Layout styles for Rebrands Panels
  */
 
-/* Header styling */
+/* Header layout */
 .header {
   background-color: var(--primary-dark);
   padding: 0 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   height: var(--header-height);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   position: relative;
   z-index: 10;
   color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Left side with title and version */
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-container {
+  display: flex;
+  align-items: center; /* Changed from baseline to center for vertical alignment */
+  gap: 12px;
 }
 
 .header h1 {
   margin: 0;
-  font-size: var(--font-size-xl);
-  font-weight: 500;
-  letter-spacing: 0.5px;
+  font-size: 22px;
+  font-weight: 600;
+  background: linear-gradient(120deg, var(--primary-light), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.01em;
 }
 
-/* Main container */
+/* Right side with connection status and buttons */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.connection-indicator-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: white;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Main container - full width with room for panels */
 .container {
   display: flex;
   height: calc(100vh - var(--header-height));
+  width: 100%;
   padding: var(--spacing-md);
   box-sizing: border-box;
   gap: var(--spacing-md);
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.9),
+    rgba(30, 41, 59, 0.9)
+  );
 }
 
-/* Panels */
+/* Panels base styles */
 .panel {
   background-color: var(--surface);
   border-radius: var(--panel-radius);
   box-shadow: var(--shadow-medium);
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .panel::before {
@@ -51,32 +98,99 @@
   right: 0;
   height: 3px;
   background: linear-gradient(90deg, var(--primary), var(--accent));
+  z-index: 1;
 }
 
+.panel:hover {
+  box-shadow: var(--shadow-large);
+}
+
+/* Source panel (left side) */
 .source-panel {
-  flex: 1;
+  width: 70%; /* Fixed width percentage */
   min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Destination panel (right side) */
 .destination-panel {
-  width: 300px;
+  width: 30%; /* Fixed width percentage */
+  display: flex;
+  flex-direction: column;
+  /* Allow panel to expand to content - from main.css fixes */
+  height: auto !important;
+  /* Prevent height restrictions - from main.css fixes */
+  max-height: none !important;
+  /* Make the entire panel scrollable - from main.css fixes */
+  overflow-y: auto !important;
 }
 
+/* Panel titles */
 .panel-title {
   margin-top: 0;
   margin-bottom: var(--spacing-md);
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
-  font-size: var(--font-size-lg);
-  font-weight: 500;
-  color: var(--primary-light);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0; /* Prevent title from shrinking */
+  letter-spacing: -0.01em;
+  position: relative;
 }
 
+.panel-title::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background-color: var(--accent);
+}
+
+/* Scrollable content area styling */
+.destination-content {
+  /* Remove individual scrolling from content sections - from main.css fixes */
+  overflow: visible !important;
+  /* Ensure proper display - from main.css fixes */
+  display: block !important;
+}
+
+/* Source panel scrollable content */
 .panel-content {
   flex: 1;
   overflow-y: auto;
   padding-right: var(--spacing-sm);
   position: relative;
+  scrollbar-width: thin;
+  -ms-overflow-style: none;
+}
+
+/* Fixed bottom area for buttons that don't scroll */
+.destination-fixed-bottom {
+  position: relative; /* Changed from sticky to prevent overlapping */
+  bottom: 0;
+  background-color: var(--surface);
+  padding-top: var(--spacing-md);
+  z-index: 5;
+  flex-shrink: 0; /* Prevent shrinking */
+  margin-top: var(--spacing-md); /* Add margin instead of auto push */
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: var(--spacing-md);
+  border-radius: 0 0 var(--panel-radius) var(--panel-radius);
+  box-shadow: none; /* Remove shadow causing visual overlap */
+
+  /* Group buttons together - from main.css fixes */
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  /* Add space above buttons - from main.css fixes */
+  margin-top: 20px !important;
+  /* Add space at bottom - from main.css fixes */
+  margin-bottom: 10px !important;
 }
 
 /* Selection categories */
@@ -85,35 +199,52 @@
 }
 
 .category-title {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-lg);
   font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 12px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--divider);
+  color: var(--primary-light);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .category-title::before {
   content: "";
-  width: 12px;
-  height: 12px;
-  background-color: var(--accent);
+  width: 10px;
+  height: 10px;
+  background: #555 !important;
   display: inline-block;
   margin-right: var(--spacing-sm);
+  margin-left: var(--spacing-sm);
   border-radius: 50%;
+  box-shadow: 0 0 5px var(--accent);
 }
 
 /* Module subsections */
 .module-subsection {
-  margin-bottom: 20px;
-  padding: var(--spacing-md);
-  background-color: var(--surface-elevated);
+  margin-bottom: 24px;
+  padding: var(--spacing-lg);
+  background-color: #192231 !important;
   border-radius: var(--item-radius);
-  border-left: 3px solid var(--secondary);
+  border-left: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
   box-shadow: var(--shadow-small);
   transition: transform var(--transition), box-shadow var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.module-subsection::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.03), transparent);
+  pointer-events: none;
 }
 
 .module-subsection:hover {
@@ -124,44 +255,82 @@
 .subsection-title {
   font-size: var(--font-size-md);
   font-weight: 600;
-  color: var(--primary-light);
+  color: var(--text-primary);
   margin-top: 0;
   margin-bottom: var(--spacing-md);
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--divider);
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
 }
 
 .subsection-title::before {
-  content: "•";
-  margin-right: var(--spacing-sm);
-  color: var(--secondary);
-  font-size: 18px;
+  content: "" !important;
+  margin-right: 0 !important;
 }
 
 /* Selection items grid */
 .selection-items {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px;
 }
 
 /* Destination panel sections */
 .destination-section {
-  margin-bottom: 20px;
-  padding: var(--spacing-md);
+  margin-bottom: 0; /* No bottom margin as we use gap */
+  padding: var(--spacing-lg);
   background-color: var(--surface-elevated);
   border-radius: var(--item-radius);
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-inner);
+  position: relative;
+  overflow: visible !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  margin-bottom: 20px !important;
 }
 
+.destination-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.02), transparent);
+  pointer-events: none;
+}
+
+/* Restore original destination label styling */
 .destination-label {
   display: block;
   margin-bottom: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--primary-light);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Make text wrap and not overflow */
+.empty-section-message {
+  word-break: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--item-radius);
   color: var(--text-secondary);
+  font-style: italic;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* Domain analysis content fix */
+.domain-analysis-content {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Domain selection container */
@@ -177,26 +346,52 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .dns-form {
-  padding: 14px;
-  background-color: rgba(30, 136, 229, 0.1);
+  padding: 18px;
+  background-color: rgba(79, 70, 229, 0.1);
   border-radius: var(--item-radius);
-  margin-top: 10px;
+  margin-top: 12px;
   border-left: 3px solid var(--primary);
   box-shadow: var(--shadow-small);
+  position: relative;
+  overflow: hidden;
+}
+
+.dns-form::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.02), transparent);
+  pointer-events: none;
 }
 
 .dns-info {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin-top: 12px;
+  line-height: 1.6;
+  margin-top: 14px;
   background-color: rgba(0, 0, 0, 0.2);
-  padding: var(--spacing-sm);
+  padding: 12px;
   border-radius: var(--item-radius);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Transfer button adjustments */
+.big-action-button {
+  margin-top: 0;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Spacer to push content away from bottom fixed elements */
+.flex-spacer {
+  flex-grow: 1;
+  min-height: var(--spacing-sm);
 }
 
 /* Modal layout */
@@ -208,18 +403,22 @@
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
   overflow: auto;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 
 .modal-content {
   background-color: var(--surface);
-  margin: 10% auto;
-  width: 500px;
+  margin: 8% auto;
+  width: 550px;
   max-width: 90%;
   border-radius: var(--panel-radius);
   box-shadow: var(--shadow-large);
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  animation: modalFadeIn 0.3s ease;
 }
 
 .modal-content::before {
@@ -229,61 +428,136 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--primary));
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  z-index: 1;
 }
 
 .modal-header {
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h3 {
   margin: 0;
-  color: var(--accent);
+  color: var(--text-primary);
   font-size: var(--font-size-lg);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .modal-body {
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
 }
 
 /* PHP Configuration grid */
 .php-config-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: var(--spacing-sm);
+  gap: 14px;
+  margin-bottom: var(--spacing-md);
 }
 
 /* Form actions */
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Fix refresh buttons styling - from main.css fixes */
+button[id*="Refresh"],
+button:has(.refresh-icon) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  width: 28px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+}
+
+/* Hover effect for refresh buttons - from main.css fixes */
+button[id*="Refresh"]:hover,
+button:has(.refresh-icon):hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Fix refresh icon - from main.css fixes */
+.refresh-icon {
+  display: inline-block !important;
+  font-size: 14px !important;
+}
+
+/* Remove duplicate refresh spinner - from main.css fixes */
+button:has(.refresh-icon) .refresh-icon + .refresh-icon {
+  display: none !important;
 }
 
 /* Responsive adjustments */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    padding: 10px 20px;
+    height: auto;
+    gap: 10px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .container {
     flex-direction: column;
     height: auto;
     overflow-y: auto;
+    padding: var(--spacing-sm);
   }
 
-  .panel {
-    width: 100%;
-  }
-
+  .source-panel,
   .destination-panel {
     width: 100%;
+    flex: none;
+    max-width: none;
+    min-width: 0;
+    max-height: none;
   }
 
   .selection-items {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .panel {
+    padding: var(--spacing-md);
+  }
+}
+
+/* Ultra-small screens */
+@media (max-width: 500px) {
+  .title-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .header-right {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .button-text {
+    display: none;
   }
 }

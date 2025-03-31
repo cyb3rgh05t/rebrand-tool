@@ -1,12 +1,12 @@
 /**
- * Animation styles for StreamNet Rebrands Panels
+ * Animation styles for Rebrands Panels
  */
 
 /* Fade in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
@@ -22,7 +22,7 @@
   }
   50% {
     opacity: 1;
-    transform: scale(1.2);
+    transform: scale(1.1);
   }
   100% {
     opacity: 0.6;
@@ -53,19 +53,101 @@
 /* Button shimmer effect */
 @keyframes shimmer {
   0% {
-    background-position: -100% 0;
+    background-position: -200% 0;
   }
   100% {
-    background-position: 100% 0;
+    background-position: 200% 0;
+  }
+}
+
+/* Breathe animation for highlighting elements */
+@keyframes breathe {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}
+
+/* Float animation for subtle movement */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Glow animation for success states */
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+  }
+}
+
+/* Toast slide-in animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Modal animation */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading dots animation */
+@keyframes loadingDots {
+  0%,
+  20% {
+    content: ".";
+  }
+  40% {
+    content: "..";
+  }
+  60%,
+  100% {
+    content: "...";
   }
 }
 
 /* Apply animations to elements */
 .panel {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 /* Staggered animation for module sections */
+.module-subsection {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
 .module-subsection:nth-child(1) {
   animation-delay: 0.1s;
 }
@@ -85,19 +167,32 @@
   animation-delay: 0.35s;
 }
 
+/* Toast notification animation */
+.update-toast.visible {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
 /* Modal animation */
 .modal-content {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 /* Refresh icon spinning animation */
-.refresh-icon.spinning {
+.refresh-icon.spinning,
+.button-icon.spinning {
   animation: spin 1.5s linear infinite;
 }
 
 /* Button shimmer animation */
 .action-button::before {
-  animation: slideRight 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
   animation-play-state: paused;
 }
 
@@ -126,7 +221,7 @@
 
 /* Alert fade animations */
 .status-message {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
 
 /* Checkbox state change animation */
@@ -146,7 +241,31 @@
   animation: checkboxPop 0.3s ease;
 }
 
-/* Icon hover animation */
-.selection-item:hover .icon-image {
-  animation: pulse 1s ease-in-out;
+/* Page load animation sequence */
+.header {
+  animation: fadeIn 0.4s ease-out forwards;
+  animation-delay: 0.1s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.source-panel {
+  animation: fadeIn 0.4s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.destination-panel {
+  animation: fadeIn 0.4s ease-out forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* Version badge loading animation */
+.version-badge:empty::after,
+.version-badge:contains("loading")::after {
+  content: "";
+  animation: loadingDots 1.5s infinite;
 }

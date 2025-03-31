@@ -1,0 +1,325 @@
+/**
+ * Domain analysis styles for Rebrands Panels
+ */
+
+.domain-analysis-section {
+  margin-top: 20px;
+  padding: 16px;
+  background-color: var(--surface-elevated);
+  border-radius: var(--item-radius);
+  border-left: none; /* Removed colored border */
+  box-shadow: var(--shadow-small), inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  max-height: none; /* Ensure no max height restriction - from main.css fixes */
+}
+
+.domain-analysis-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.02), transparent);
+  pointer-events: none;
+}
+
+.domain-analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.domain-analysis-title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--primary-light);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.01em;
+}
+
+.domain-analysis-title::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  margin-right: 8px;
+  box-shadow: 0 0 5px var(--primary);
+}
+
+.refresh-analysis-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: var(--button-radius);
+  padding: 5px 10px;
+  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.refresh-analysis-btn::before {
+  content: "↻";
+  margin-right: 5px;
+  font-weight: bold;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.refresh-analysis-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.refresh-analysis-btn:hover::before {
+  transform: rotate(180deg);
+}
+
+.refresh-analysis-btn:active {
+  transform: translateY(1px);
+}
+
+.analysis-status {
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  border-radius: var(--item-radius);
+  font-size: var(--font-size-sm);
+  background-color: rgba(0, 0, 0, 0.2);
+  line-height: 1.6;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.analysis-status::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.analysis-status.success {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-left: 3px solid var(--success);
+  color: var(--success);
+}
+
+.analysis-status.success::before {
+  background-color: var(--success);
+  box-shadow: 0 0 5px var(--success);
+}
+
+.analysis-status.warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  border-left: 3px solid var(--warning);
+  color: var(--warning);
+}
+
+.analysis-status.warning::before {
+  background-color: var(--warning);
+  box-shadow: 0 0 5px var(--warning);
+}
+
+.analysis-status.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-left: 3px solid var(--error);
+  color: var(--error);
+}
+
+.analysis-status.error::before {
+  background-color: var(--error);
+  box-shadow: 0 0 5px var(--error);
+}
+
+.analysis-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--primary-light);
+  margin: 20px 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+}
+
+.analysis-title::after {
+  content: "";
+  flex-grow: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary-light), transparent);
+  margin-left: 10px;
+}
+
+.installed-modules {
+  display: flex !important; /* Allow installed modules to expand fully - from main.css fixes */
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  max-height: none !important; /* Remove any height restriction - from main.css fixes */
+  overflow: visible !important; /* Ensure no scrollbar appears - from main.css fixes */
+  height: auto !important; /* Let it expand naturally - from main.css fixes */
+  margin-top: 12px;
+}
+
+.installed-module {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: var(--item-radius);
+  padding: 8px 6px; /* Reduced padding */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all var(--transition);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.installed-module::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.05), transparent);
+  pointer-events: none;
+}
+
+.installed-module:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-small);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.installed-module .module-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px; /* Less margin */
+  width: 32px; /* Smaller icon size */
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 4px;
+  transition: all var(--transition);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.installed-module:hover .module-icon {
+  transform: scale(1.1);
+  background-color: rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
+}
+
+.installed-module .icon-image {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transition: all var(--transition);
+}
+
+.installed-module:hover .icon-image {
+  transform: scale(1.1);
+}
+
+.installed-module .module-name {
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  font-weight: 500;
+  margin-top: 4px;
+  transition: all var(--transition);
+}
+
+.installed-module:hover .module-name {
+  color: var(--primary-light);
+}
+
+.analysis-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  color: var(--text-secondary);
+  font-style: italic;
+  position: relative;
+}
+
+.analysis-loading::after {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--primary-light);
+  border-radius: 50%;
+  border-top-color: transparent;
+  margin-left: 10px;
+  animation: spin 1.5s linear infinite;
+}
+
+/* Empty domain analysis styling */
+.domain-analysis-content .empty-section-message {
+  padding: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  font-style: italic;
+  color: var(--text-secondary);
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: all var(--transition);
+}
+
+.domain-analysis-content .empty-section-message:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+/* Error styling in domain analysis */
+.domain-analysis-content .empty-section-message.error {
+  border-left: 3px solid var(--error);
+  color: var(--error);
+  font-style: normal;
+  font-size: var(--font-size-xs);
+}
+
+/* Warning styling in domain analysis */
+.domain-analysis-content .empty-section-message.warning {
+  border-left: 3px solid var(--warning);
+  color: var(--warning);
+  font-weight: 500;
+}
+
+/* Domain analysis animations */
+.domain-analysis-section,
+.analysis-status,
+.installed-module {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.installed-modules {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Fix domain analysis section being constrained - from main.css fixes */
+.domain-analysis-section,
+.domain-analysis-content {
+  max-height: none !important;
+  overflow: visible !important;
+  height: auto !important;
+}

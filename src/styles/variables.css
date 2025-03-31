@@ -1,39 +1,43 @@
 /**
- * CSS Variables for StreamNet Rebrands Panels
+ * CSS Variables for Rebrands Panels
  */
 
 :root {
-  /* Colors */
-  --primary: #1e88e5;
-  --primary-dark: #121212;
-  --primary-light: #90caf9;
-  --secondary: #42a5f5;
-  --accent: #26c6da;
-  --background: #121212;
-  --surface: #1e1e1e;
-  --surface-elevated: #252525;
-  --error: #f44336;
-  --warning: #ff9800;
-  --success: #4caf50;
-  --info: #2196f3;
-  --text-primary: #e0e0e0;
-  --text-secondary: #aaaaaa;
-  --border: #333333;
-  --divider: #383838;
+  /* Color System - Modern Dark Theme */
+  --primary: #4f46e5; /* Indigo 600 */
+  --primary-dark: #0f172a; /* Slate 900 */
+  --primary-light: #818cf8; /* Indigo 400 */
+  --secondary: #6366f1; /* Indigo 500 */
+  --accent: #14b8a6; /* Teal 500 */
+  --background: #0f172a; /* Slate 900 */
+  --surface: #1e293b; /* Slate 800 */
+  --surface-elevated: #334155; /* Slate 700 */
+  --error: #ef4444; /* Red 500 */
+  --warning: #f59e0b; /* Amber 500 */
+  --success: #10b981; /* Emerald 500 */
+  --info: #3b82f6; /* Blue 500 */
+  --text-primary: #f8fafc; /* Slate 50 */
+  --text-secondary: #cbd5e1; /* Slate 300 */
+  --border: #475569; /* Slate 600 */
+  --divider: #64748b; /* Slate 500 */
 
   /* Border radius */
-  --panel-radius: 8px;
-  --item-radius: 6px;
-  --button-radius: 4px;
+  --panel-radius: 12px;
+  --item-radius: 8px;
+  --button-radius: 6px;
 
   /* Transitions */
   --transition: 0.2s ease;
   --transition-long: 0.3s ease;
 
   /* Shadows */
-  --shadow-small: 0 2px 5px rgba(0, 0, 0, 0.2);
-  --shadow-medium: 0 4px 10px rgba(0, 0, 0, 0.3);
-  --shadow-large: 0 5px 25px rgba(0, 0, 0, 0.5);
+  --shadow-small: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.15);
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -48,17 +52,18 @@
   --font-size-md: 14px;
   --font-size-lg: 16px;
   --font-size-xl: 18px;
+  --font-size-2xl: 20px;
 
   /* Component sizes */
-  --header-height: 56px;
-  --form-control-height: 40px;
-  --icon-size: 22px;
+  --header-height: 64px;
+  --form-control-height: 42px;
+  --icon-size: 24px;
 }
 
 /* Base styles for commonly used elements */
 html,
 body {
-  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui,
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui,
     sans-serif;
   margin: 0;
   padding: 0;
@@ -69,6 +74,8 @@ body {
   overflow: hidden;
   font-size: var(--font-size-md);
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Scrollbar styling */
@@ -78,17 +85,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #444;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Typography base styles */
@@ -101,36 +108,41 @@ h6 {
   margin-top: 0;
   font-weight: 500;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 h1 {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
 }
 
 h2 {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   color: var(--primary-light);
+  font-weight: 600;
 }
 
 h3 {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-lg);
   color: var(--accent);
+  font-weight: 600;
 }
 
 h4 {
   font-size: var(--font-size-md);
   color: var(--primary-light);
+  font-weight: 600;
 }
 
 /* Link styles */
 a {
-  color: var(--primary);
+  color: var(--primary-light);
   text-decoration: none;
   transition: color var(--transition);
 }
 
 a:hover {
-  color: var(--primary-light);
+  color: var(--accent);
   text-decoration: underline;
 }
 
