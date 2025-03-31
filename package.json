@@ -1,6 +1,6 @@
 {
   "name": "streamnet-rebrands-panels",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "An Electron-based desktop application for streamlined management of IPTV app panels, domain creation, and file deployment",
   "main": "src/main/index.js",
   "scripts": {
