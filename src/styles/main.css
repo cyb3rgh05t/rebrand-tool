@@ -33,6 +33,9 @@
 /* DNS preview functionality */
 @import "dns-preview.css";
 
+/* Settings functionality */
+@import "settings.css";
+
 /* ==========================================================================
    ANIMATIONS
    ========================================================================== */

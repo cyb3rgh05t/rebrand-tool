@@ -72,51 +72,12 @@ function createApplicationMenu(mainWindow) {
         },
         { type: "separator" },
         {
-          label: "Test Connection",
-          accelerator: "CmdOrCtrl+T",
-          click: async () => {
-            try {
-              // Show a status indicator in the window
-              mainWindow.webContents.send(
-                "menu-action",
-                "test-connection-start"
-              );
-
-              // Test the connection
-              logger.debug("Testing connection from menu");
-              const result = await testSftpConnection();
-
-              // Send the result to the renderer
-              mainWindow.webContents.send(
-                "menu-action",
-                "test-connection-result",
-                {
-                  success: true,
-                  result,
-                }
-              );
-
-              logger.debug("Connection test successful");
-            } catch (error) {
-              logger.error(`Connection test failed: ${error.message}`);
-              mainWindow.webContents.send(
-                "menu-action",
-                "test-connection-result",
-                {
-                  success: false,
-                  error: error.message,
-                }
-              );
-            }
-          },
-        },
-        { type: "separator" },
-        {
-          label: "Check for Updates",
-          click: async () => {
-            // Send IPC message to trigger update check
-            mainWindow.webContents.send("menu-action", "check-updates");
-            logger.debug("Menu action: check-updates");
+          label: "Settings",
+          accelerator: "CmdOrCtrl+,",
+          click: () => {
+            // Send IPC message to open settings
+            mainWindow.webContents.send("menu-action", "open-settings");
+            logger.debug("Menu action: open-settings");
           },
         },
         { type: "separator" },
@@ -216,6 +177,14 @@ function createApplicationMenu(mainWindow) {
             if (mainWindow) {
               mainWindow.webContents.toggleDevTools();
             }
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Check for Updates",
+          click: () => {
+            mainWindow.webContents.send("menu-action", "check-updates");
+            logger.debug("Menu action: check-updates");
           },
         },
         { type: "separator" },

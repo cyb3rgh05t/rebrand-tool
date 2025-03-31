@@ -147,33 +147,145 @@
 .theme-light {
   --theme-mode: light;
 
-  /* Invert colors for light mode */
+  /* Primary colors with much stronger contrast for light mode */
+  --primary: #3730a3; /* Indigo 800 - much darker for better contrast */
+  --primary-dark: #1e293b; /* Slate 800 */
+  --primary-light: #4338ca; /* Indigo 700 */
+  --secondary: #4338ca; /* Indigo 700 */
+  --accent: #0d9488; /* Teal 600 */
+
+  /* Status colors adjusted for light mode with stronger contrast */
+  --error: #b91c1c; /* Red 700 */
+  --warning: #b45309; /* Amber 700 */
+  --success: #047857; /* Emerald 700 */
+  --info: #1d4ed8; /* Blue 700 */
+
+  /* Status subtle backgrounds for light mode with improved visibility */
+  --error-subtle: rgba(185, 28, 28, 0.12);
+  --warning-subtle: rgba(180, 83, 9, 0.12);
+  --success-subtle: rgba(4, 120, 87, 0.12);
+  --info-subtle: rgba(29, 78, 216, 0.12);
+  --neutral-subtle: rgba(0, 0, 0, 0.08);
+
+  /* Adjusted background colors for light mode with better definition */
   --bg-primary: #f8fafc; /* Slate 50 */
-  --bg-surface: #e2e8f0; /* Slate 200 */
-  --bg-surface-elevated: #cbd5e1; /* Slate 300 */
-  --bg-surface-dark: rgba(0, 0, 0, 0.05);
-  --bg-surface-hover: rgba(0, 0, 0, 0.03);
-  --bg-surface-highlight: rgba(79, 70, 229, 0.05);
+  --bg-surface: #f1f5f9; /* Slate 100 */
+  --bg-surface-elevated: #e2e8f0; /* Slate 200 */
+  --bg-surface-dark: rgba(0, 0, 0, 0.04);
+  --bg-surface-hover: rgba(0, 0, 0, 0.05);
+  --bg-surface-highlight: rgba(67, 56, 202, 0.08);
 
-  /* Text colors for light mode */
+  /* Text colors for light mode with much stronger contrast */
   --text-primary: #0f172a; /* Slate 900 */
-  --text-secondary: #334155; /* Slate 700 */
-  --text-tertiary: #475569; /* Slate 600 */
+  --text-secondary: #1e293b; /* Slate 800 */
+  --text-tertiary: #334155; /* Slate 700 */
+  --text-on-primary: #ffffff;
+  --text-on-tooltip: #f8fafc; /* Slate 50 */
 
-  /* Border colors for light mode */
-  --border-default: #94a3b8; /* Slate 400 */
-  --border-subtle: rgba(0, 0, 0, 0.1);
+  /* Border colors for light mode with better visibility */
+  --border-default: #94a3b8; /* Slate 400 - darker for better visibility */
+  --border-subtle: rgba(0, 0, 0, 0.15);
+  --border-highlight: var(--primary);
   --divider: #cbd5e1; /* Slate 300 */
 
-  /* Adjust shadows for light mode */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
-    0 4px 6px -2px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05),
-    0 10px 10px -5px rgba(0, 0, 0, 0.02);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  /* Adjusted shadows for light mode to be more visible */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.08),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.12),
+    0 4px 6px -2px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.12),
+    0 10px 10px -5px rgba(0, 0, 0, 0.07);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+
+  /* Panel and module-specific overrides for light theme */
+  --module-border-color: rgba(0, 0, 0, 0.2);
+
+  /* Module selection item specific styling */
+  --module-item-bg: #e2e8f0;
+  --module-item-hover-bg: #d1d5db;
+  --module-item-text: #0f172a;
+  --module-checkbox-border: #64748b;
+}
+
+/* Additional light theme specific overrides */
+.theme-light .panel {
+  border: 1px solid var(--module-border-color);
+}
+
+.theme-light .module-subsection {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--module-border-color) !important;
+}
+
+.theme-light .selection-item {
+  background-color: var(--module-item-bg) !important;
+  border: 1px solid var(--module-border-color) !important;
+}
+
+.theme-light .selection-item:hover {
+  background-color: var(--module-item-hover-bg) !important;
+}
+
+.theme-light .module-name {
+  color: var(--module-item-text);
+}
+
+.theme-light .module-checkbox {
+  border: 1px solid var(--module-checkbox-border);
+}
+
+.theme-light .category-title,
+.theme-light .subsection-title {
+  color: #1e293b;
+  border-bottom-color: #cbd5e1;
+}
+
+.theme-light .category-title::before {
+  background: #64748b !important;
+}
+
+.theme-light .destination-section {
+  background-color: white;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.theme-light .empty-section-message {
+  background-color: #f8fafc;
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  color: #64748b;
+}
+
+.theme-light .header {
+  background-color: #1e293b;
+}
+
+.theme-light .destination-label,
+.theme-light .settings-section-title,
+.theme-light .settings-label {
+  color: #4338ca;
+}
+
+.theme-light .action-button:disabled {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Improve contrast of module icons in light theme */
+.theme-light .module-icon {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure toggle switch is clearly visible in light theme */
+.theme-light .toggle-label {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.theme-light .toggle-input:checked + .toggle-label {
+  background: var(--primary);
 }
 
 /* Base styles for commonly used elements */

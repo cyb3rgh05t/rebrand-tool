@@ -2,6 +2,27 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.2.0] - 2025-03-15
+
+### Added
+
+- Support for additional streaming modules
+- Domain analysis feature
+- Automatic subdomain suggestion
+- Debug console for troubleshooting
+
+### Changed
+
+- Improved file transfer performance
+- Enhanced UI for module selection
+- Better error handling for SSH connections
+
+### Fixed
+
+- SSH connection timeout issues
+- DNS record creation failures
+- Module path resolution problems
+
 ## [2.1.0] - 2025-03-06
 
 ### Added

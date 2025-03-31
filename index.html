@@ -24,17 +24,14 @@
           <span id="connectionText">Checking connection...</span>
         </div>
 
-        <!-- Action buttons -->
-        <div class="header-actions">
-          <button id="testConnectionButton" class="header-button">
-            <span class="button-icon">↻</span>
-            <span class="button-text">Test Connection</span>
-          </button>
-          <button id="checkUpdatesBtn" class="header-button update-button">
-            <span class="button-icon">↻</span>
-            <span class="button-text">Check Updates</span>
-          </button>
-        </div>
+        <!-- Settings button -->
+        <button
+          id="settingsBtn"
+          class="header-button settings-button"
+          title="Settings"
+        >
+          <span class="settings-icon">⚙</span>
+        </button>
       </div>
     </div>
 
@@ -773,9 +770,273 @@
       </div>
     </div>
 
-    <!-- Load the main script as a module -->
-    <script type="module" src="src/renderer/script.js"></script>
+    <!-- Settings Full Page Layout (replaces the modal) -->
+    <div id="settingsModal" class="settings-fullpage" style="display: none">
+      <div class="settings-container">
+        <!-- Left sidebar with tabs -->
+        <div class="settings-sidebar">
+          <div class="settings-header">
+            <h2>Settings</h2>
+            <button
+              id="closeSettingsModalBtn"
+              class="close-settings-btn"
+              title="Close Settings"
+            >
+              <span>×</span>
+            </button>
+          </div>
 
+          <div class="settings-nav">
+            <button class="settings-nav-item active" data-tab="theme">
+              <span class="settings-nav-icon">🎨</span>
+              <span class="settings-nav-text">Appearance</span>
+            </button>
+            <button class="settings-nav-item" data-tab="debug">
+              <span class="settings-nav-icon">⚙️</span>
+              <span class="settings-nav-text">Debug & Testing</span>
+            </button>
+            <button class="settings-nav-item" data-tab="about">
+              <span class="settings-nav-icon">ℹ️</span>
+              <span class="settings-nav-text">About</span>
+            </button>
+          </div>
+
+          <div class="settings-footer">
+            <div class="settings-app-info">
+              <div class="settings-app-version">
+                Version: <span id="settingsVersionTag">loading...</span>
+              </div>
+              <div class="settings-copyright">© 2025 cyb3rgh05t</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right content area -->
+        <div class="settings-content">
+          <!-- Theme Tab (First by default) -->
+          <div class="settings-tab-pane active" id="themeTab">
+            <div class="settings-tab-header">
+              <h3>Appearance</h3>
+              <p class="settings-tab-description">
+                Customize how StreamNet Panels looks
+              </p>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-section-title">Color Theme</h4>
+              <div class="settings-card">
+                <div class="theme-options">
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeDark"
+                      name="theme"
+                      value="dark"
+                      checked
+                    />
+                    <label for="themeDark" class="theme-preview dark-preview">
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Dark</span>
+                    </label>
+                  </div>
+
+                  <div class="theme-option">
+                    <input
+                      type="radio"
+                      id="themeLight"
+                      name="theme"
+                      value="light"
+                    />
+                    <label for="themeLight" class="theme-preview light-preview">
+                      <div class="theme-preview-content">
+                        <div class="theme-preview-header"></div>
+                        <div class="theme-preview-body">
+                          <div class="theme-preview-sidebar"></div>
+                          <div class="theme-preview-main"></div>
+                        </div>
+                      </div>
+                      <span class="theme-name">Light</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="settings-description">
+                  Choose your preferred color theme. Changes apply immediately.
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-section-title">Interface Density</h4>
+              <div class="settings-card">
+                <div class="density-options">
+                  <div class="density-option">
+                    <input
+                      type="radio"
+                      id="densityComfortable"
+                      name="density"
+                      value="comfortable"
+                      checked
+                    />
+                    <label for="densityComfortable" class="density-label">
+                      <span class="density-preview comfortable-preview"></span>
+                      <span class="density-name">Comfortable</span>
+                    </label>
+                  </div>
+
+                  <div class="density-option">
+                    <input
+                      type="radio"
+                      id="densityCompact"
+                      name="density"
+                      value="compact"
+                    />
+                    <label for="densityCompact" class="density-label">
+                      <span class="density-preview compact-preview"></span>
+                      <span class="density-name">Compact</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="settings-description">
+                  Adjust the spacing in the user interface to show more content
+                  or improve readability.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Debug Tab -->
+          <div class="settings-tab-pane" id="debugTab">
+            <div class="settings-tab-header">
+              <h3>Debug & Testing</h3>
+              <p class="settings-tab-description">
+                Troubleshooting tools and connection testing
+              </p>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-section-title">Server Connection</h4>
+              <div class="settings-card">
+                <div class="connection-test-container">
+                  <div class="connection-status-display">
+                    <span
+                      id="settingsConnectionIndicator"
+                      class="status-indicator"
+                    ></span>
+                    <span id="settingsConnectionText"
+                      >Connection status unknown</span
+                    >
+                  </div>
+
+                  <button
+                    id="settingsTestConnectionBtn"
+                    class="settings-action-button"
+                  >
+                    <span class="button-icon">↻</span>
+                    Test Connection
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-section-title">Logging</h4>
+              <div class="settings-card">
+                <div class="settings-form-field">
+                  <label for="settingsLogLevel" class="settings-label"
+                    >Log Level</label
+                  >
+                  <select id="settingsLogLevel" class="settings-select">
+                    <option value="0">Debug (Verbose)</option>
+                    <option value="1">Info (Normal)</option>
+                    <option value="2">Warning</option>
+                    <option value="3">Error (Minimal)</option>
+                  </select>
+                </div>
+
+                <div class="settings-description">
+                  Control the level of detail in application logs. Higher levels
+                  contain fewer, more important messages.
+                </div>
+
+                <div class="debug-tools-container">
+                  <button
+                    id="settingsOpenDebugBtn"
+                    class="settings-action-button"
+                  >
+                    <span class="button-icon">⚠</span>
+                    Open Debug Console
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- About Tab -->
+          <div class="settings-tab-pane" id="aboutTab">
+            <div class="settings-tab-header">
+              <h3>About StreamNet Rebrands</h3>
+              <p class="settings-tab-description">Information and updates</p>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-card about-card">
+                <div class="app-logo-container">
+                  <div class="app-logo"></div>
+                  <h2>Rebrand Panel Tool</h2>
+                  <div class="version-tag">
+                    Version: <span id="aboutVersionTag">loading...</span>
+                  </div>
+                </div>
+
+                <div class="app-description">
+                  An Electron-based desktop application for streamlined
+                  management of IPTV app panels, domain creation, and file
+                  deployment.
+                </div>
+
+                <div class="update-section">
+                  <div
+                    id="settingsUpdateStatus"
+                    class="settings-status-message"
+                  >
+                    You're using the latest version
+                  </div>
+
+                  <button
+                    id="settingsCheckUpdatesBtn"
+                    class="settings-action-button"
+                  >
+                    <span class="button-icon">↻</span>
+                    Check for Updates
+                  </button>
+                </div>
+
+                <div class="about-links">
+                  <a href="#" class="about-link" id="openGithubLink">
+                    <span class="about-link-icon">🔗</span>
+                    GitHub Repository
+                  </a>
+                  <a href="#" class="about-link" id="openReportIssueLink">
+                    <span class="about-link-icon">🐞</span>
+                    Report an Issue
+                  </a>
+                </div>
+
+                <div class="license-info">Released under the MIT License</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Debug panel modal (hidden by default) -->
     <div id="debugModal" class="modal" style="display: none">
       <div class="modal-content debug-modal-content">
@@ -808,5 +1069,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Load the main script as a module -->
+    <script type="module" src="src/renderer/script.js"></script>
+    <script type="module" src="src/renderer/theme.js"></script>
   </body>
 </html>

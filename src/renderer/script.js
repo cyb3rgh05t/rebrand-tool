@@ -9,6 +9,7 @@ import * as transfer from "./modules/transfer.js";
 import * as uiHelpers from "./modules/ui-helpers.js";
 import * as domainLogging from "./modules/domain-logging.js";
 import * as dnsPreview from "./modules/dns-preview.js";
+import * as settings from "./modules/settings.js";
 
 // Global app state to avoid duplicate API calls
 window.appState = {
@@ -46,6 +47,9 @@ document.addEventListener("DOMContentLoaded", async () => {
  * Initialize all application components
  */
 async function initializeComponents() {
+  // Initialize settings functionality first
+  settings.initializeSettings();
+
   // Load domain folders
   await domainManagement.loadDomainFolders();
 
@@ -85,23 +89,8 @@ async function initializeComponents() {
   // Initialize domain logging
   initializeDomainLogging();
 
-  // Check connection on startup
-  uiHelpers.checkConnectionStatus();
-
-  // Add test connection button handler
-  const testConnectionButton = document.getElementById("testConnectionButton");
-  if (testConnectionButton) {
-    testConnectionButton.addEventListener(
-      "click",
-      uiHelpers.checkConnectionStatus
-    );
-  }
-
-  // Add check updates button handler
-  const checkUpdatesBtn = document.getElementById("checkUpdatesBtn");
-  if (checkUpdatesBtn) {
-    checkUpdatesBtn.addEventListener("click", checkForUpdates);
-  }
+  // Check connection on startup - now using the settings module
+  settings.testConnection();
 
   // Initial call to set the button state
   uiHelpers.updateTransferButton();
@@ -323,8 +312,8 @@ function initializeMenuListeners() {
           break;
 
         case "check-updates":
-          // Trigger update check
-          checkForUpdates();
+          // Trigger update check - using the settings module now
+          settings.checkForUpdates();
           break;
 
         case "toggle-debug":
@@ -334,6 +323,11 @@ function initializeMenuListeners() {
             debugModal.style.display =
               debugModal.style.display === "none" ? "block" : "none";
           }
+          break;
+
+        case "open-settings":
+          // Open settings panel
+          settings.openSettingsModal();
           break;
       }
     });
@@ -356,76 +350,6 @@ function updateConnectionIndicator(connected) {
   } else {
     connectionIndicator.className = "status-indicator disconnected";
     connectionText.textContent = "Connection failed";
-  }
-}
-
-/**
- * Check for application updates and show toast notification
- */
-async function checkForUpdates() {
-  const checkUpdatesBtn = document.getElementById("checkUpdatesBtn");
-  const updateStatus = document.getElementById("updateStatus");
-
-  if (!checkUpdatesBtn || !updateStatus) return;
-
-  // Store original button text to restore later
-  const originalButtonText = checkUpdatesBtn.innerHTML;
-
-  // Show loading state
-  checkUpdatesBtn.disabled = true;
-  checkUpdatesBtn.innerHTML = '<span class="button-icon spinning">↻</span>';
-
-  // Display checking toast notification
-  updateStatus.className = "update-toast checking visible";
-  updateStatus.textContent = "Checking for updates...";
-
-  try {
-    if (window.streamNetAPI && window.streamNetAPI.checkForUpdates) {
-      const result = await window.streamNetAPI.checkForUpdates();
-
-      if (result.updateAvailable) {
-        // Update available
-        updateStatus.className = "update-toast update-available visible";
-        updateStatus.innerHTML = `Update available: v${result.version} <a href="${result.downloadUrl}" target="_blank">Download now</a>`;
-        log.info(`Update available: v${result.version}`);
-
-        // Keep notification visible for download option
-      } else {
-        // No update available
-        updateStatus.className = "update-toast update-not-available visible";
-        updateStatus.textContent = `You're using the latest version (v${result.currentVersion})`;
-        log.info("No updates available");
-
-        // Auto-hide the "latest version" message after 3 seconds
-        setTimeout(() => {
-          updateStatus.classList.remove("visible");
-        }, 3000);
-      }
-    } else {
-      // API not available
-      updateStatus.className = "update-toast error visible";
-      updateStatus.textContent = "Update checking is not available";
-      log.error("Update API not available");
-
-      // Auto-hide after 3 seconds
-      setTimeout(() => {
-        updateStatus.classList.remove("visible");
-      }, 3000);
-    }
-  } catch (error) {
-    // Error occurred
-    updateStatus.className = "update-toast error visible";
-    updateStatus.textContent = `Error checking for updates: ${error.message}`;
-    log.error(`Error checking for updates: ${error.message}`);
-
-    // Auto-hide error after 5 seconds
-    setTimeout(() => {
-      updateStatus.classList.remove("visible");
-    }, 5000);
-  } finally {
-    // Reset button state with original content
-    checkUpdatesBtn.disabled = false;
-    checkUpdatesBtn.innerHTML = originalButtonText;
   }
 }
 
@@ -675,4 +599,5 @@ window.app = {
   transfer,
   uiHelpers,
   domainLogging,
+  settings,
 };
