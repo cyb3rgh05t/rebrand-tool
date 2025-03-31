@@ -87,7 +87,7 @@ jobs:
 
       # Delete existing assets if present
       - name: Delete existing assets
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             try {
