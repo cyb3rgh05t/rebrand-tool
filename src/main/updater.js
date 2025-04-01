@@ -441,123 +441,85 @@ async function checkForUpdatesRespectingPreferences() {
 }
 
 /**
- * Show enhanced update dialog with more options and information
+ * Show update dialog using the renderer process's custom HTML dialog
  * @param {Object} updateInfo Update information
  * @param {BrowserWindow} parentWindow Parent window
  */
 function showUpdateDialog(updateInfo, parentWindow) {
-  logger.info("Showing enhanced update dialog");
+  logger.info("Showing update dialog via renderer process");
 
-  // Format release notes for display - Extract from CHANGELOG.md
-  let releaseNotes =
-    extractChangelogForVersion(updateInfo.version) ||
-    updateInfo.releaseNotes ||
-    "New version available!";
-
-  // Limit release notes length for dialog
-  if (releaseNotes.length > 500) {
-    releaseNotes = releaseNotes.substring(0, 500) + "...";
+  if (!parentWindow || parentWindow.isDestroyed()) {
+    logger.error("Cannot show update dialog: Window is not available");
+    return;
   }
 
-  // Create a more detailed message
-  const message = `A new version of Rebrands Panels is available: v${updateInfo.version}`;
+  try {
+    // Extract release notes from CHANGELOG if not already included
+    if (!updateInfo.releaseNotes || updateInfo.releaseNotes.trim() === "") {
+      updateInfo.releaseNotes =
+        extractChangelogForVersion(updateInfo.version) || "";
+      logger.debug(
+        `Extracted ${updateInfo.releaseNotes.length} chars of release notes`
+      );
+    }
 
-  // Create more descriptive detail text
-  const detail = `Current version: v${updateInfo.currentVersion}
-Latest version: v${updateInfo.version}
+    // Send the update info to the renderer process via menu-action channel
+    parentWindow.webContents.send("menu-action", "show-update", updateInfo);
+    logger.debug(
+      `Sent show-update message to renderer for version ${updateInfo.version}`
+    );
 
-What's new:
-${releaseNotes}
+    // Store the fact that user has been notified about this version
+    try {
+      const configPath = path.join(
+        app.getPath("userData"),
+        "update-config.json"
+      );
+      let updateConfig = {};
 
-Would you like to download it now?`;
+      if (fs.existsSync(configPath)) {
+        updateConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      }
 
-  // Create enhanced dialog options
-  const dialogOptions = {
-    type: "info",
-    buttons: ["Download Now", "Remind Me Later", "Skip This Version"],
-    defaultId: 0,
-    cancelId: 1,
-    title: "Update Available",
-    message: message,
-    detail: detail,
-    checkboxLabel: "Don't show again for this version",
-    checkboxChecked: false,
-    icon: path.join(app.getAppPath(), "assets/icons/png/64x64.png"),
-  };
+      updateConfig.lastNotifiedVersion = updateInfo.version;
+      updateConfig.lastNotifiedTime = new Date().toISOString();
 
-  // Show the dialog
-  dialog
-    .showMessageBox(parentWindow, dialogOptions)
-    .then(({ response, checkboxChecked }) => {
-      switch (response) {
-        case 0: // Download Now
-          logger.info(`Opening download URL: ${updateInfo.downloadUrl}`);
-          // Open download URL in default browser
-          shell.openExternal(updateInfo.downloadUrl);
-          break;
+      fs.writeFileSync(configPath, JSON.stringify(updateConfig, null, 2));
+    } catch (err) {
+      logger.error(`Error storing notification status: ${err.message}`);
+    }
+  } catch (error) {
+    logger.error(`Error showing update dialog: ${error.message}`);
 
-        case 1: // Remind Me Later
-          logger.info("User chose to be reminded later about the update");
-          // You could set a flag in user settings to remind later
-          break;
-
-        case 2: // Skip This Version
-          logger.info(`User chose to skip version ${updateInfo.version}`);
-          // Store this version as skipped
-          try {
-            const configPath = path.join(
-              app.getPath("userData"),
-              "update-config.json"
-            );
-            let updateConfig = {};
-
-            if (fs.existsSync(configPath)) {
-              updateConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    // Fall back to native dialog if IPC fails
+    try {
+      // Use the existing showNativeUpdateDialog function
+      if (typeof showNativeUpdateDialog === "function") {
+        showNativeUpdateDialog(updateInfo, parentWindow);
+      } else {
+        // Simple fallback if the function doesn't exist
+        dialog
+          .showMessageBox(parentWindow, {
+            type: "info",
+            title: "Update Available",
+            message: `A new version (${updateInfo.version}) is available`,
+            detail: `You're currently using version ${updateInfo.currentVersion}`,
+            buttons: ["Download", "Later"],
+            defaultId: 0,
+          })
+          .then(({ response }) => {
+            if (response === 0) {
+              shell.openExternal(updateInfo.downloadUrl);
             }
-
-            updateConfig.skippedVersion = updateInfo.version;
-            updateConfig.skipTimestamp = new Date().toISOString();
-
-            fs.writeFileSync(configPath, JSON.stringify(updateConfig, null, 2));
-          } catch (err) {
-            logger.error(`Error storing skipped version: ${err.message}`);
-          }
-          break;
+          })
+          .catch((err) => {
+            logger.error(`Error showing fallback dialog: ${err.message}`);
+          });
       }
-
-      // Handle "Don't show again" checkbox
-      if (checkboxChecked) {
-        logger.info(
-          `User chose not to be notified about version ${updateInfo.version} again`
-        );
-        try {
-          const configPath = path.join(
-            app.getPath("userData"),
-            "update-config.json"
-          );
-          let updateConfig = {};
-
-          if (fs.existsSync(configPath)) {
-            updateConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
-          }
-
-          if (!updateConfig.ignoredVersions) {
-            updateConfig.ignoredVersions = [];
-          }
-
-          if (!updateConfig.ignoredVersions.includes(updateInfo.version)) {
-            updateConfig.ignoredVersions.push(updateInfo.version);
-          }
-
-          fs.writeFileSync(configPath, JSON.stringify(updateConfig, null, 2));
-        } catch (err) {
-          logger.error(`Error storing ignored version: ${err.message}`);
-        }
-      }
-    })
-    .catch((err) => {
-      logger.error(`Error showing update dialog: ${err.message}`);
-    });
+    } catch (dialogError) {
+      logger.error(`Error showing fallback dialog: ${dialogError.message}`);
+    }
+  }
 }
 
 module.exports = {

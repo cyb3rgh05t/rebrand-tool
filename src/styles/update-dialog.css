@@ -1,5 +1,4 @@
-/* Update Dialog Styling */
-.update-dialog-backdrop {
+#update-dialog-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,16 +11,15 @@
   z-index: 9999;
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
-  display: none;
 }
 
-.update-dialog-backdrop.visible {
+#update-dialog-container.visible {
   opacity: 1;
 }
 
 .update-dialog {
-  background-color: #1e2130;
-  color: #fff;
+  background-color: var(--bg-surface, #1e2130);
+  color: var(--text-primary, #fff);
   border-radius: 8px;
   width: 450px;
   max-width: 90%;
@@ -29,11 +27,13 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
 }
 
 .update-dialog-header {
-  background-color: #2650d8;
-  color: white;
+  background-color: var(--primary, #2650d8);
+  color: var(--text-on-primary, white);
   padding: 16px;
   display: flex;
   align-items: center;
@@ -43,7 +43,7 @@
 
 .update-dialog-header .icon {
   margin-right: 12px;
-  color: white;
+  color: var(--text-on-primary, white);
 }
 
 .update-dialog-header h2 {
@@ -80,7 +80,7 @@
 }
 
 .update-dialog-info {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--bg-surface-light, rgba(0, 0, 0, 0.2));
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 16px;
@@ -97,7 +97,7 @@
 }
 
 .update-dialog-version-label {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
 }
 
 .update-dialog-version-value {
@@ -105,18 +105,18 @@
 }
 
 .update-dialog-version-value.latest {
-  color: #3e97ff;
+  color: var(--primary-light, #3e97ff);
 }
 
 .update-dialog-notes-title {
   font-size: 14px;
   margin: 0 0 8px 0;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
   font-weight: 500;
 }
 
 .update-dialog-notes {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--bg-surface-light, rgba(0, 0, 0, 0.2));
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 20px;
@@ -124,7 +124,7 @@
   line-height: 1.6;
   max-height: 200px;
   overflow-y: auto;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
 }
 
 .update-dialog-notes p {
@@ -136,7 +136,7 @@
 }
 
 .update-dialog-notes a {
-  color: #3e97ff;
+  color: var(--primary-light, #3e97ff);
   text-decoration: none;
 }
 
@@ -144,10 +144,24 @@
   text-decoration: underline;
 }
 
+.version-tag {
+  display: inline-block;
+  background-color: var(--primary, #2650d8);
+  color: var(--text-on-primary, white);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
 .release-version {
-  color: #3e97ff;
+  color: var(--primary, #3e97ff);
   font-weight: 500;
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
 }
 
 .update-dialog-actions {
@@ -177,30 +191,67 @@
 }
 
 .update-dialog-button-secondary {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
+  background-color: var(--bg-button-secondary, rgba(255, 255, 255, 0.1));
+  color: var(--text-primary, white);
 }
 
 .update-dialog-button-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: var(--bg-button-secondary-hover, rgba(255, 255, 255, 0.15));
 }
 
 .update-dialog-button-primary {
-  background-color: #2650d8;
-  color: white;
+  background-color: var(--primary, #2650d8);
+  color: var(--text-on-primary, white);
 }
 
 .update-dialog-button-primary:hover {
-  background-color: #3060e8;
+  background-color: var(--primary-hover, #3060e8);
 }
 
 .update-dialog-checkbox {
   display: flex;
   align-items: center;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
 }
 
 .update-dialog-checkbox input {
   margin-right: 8px;
+}
+
+/* Theme fallbacks in case CSS variables aren't available */
+.theme-dark .update-dialog {
+  background-color: #1e2130;
+  color: #fff;
+}
+
+.theme-light .update-dialog {
+  background-color: #f5f5f7;
+  color: #333;
+}
+
+.theme-light .update-dialog-header {
+  background-color: #2650d8;
+  color: white;
+}
+
+.theme-light .update-dialog-info,
+.theme-light .update-dialog-notes {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.theme-light .update-dialog-version-label,
+.theme-light .update-dialog-notes-title,
+.theme-light .update-dialog-checkbox {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.theme-light .update-dialog-button-secondary {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.theme-light .update-dialog-button-secondary:hover {
+  background-color: rgba(0, 0, 0, 0.15);
 }
