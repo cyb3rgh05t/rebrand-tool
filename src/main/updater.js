@@ -15,6 +15,89 @@ const logger = createLogger("updater");
 const currentVersion = app.getVersion();
 
 /**
+ * Extract release notes for a specific version from CHANGELOG.md
+ * @param {string} version - Version to extract (e.g., "2.4.2")
+ * @returns {string} The extracted release notes or a default message if not found
+ */
+function extractChangelogForVersion(version) {
+  try {
+    const fs = require("fs");
+    const path = require("path");
+
+    // Try multiple locations for CHANGELOG.md
+    const possiblePaths = [
+      path.join(app.getAppPath(), "CHANGELOG.md"),
+      path.join(process.cwd(), "CHANGELOG.md"),
+      path.join(__dirname, "../../CHANGELOG.md"),
+      path.join(process.resourcesPath || "", "app/CHANGELOG.md"),
+      path.join(process.resourcesPath || "", "app.asar/CHANGELOG.md"),
+    ];
+
+    let changelogContent = null;
+    let usedPath = null;
+
+    // Try each path until we find a valid CHANGELOG.md
+    for (const changelogPath of possiblePaths) {
+      if (fs.existsSync(changelogPath)) {
+        logger.debug(`Reading CHANGELOG.md from: ${changelogPath}`);
+        changelogContent = fs.readFileSync(changelogPath, "utf8");
+        usedPath = changelogPath;
+        break;
+      }
+    }
+
+    if (!changelogContent) {
+      logger.warn("CHANGELOG.md not found in any of the expected locations");
+      return "Release notes not available";
+    }
+
+    // Extract release notes using line-by-line approach (most reliable)
+    // Split into lines, handling both CRLF and LF
+    const lines = changelogContent.split(/\r?\n/);
+
+    // Find the starting line with our version
+    let startLine = -1;
+    const versionHeaderPattern = `## [${version}]`;
+
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes(versionHeaderPattern)) {
+        startLine = i;
+        break;
+      }
+    }
+
+    if (startLine === -1) {
+      logger.warn(`Version ${version} not found in changelog at ${usedPath}`);
+      return "Release notes not available for this version";
+    }
+
+    // Find the next version header or end of file
+    let endLine = lines.length;
+
+    for (let i = startLine + 1; i < lines.length; i++) {
+      if (lines[i].match(/^## \[\d+\.\d+\.\d+\]/)) {
+        endLine = i;
+        break;
+      }
+    }
+
+    // Extract the relevant lines (skip the header line itself)
+    const releaseNotes = lines
+      .slice(startLine + 1, endLine)
+      .join("\n")
+      .trim();
+
+    logger.debug(
+      `Successfully extracted ${releaseNotes.length} chars of release notes for v${version}`
+    );
+    return releaseNotes;
+  } catch (error) {
+    logger.error(`Error extracting changelog: ${error.message}`);
+    return "Error reading release notes";
+  }
+}
+
+/**
  * Check for updates by comparing with GitHub releases
  * @returns {Promise<Object>} Update information
  */
@@ -365,8 +448,12 @@ async function checkForUpdatesRespectingPreferences() {
 function showUpdateDialog(updateInfo, parentWindow) {
   logger.info("Showing enhanced update dialog");
 
-  // Format release notes for display
-  let releaseNotes = updateInfo.releaseNotes || "New version available!";
+  // Format release notes for display - Extract from CHANGELOG.md
+  let releaseNotes =
+    extractChangelogForVersion(updateInfo.version) ||
+    updateInfo.releaseNotes ||
+    "New version available!";
+
   // Limit release notes length for dialog
   if (releaseNotes.length > 500) {
     releaseNotes = releaseNotes.substring(0, 500) + "...";

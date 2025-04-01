@@ -170,9 +170,14 @@ app.whenReady().then(() => {
       const updater = require("./updater");
       const updateResult = await updater.checkForUpdates();
 
-      // If update is available, show it
+      // If update is available, show the new update dialog through the renderer process
       if (updateResult.updateAvailable && mainWindow) {
+        logger.info(
+          `Update available (v${updateResult.version}), showing notification`
+        );
         updater.showUpdateDialog(updateResult, mainWindow);
+      } else {
+        logger.info("No updates available or updates are being skipped");
       }
     } catch (error) {
       logger.error(`Silent update check failed: ${error.message}`);

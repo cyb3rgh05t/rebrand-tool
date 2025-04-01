@@ -1,0 +1,234 @@
+/**
+ * Styles for the enhanced Update Dialog
+ */
+
+.update-dialog-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.update-dialog-backdrop.visible {
+  opacity: 1;
+}
+
+.update-dialog {
+  width: 100%;
+  max-width: 480px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #333;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transform: translateY(20px);
+  transition: transform 0.3s ease-out;
+}
+
+.update-dialog-backdrop.visible .update-dialog {
+  transform: translateY(0);
+}
+
+.update-dialog-header {
+  background-color: #1e3a8a; /* blue-900 */
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #2c5282; /* blue-800 */
+}
+
+.update-dialog-header .icon {
+  color: #90cdf4; /* blue-300 */
+  margin-right: 12px;
+}
+
+.update-dialog-header h2 {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.update-dialog-close {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #cbd5e0; /* gray-300 */
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.update-dialog-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.update-dialog-content {
+  padding: 20px;
+}
+
+.update-dialog-message {
+  color: #e2e8f0; /* gray-200 */
+  font-size: 16px;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.update-dialog-message .version {
+  color: #63b3ed; /* blue-400 */
+  font-weight: 600;
+}
+
+.update-dialog-info {
+  background-color: #2d3748; /* gray-800 */
+  border: 1px solid #4a5568; /* gray-600 */
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.update-dialog-version-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.update-dialog-version-row:last-child {
+  margin-bottom: 0;
+}
+
+.update-dialog-version-label {
+  color: #a0aec0; /* gray-400 */
+  font-size: 14px;
+}
+
+.update-dialog-version-value {
+  color: #e2e8f0; /* gray-200 */
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.update-dialog-version-value.latest {
+  color: #63b3ed; /* blue-400 */
+}
+
+.update-dialog-notes-title {
+  color: #e2e8f0; /* gray-200 */
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.update-dialog-notes {
+  background-color: #2d3748; /* gray-800 */
+  border: 1px solid #4a5568; /* gray-600 */
+  border-radius: 6px;
+  padding: 16px;
+  color: #cbd5e0; /* gray-300 */
+  font-size: 14px;
+  max-height: 150px;
+  overflow-y: auto;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.update-dialog-notes p {
+  margin: 0 0 10px 0;
+}
+
+.update-dialog-notes p:last-child {
+  margin-bottom: 0;
+}
+
+.update-dialog-notes .release-version {
+  color: #63b3ed; /* blue-400 */
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.update-dialog-notes a {
+  color: #63b3ed; /* blue-400 */
+  text-decoration: none;
+}
+
+.update-dialog-notes a:hover {
+  color: #90cdf4; /* blue-300 */
+  text-decoration: underline;
+}
+
+.update-dialog-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.update-dialog-button {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.update-dialog-button-secondary {
+  background-color: #2d3748; /* gray-800 */
+  color: #cbd5e0; /* gray-300 */
+  border: 1px solid #4a5568; /* gray-600 */
+}
+
+.update-dialog-button-secondary:hover {
+  background-color: #4a5568; /* gray-600 */
+}
+
+.update-dialog-button-primary {
+  background-color: #2b6cb0; /* blue-700 */
+  color: white;
+  border: none;
+}
+
+.update-dialog-button-primary:hover {
+  background-color: #3182ce; /* blue-600 */
+}
+
+.update-dialog-button .icon {
+  margin-right: 8px;
+}
+
+.update-dialog-checkbox {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.update-dialog-checkbox label {
+  display: flex;
+  align-items: center;
+  color: #a0aec0; /* gray-400 */
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.update-dialog-checkbox input {
+  margin-right: 8px;
+}

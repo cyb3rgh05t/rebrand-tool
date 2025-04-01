@@ -2,7 +2,7 @@
  * Preload script for Electron
  * Exposes a secure bridge between renderer process and main process
  */
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer, shell } = require("electron");
 
 /**
  * Define which APIs will be exposed to the renderer process
@@ -46,11 +46,29 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
   // Utility functions
   generatePassword: (length) => ipcRenderer.invoke("generate-password", length),
 
+  // External links
+  openExternalLink: (url) => {
+    // Use Electron's shell module to safely open external URLs
+    shell.openExternal(url);
+  },
+
   // Debug and logging
   setLogLevel: (level) => ipcRenderer.invoke("set-log-level", level),
 
   // Updates
   checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+  skipUpdateVersion: (version) =>
+    ipcRenderer.invoke("skip-update-version", version),
+
+  // Update dialog handlers
+  showUpdateNotification: (updateInfo) => {
+    // Create an event to notify the renderer process
+    document.dispatchEvent(
+      new CustomEvent("show-update-notification", {
+        detail: updateInfo,
+      })
+    );
+  },
 
   // Domain Structure
   scanDomainStructure: (dirPath) =>

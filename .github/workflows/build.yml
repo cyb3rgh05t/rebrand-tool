@@ -88,23 +88,81 @@ jobs:
             echo "TAG=latest" >> $GITHUB_ENV
           fi
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
+
       - name: Extract release notes from CHANGELOG.md
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
+          # Create a Node.js script for extracting release notes
+          cat > extract-changelog.js << 'EOF'
+          /**
+           * Extract version-specific release notes from CHANGELOG.md
+           */
+          const fs = require('fs');
+
+          // Get version from command line
+          const version = process.argv[2];
+          if (!version) {
+            console.error('Please provide a version number');
+            process.exit(1);
+          }
+
+          try {
+            // Read the changelog file
+            const changelog = fs.readFileSync('./CHANGELOG.md', 'utf8');
+            
+            // Split into lines, handling both CRLF and LF
+            const lines = changelog.split(/\r?\n/);
+            
+            // Find the starting line with our version
+            let startLine = -1;
+            const versionHeaderPattern = `## [${version}]`;
+            
+            for (let i = 0; i < lines.length; i++) {
+              if (lines[i].includes(versionHeaderPattern)) {
+                startLine = i;
+                break;
+              }
+            }
+            
+            if (startLine === -1) {
+              console.error(`Version ${version} not found in changelog`);
+              process.exit(1);
+            }
+            
+            // Find the next version header or end of file
+            let endLine = lines.length;
+            
+            for (let i = startLine + 1; i < lines.length; i++) {
+              if (lines[i].match(/^## \[\d+\.\d+\.\d+\]/)) {
+                endLine = i;
+                break;
+              }
+            }
+            
+            // Extract the relevant lines
+            // Skip the header line itself
+            const releaseNotes = lines.slice(startLine + 1, endLine).join('\n').trim();
+            
+            // Output to console
+            console.log(releaseNotes);
+            
+            // Save to file
+            fs.writeFileSync('release_notes.md', releaseNotes);
+            
+          } catch (error) {
+            console.error(`Error extracting release notes: ${error.message}`);
+            process.exit(1);
+          }
+          EOF
+
+          # Execute the script
           if [ -n "${{ env.VERSION }}" ]; then
-            echo "Looking for version ${{ env.VERSION }} in CHANGELOG.md"
-            
-            # Use awk to extract the content for the current version from CHANGELOG.md
-            RELEASE_NOTES=$(awk -v version="## [${{ env.VERSION }}]" '
-              BEGIN { found=0; }
-              $0 ~ version { found=1; next; }
-              found && $0 ~ /^## \[/ { found=0; }
-              found { print $0; }
-            ' CHANGELOG.md)
-            
-            # Create a temporary file for the release notes
-            echo "$RELEASE_NOTES" > release_notes.md
-            echo "Release notes extracted to release_notes.md"
+            echo "Looking for version ${{ env.VERSION }} in CHANGELOG.md using Node.js extractor"
+            node extract-changelog.js "${{ env.VERSION }}"
             
             # Show the content for debugging
             echo "===== BEGIN RELEASE NOTES ====="

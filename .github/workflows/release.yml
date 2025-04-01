@@ -5,14 +5,18 @@ on:
     branches:
       - main
     paths:
-      - 'package.json'
-      - 'CHANGELOG.md'
+      - "package.json"
+      - "CHANGELOG.md"
   workflow_dispatch:
     inputs:
       force_update:
         description: "Force update even if tag exists"
         required: false
         default: "false"
+      version_override:
+        description: "Override version (leave empty to use package.json)"
+        required: false
+        default: ""
 
 jobs:
   create-tag-and-trigger-build:
@@ -25,21 +29,25 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.PACKAGES }}
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '16'
-          
+          node-version: "16"
+
       - name: Extract version from package.json
         id: package-version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          if [[ -n "${{ github.event.inputs.version_override }}" ]]; then
+            VERSION="${{ github.event.inputs.version_override }}"
+            echo "Using overridden version: $VERSION"
+          else
+            VERSION=$(node -p "require('./package.json').version")
+            echo "Using version from package.json: $VERSION"
+          fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "TAG_NAME=v$VERSION" >> $GITHUB_ENV
-          echo "Raw version from package.json: $VERSION"
-          echo "Tag name: v$VERSION"
-      
+
       - name: Check if tag already exists
         id: check-tag
         run: |
@@ -50,42 +58,116 @@ jobs:
             echo "TAG_EXISTS=false" >> $GITHUB_ENV
             echo "Tag ${{ env.TAG_NAME }} does not exist yet"
           fi
-      
+
+      - name: Create extract-changelog.js script
+        run: |
+          cat > extract-changelog.js << 'EOF'
+          /**
+           * Simple and robust changelog extractor
+           * This uses a line-by-line approach instead of complex regex
+           */
+          const fs = require('fs');
+
+          // Get version from command line
+          const version = process.argv[2];
+          if (!version) {
+            console.error('Please provide a version number');
+            process.exit(1);
+          }
+
+          try {
+            // Read the changelog file
+            const changelog = fs.readFileSync('./CHANGELOG.md', 'utf8');
+            
+            // Split into lines, handling both CRLF and LF
+            const lines = changelog.split(/\r?\n/);
+            
+            // Find the starting line with our version
+            let startLine = -1;
+            const versionHeaderPattern = `## [${version}]`;
+            
+            for (let i = 0; i < lines.length; i++) {
+              if (lines[i].includes(versionHeaderPattern)) {
+                startLine = i;
+                break;
+              }
+            }
+            
+            if (startLine === -1) {
+              console.error(`Version ${version} not found in changelog`);
+              process.exit(1);
+            }
+            
+            // Find the next version header or end of file
+            let endLine = lines.length;
+            
+            for (let i = startLine + 1; i < lines.length; i++) {
+              if (lines[i].match(/^## \[\d+\.\d+\.\d+\]/)) {
+                endLine = i;
+                break;
+              }
+            }
+            
+            // Extract the relevant lines
+            // Skip the header line itself
+            const releaseNotes = lines.slice(startLine + 1, endLine).join('\n').trim();
+            
+            // Output to console
+            console.log(releaseNotes);
+            
+            // Save to file
+            fs.writeFileSync('RELEASE_NOTES.md', releaseNotes);
+            console.log('Release notes extracted to RELEASE_NOTES.md');
+            
+          } catch (error) {
+            console.error(`Error extracting release notes: ${error.message}`);
+            process.exit(1);
+          }
+          EOF
+          chmod +x extract-changelog.js
+          echo "Created extract-changelog.js script"
+
       - name: Extract release notes from CHANGELOG.md
         id: extract-release-notes
         run: |
-          # Extract version without 'v' prefix for matching in CHANGELOG
           echo "Looking for version $VERSION in CHANGELOG.md"
-          
-          # Use awk to extract the content for the current version from CHANGELOG.md
-          # This extracts everything between the version header and the next version header
-          RELEASE_NOTES=$(awk -v version="## [$VERSION]" '
-            BEGIN { found=0; }
-            $0 ~ version { found=1; next; }
-            found && $0 ~ /^## \[/ { found=0; }
-            found { print $0; }
-          ' CHANGELOG.md)
-          
-          # Create a temporary file for the release notes
-          echo "$RELEASE_NOTES" > release_notes.md
-          echo "Release notes extracted to release_notes.md"
-          
-          # Show the first few lines for debugging
-          head -n 5 release_notes.md || true
-          
-          # Create a summary of the release notes for commit message
-          SUMMARY=$(echo "$RELEASE_NOTES" | grep -v "^$" | head -n 3)
-          echo "SUMMARY<<EOF" >> $GITHUB_ENV
-          echo "$SUMMARY" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-      
+
+          # Use our Node.js script to extract the release notes
+          node extract-changelog.js "$VERSION"
+
+          if [ -f "RELEASE_NOTES.md" ]; then
+            echo "Release notes extracted successfully"
+            
+            # Get the content of the release notes
+            RELEASE_NOTES=$(cat RELEASE_NOTES.md)
+            
+            # Create a summary of the release notes for commit message (first 3 non-empty lines)
+            SUMMARY=$(echo "$RELEASE_NOTES" | grep -v "^$" | head -n 3)
+            
+            # Store the release notes for the next step
+            echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+            echo "$RELEASE_NOTES" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+            
+            echo "SUMMARY<<EOF" >> $GITHUB_ENV
+            echo "$SUMMARY" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+            
+            # Print the first few lines for verification
+            echo "First few lines of release notes:"
+            head -n 5 RELEASE_NOTES.md
+          else
+            echo "Failed to extract release notes"
+            exit 1
+          fi
+
       - name: Create and push tag
         if: env.TAG_EXISTS == 'false' || github.event.inputs.force_update == 'true'
         run: |
           # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
+
           # Create an annotated tag with release notes
           COMMIT_MSG="Release ${{ env.TAG_NAME }}"
           if [[ -n "${{ env.SUMMARY }}" ]]; then
@@ -93,17 +175,29 @@ jobs:
             
             ${{ env.SUMMARY }}"
           fi
-          
+
           # Delete tag if it exists and force update is enabled
           if [[ "${{ env.TAG_EXISTS }}" == "true" && "${{ github.event.inputs.force_update }}" == "true" ]]; then
             echo "Force updating existing tag"
             git tag -d ${{ env.TAG_NAME }} || true
             git push --delete origin ${{ env.TAG_NAME }} || true
           fi
-          
+
           # Create and push the tag
           git tag -a ${{ env.TAG_NAME }} -m "$COMMIT_MSG"
           git push origin ${{ env.TAG_NAME }}
-          
+
           echo "Created and pushed tag ${{ env.TAG_NAME }}"
           echo "The build workflow should now be triggered automatically"
+
+      - name: Create GitHub Release
+        if: env.TAG_EXISTS == 'false' || github.event.inputs.force_update == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: Release ${{ env.TAG_NAME }}
+          body: ${{ env.RELEASE_NOTES }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGES }}

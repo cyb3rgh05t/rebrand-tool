@@ -2,6 +2,13 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.4.3] - 2025-04-02
+
+### Fixed
+
+- Improved extraction of release notes from CHANGELOG.md
+- Added reliable changelog extraction script for application updates
+
 ## [2.4.2] - 2025-04-01
 
 ### Fixed

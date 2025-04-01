@@ -30,6 +30,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.documentElement.classList.add("theme-dark");
   }
 
+  // Load the update-dialog CSS
+  loadStylesheet("./styles/update-dialog.css");
+
   log.info("Application initializing");
 
   // Set version badge
@@ -117,6 +120,41 @@ async function initializeComponents() {
   initializeMenuListeners();
 
   log.info("Application initialized");
+}
+
+/**
+ * Load a stylesheet dynamically
+ * @param {string} href - Path to the CSS file
+ */
+function loadStylesheet(href) {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.type = "text/css";
+  link.href = href;
+  document.head.appendChild(link);
+  log.debug(`Stylesheet loaded: ${href}`);
+}
+
+/**
+ * Initialize the update notification system
+ */
+function initUpdateNotification() {
+  log.debug("Initializing update notification system");
+
+  // Listen for update notifications from the main process
+  document.addEventListener("show-update-notification", async (event) => {
+    log.info(
+      `Update notification received for version ${event.detail?.version}`
+    );
+
+    // Import the update dialog module dynamically to avoid circular dependencies
+    try {
+      const updateDialogModule = await import("./modules/update-dialog.js");
+      updateDialogModule.showUpdateDialog(event.detail);
+    } catch (error) {
+      log.error(`Error showing update dialog: ${error.message}`);
+    }
+  });
 }
 
 // Set version badge to current version
@@ -329,6 +367,17 @@ function initializeMenuListeners() {
         case "check-updates":
           // Trigger update check - using the settings module now
           settings.checkForUpdates();
+          break;
+
+        case "show-update":
+          // Handle update notification from the main process
+          // This will be triggered when a new version is detected
+          if (data && data.version) {
+            log.info(`Received show-update action for version ${data.version}`);
+            import("./modules/update-dialog.js").then((module) => {
+              module.showUpdateDialog(data);
+            });
+          }
           break;
 
         case "toggle-debug":
@@ -585,6 +634,9 @@ document.addEventListener("DOMContentLoaded", () => {
       updateStatus.classList.remove("visible");
     });
   }
+
+  // Initialize update notification system
+  initUpdateNotification();
 });
 
 // Listen for error events

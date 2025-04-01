@@ -117,6 +117,19 @@ function registerIpcHandlers() {
     }
   });
 
+  // Skip update version handler
+  ipcMain.handle("skip-update-version", async (event, version) => {
+    logger.debug(`IPC: skip-update-version called for ${version}`);
+    try {
+      // Import the updater module
+      const updater = require("./updater");
+      return await updater.skipUpdateVersion(version);
+    } catch (error) {
+      logger.error(`Error skipping update version: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
   // Root domain getter
   ipcMain.handle("get-root-domain", async (event) => {
     logger.debug("IPC: get-root-domain called");
