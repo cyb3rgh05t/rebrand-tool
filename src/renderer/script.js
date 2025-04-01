@@ -141,23 +141,42 @@ loadStylesheet("./styles/update-dialog.css");
 /**
  * Initialize the update notification system
  */
-function initUpdateNotification() {
+async function initUpdateNotification() {
   log.debug("Initializing update notification system");
 
-  // Listen for update notifications from the main process
-  document.addEventListener("show-update-notification", async (event) => {
-    log.info(
-      `Update notification received for version ${event.detail?.version}`
-    );
+  try {
+    // Import the update dialog module dynamically
+    const updateDialogModule = await import("./modules/update-dialog.js");
 
-    // Import the update dialog module dynamically to avoid circular dependencies
-    try {
-      const updateDialogModule = await import("./modules/update-dialog.js");
+    // Initialize the update dialog system
+    updateDialogModule.initUpdateDialog();
+
+    // Listen for update notifications from the main process
+    document.addEventListener("show-update-notification", (event) => {
+      log.info(
+        `Update notification received for version ${event.detail?.version}`
+      );
       updateDialogModule.showUpdateDialog(event.detail);
-    } catch (error) {
-      log.error(`Error showing update dialog: ${error.message}`);
+    });
+
+    // Also listen for menu-action events
+    if (window.streamNetAPI && window.streamNetAPI.onMenuAction) {
+      window.streamNetAPI.onMenuAction((action, data) => {
+        if (action === "show-update" && data && data.version) {
+          log.info(
+            `Update notification received from menu action for version ${data.version}`
+          );
+          updateDialogModule.showUpdateDialog(data);
+        }
+      });
     }
-  });
+
+    log.info("Update notification system initialized");
+  } catch (error) {
+    log.error(
+      `Error initializing update notification system: ${error.message}`
+    );
+  }
 }
 
 // Add click handler to close the toast notification when clicked
