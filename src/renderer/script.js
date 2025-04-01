@@ -135,6 +135,9 @@ function loadStylesheet(href) {
   log.debug(`Stylesheet loaded: ${href}`);
 }
 
+// Load the update-dialog CSS
+loadStylesheet("./styles/update-dialog.css");
+
 /**
  * Initialize the update notification system
  */
@@ -156,6 +159,19 @@ function initUpdateNotification() {
     }
   });
 }
+
+// Add click handler to close the toast notification when clicked
+document.addEventListener("DOMContentLoaded", () => {
+  const updateStatus = document.getElementById("updateStatus");
+  if (updateStatus) {
+    updateStatus.addEventListener("click", () => {
+      updateStatus.classList.remove("visible");
+    });
+  }
+
+  // Initialize update notification system
+  initUpdateNotification();
+});
 
 // Set version badge to current version
 function setVersionBadge() {
@@ -625,19 +641,6 @@ function initializeDebugPanel() {
 
   log.debug("Debug panel initialized");
 }
-
-// Add click handler to close the toast notification when clicked
-document.addEventListener("DOMContentLoaded", () => {
-  const updateStatus = document.getElementById("updateStatus");
-  if (updateStatus) {
-    updateStatus.addEventListener("click", () => {
-      updateStatus.classList.remove("visible");
-    });
-  }
-
-  // Initialize update notification system
-  initUpdateNotification();
-});
 
 // Listen for error events
 window.addEventListener("error", (event) => {
