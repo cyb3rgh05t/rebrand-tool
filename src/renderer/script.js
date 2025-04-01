@@ -135,62 +135,27 @@ function loadStylesheet(href) {
   log.debug(`Stylesheet loaded: ${href}`);
 }
 
-// Load the update-dialog CSS
-loadStylesheet("./styles/update-dialog.css");
-
 /**
  * Initialize the update notification system
  */
-async function initUpdateNotification() {
+function initUpdateNotification() {
   log.debug("Initializing update notification system");
 
-  try {
-    // Import the update dialog module dynamically
-    const updateDialogModule = await import("./modules/update-dialog.js");
-
-    // Initialize the update dialog system
-    updateDialogModule.initUpdateDialog();
-
-    // Listen for update notifications from the main process
-    document.addEventListener("show-update-notification", (event) => {
-      log.info(
-        `Update notification received for version ${event.detail?.version}`
-      );
-      updateDialogModule.showUpdateDialog(event.detail);
-    });
-
-    // Also listen for menu-action events
-    if (window.streamNetAPI && window.streamNetAPI.onMenuAction) {
-      window.streamNetAPI.onMenuAction((action, data) => {
-        if (action === "show-update" && data && data.version) {
-          log.info(
-            `Update notification received from menu action for version ${data.version}`
-          );
-          updateDialogModule.showUpdateDialog(data);
-        }
-      });
-    }
-
-    log.info("Update notification system initialized");
-  } catch (error) {
-    log.error(
-      `Error initializing update notification system: ${error.message}`
+  // Listen for update notifications from the main process
+  document.addEventListener("show-update-notification", async (event) => {
+    log.info(
+      `Update notification received for version ${event.detail?.version}`
     );
-  }
+
+    // Import the update dialog module dynamically to avoid circular dependencies
+    try {
+      const updateDialogModule = await import("./modules/update-dialog.js");
+      updateDialogModule.showUpdateDialog(event.detail);
+    } catch (error) {
+      log.error(`Error showing update dialog: ${error.message}`);
+    }
+  });
 }
-
-// Add click handler to close the toast notification when clicked
-document.addEventListener("DOMContentLoaded", () => {
-  const updateStatus = document.getElementById("updateStatus");
-  if (updateStatus) {
-    updateStatus.addEventListener("click", () => {
-      updateStatus.classList.remove("visible");
-    });
-  }
-
-  // Initialize update notification system
-  initUpdateNotification();
-});
 
 // Set version badge to current version
 function setVersionBadge() {
@@ -660,6 +625,19 @@ function initializeDebugPanel() {
 
   log.debug("Debug panel initialized");
 }
+
+// Add click handler to close the toast notification when clicked
+document.addEventListener("DOMContentLoaded", () => {
+  const updateStatus = document.getElementById("updateStatus");
+  if (updateStatus) {
+    updateStatus.addEventListener("click", () => {
+      updateStatus.classList.remove("visible");
+    });
+  }
+
+  // Initialize update notification system
+  initUpdateNotification();
+});
 
 // Listen for error events
 window.addEventListener("error", (event) => {
