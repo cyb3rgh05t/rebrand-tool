@@ -980,7 +980,7 @@ function showDownloadProgressDialog(url, version, filename) {
     if (progressBar) progressBar.style.width = "0%";
     if (progressPercent) progressPercent.textContent = "0%";
     if (downloadedSize) downloadedSize.textContent = "0 KB";
-    if (totalSize) totalSize.textContent = "Unknown";
+    if (totalSize) totalSize.textContent = "0 B";
 
     // Remove complete class if present
     const dialog = document.getElementById("downloadProgressDialog");
@@ -1031,21 +1031,13 @@ function showDownloadProgressDialog(url, version, filename) {
     }
 
     // Set up download started listener
-    if (window.streamNetAPI && window.streamNetAPI.onDownloadProgress) {
-      // Listen for the download started event
-      const downloadStartedHandler = (event) => {
+    if (window.streamNetAPI && window.streamNetAPI.onDownloadStarted) {
+      // Register handler for download started events
+      window.streamNetAPI.onDownloadStarted((data) => {
         // Set the active download ID
-        activeDownloadId = event.detail?.downloadId;
+        activeDownloadId = data.downloadId;
         log.debug(`Download started with ID: ${activeDownloadId}`);
-
-        // Remove the listener after getting the ID
-        document.removeEventListener(
-          "download-started",
-          downloadStartedHandler
-        );
-      };
-
-      document.addEventListener("download-started", downloadStartedHandler);
+      });
     }
 
     // Start the download
@@ -1114,7 +1106,7 @@ function createDownloadProgressDialog() {
               <div class="download-progress-filename" id="downloadProgressFilename">update-file.exe</div>
               <div class="download-progress-info">
                 <span id="downloadProgressDownloaded">0 KB</span>
-                <span>of <span id="downloadProgressTotal">Unknown</span> (<span id="downloadProgressPercent">0%</span>)</span>
+                <span>of  <span id="downloadProgressTotal">0 B</span> (<span id="downloadProgressPercent">0%</span>)</span>
               </div>
             </div>
             <div class="download-progress-bar-container">
@@ -1195,7 +1187,7 @@ function updateDownloadProgress(data) {
  * @returns {string} Formatted size
  */
 function formatFileSize(size) {
-  if (!size || size === 0) return "Unknown";
+  if (!size || size === 0) return "0 B";
 
   const units = ["B", "KB", "MB", "GB"];
   let unitIndex = 0;

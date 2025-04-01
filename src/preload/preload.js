@@ -74,6 +74,14 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
     );
   },
 
+  // Handle download started events
+  onDownloadStarted: (callback) => {
+    // Set up listener for download-started events
+    ipcRenderer.on("download-started", (event, data) => {
+      callback(data);
+    });
+  },
+
   onDownloadProgress: (callback) => {
     // Set up listener for download-progress events
     ipcRenderer.on("download-progress", (event, data) => {
