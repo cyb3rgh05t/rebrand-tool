@@ -1,0 +1,150 @@
+/**
+ * Styles for the download progress dialog
+ */
+
+.download-progress-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 999999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.download-progress-backdrop.visible {
+  opacity: 1;
+}
+
+.download-progress-dialog {
+  background-color: var(--bg-surface, #2d2d2d);
+  color: var(--text-primary, #ffffff);
+  width: 450px;
+  max-width: 90vw;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  border: 1px solid var(--border-color, #444);
+}
+
+.download-progress-backdrop.visible .download-progress-dialog {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.download-progress-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle, #333);
+}
+
+.download-progress-header .icon {
+  color: var(--primary, #3498db);
+  margin-right: 12px;
+}
+
+.download-progress-header h3 {
+  flex-grow: 1;
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.download-progress-content {
+  padding: 20px;
+}
+
+.download-progress-status {
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+}
+
+.download-progress-filename {
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.download-progress-info {
+  margin-top: 5px;
+  color: var(--text-secondary, #aaa);
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.download-progress-bar-container {
+  background-color: var(--bg-surface-variant, #333);
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 15px 0;
+  border: 1px solid var(--border-subtle, #444);
+}
+
+.download-progress-bar {
+  height: 100%;
+  width: 0;
+  background-color: var(--primary, #3498db);
+  transition: width 0.3s ease;
+}
+
+.download-progress-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.download-progress-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.download-progress-button.secondary {
+  background-color: var(--bg-button-secondary, #444);
+  color: var(--text-primary, #fff);
+  border: 1px solid var(--border-color, #555);
+}
+
+.download-progress-button.secondary:hover {
+  background-color: var(--bg-button-secondary-hover, #555);
+}
+
+.download-progress-button.primary {
+  background-color: var(--primary, #3498db);
+  color: white;
+}
+
+.download-progress-button.primary:hover {
+  background-color: var(--primary-hover, #2980b9);
+}
+
+.download-progress-button .icon {
+  margin-right: 8px;
+}
+
+/* When download is complete */
+.download-progress-complete .download-progress-bar {
+  background-color: var(--success, #4caf50);
+}

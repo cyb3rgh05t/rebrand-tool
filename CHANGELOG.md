@@ -2,6 +2,15 @@
 
 All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
 
+## [2.4.4] - 2025-04-02
+
+### Fixed
+
+- Update dialog display issues in dark mode
+- Inconsistent notification behavior when multiple updates are available
+- Version skipping functionality not being honored consistently
+- Release notes truncation issues in update dialog
+
 ## [2.4.3] - 2025-04-02
 
 ### Fixed

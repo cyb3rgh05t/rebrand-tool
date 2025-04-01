@@ -448,38 +448,69 @@ async function checkForUpdatesRespectingPreferences() {
 function showUpdateDialog(updateInfo, parentWindow) {
   logger.info("Showing enhanced update dialog");
 
-  // Format release notes for display - Extract from CHANGELOG.md
+  // Get the full release notes from CHANGELOG.md
   let releaseNotes =
     extractChangelogForVersion(updateInfo.version) ||
     updateInfo.releaseNotes ||
     "New version available!";
 
+  // Prepare the update information to send to the renderer
+  const updateData = {
+    version: updateInfo.version,
+    currentVersion: updateInfo.currentVersion,
+    downloadUrl: updateInfo.downloadUrl,
+    releaseNotes: releaseNotes,
+  };
+
+  try {
+    // Send the update notification to the renderer process for our custom dialog
+    if (parentWindow && !parentWindow.isDestroyed()) {
+      logger.debug("Sending update notification to renderer process");
+
+      // Send the data through our preload bridge using a custom event
+      parentWindow.webContents.send("menu-action", "show-update", updateData);
+    } else {
+      logger.warn("Parent window not available for update notification");
+
+      // Fallback to the traditional dialog if the window isn't available
+      showFallbackDialog(updateInfo);
+    }
+  } catch (error) {
+    logger.error(`Error showing custom update dialog: ${error.message}`);
+
+    // Fallback to traditional dialog in case of error
+    showFallbackDialog(updateInfo);
+  }
+}
+
+/**
+ * Fallback to traditional dialog if the custom one can't be shown
+ * @param {Object} updateInfo Update information
+ */
+function showFallbackDialog(updateInfo) {
+  logger.warn("Using fallback native dialog for update notification");
+
   // Limit release notes length for dialog
+  let releaseNotes = updateInfo.releaseNotes || "";
   if (releaseNotes.length > 500) {
     releaseNotes = releaseNotes.substring(0, 500) + "...";
   }
 
-  // Create a more detailed message
-  const message = `A new version of Rebrands Panels is available: v${updateInfo.version}`;
-
-  // Create more descriptive detail text
-  const detail = `Current version: v${updateInfo.currentVersion}
-Latest version: v${updateInfo.version}
-
-What's new:
-${releaseNotes}
-
-Would you like to download it now?`;
-
-  // Create enhanced dialog options
+  // Create dialog options
   const dialogOptions = {
     type: "info",
     buttons: ["Download Now", "Remind Me Later", "Skip This Version"],
     defaultId: 0,
     cancelId: 1,
     title: "Update Available",
-    message: message,
-    detail: detail,
+    message: `A new version of Rebrands Panels is available: v${updateInfo.version}`,
+    detail: `Current version: v${updateInfo.currentVersion}
+Latest version: v${updateInfo.version}
+
+What's new:
+${releaseNotes}
+
+Would you like to download it now?`,
     checkboxLabel: "Don't show again for this version",
     checkboxChecked: false,
     icon: path.join(app.getAppPath(), "assets/icons/png/64x64.png"),
@@ -487,23 +518,20 @@ Would you like to download it now?`;
 
   // Show the dialog
   dialog
-    .showMessageBox(parentWindow, dialogOptions)
+    .showMessageBox(null, dialogOptions)
     .then(({ response, checkboxChecked }) => {
       switch (response) {
         case 0: // Download Now
           logger.info(`Opening download URL: ${updateInfo.downloadUrl}`);
-          // Open download URL in default browser
           shell.openExternal(updateInfo.downloadUrl);
           break;
 
         case 1: // Remind Me Later
           logger.info("User chose to be reminded later about the update");
-          // You could set a flag in user settings to remind later
           break;
 
         case 2: // Skip This Version
           logger.info(`User chose to skip version ${updateInfo.version}`);
-          // Store this version as skipped
           try {
             const configPath = path.join(
               app.getPath("userData"),
@@ -560,8 +588,49 @@ Would you like to download it now?`;
     });
 }
 
+/**
+ * Skip a specific update version
+ * @param {string} version - Version to skip
+ * @returns {Promise<Object>} Result
+ */
+async function skipUpdateVersion(version) {
+  logger.info(`Request to skip update version ${version}`);
+
+  try {
+    const configPath = path.join(app.getPath("userData"), "update-config.json");
+    let updateConfig = {};
+
+    // Load existing config if it exists
+    if (fs.existsSync(configPath)) {
+      updateConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    }
+
+    // Set up the ignoredVersions array if it doesn't exist
+    if (!updateConfig.ignoredVersions) {
+      updateConfig.ignoredVersions = [];
+    }
+
+    // Add the version to ignore if not already there
+    if (!updateConfig.ignoredVersions.includes(version)) {
+      updateConfig.ignoredVersions.push(version);
+      logger.info(`Added version ${version} to ignored versions list`);
+    } else {
+      logger.debug(`Version ${version} already in ignored versions list`);
+    }
+
+    // Save the updated config
+    fs.writeFileSync(configPath, JSON.stringify(updateConfig, null, 2));
+
+    return { success: true };
+  } catch (error) {
+    logger.error(`Error skipping update version: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   checkForUpdates,
   showUpdateDialog,
   checkForUpdatesRespectingPreferences,
+  skipUpdateVersion,
 };

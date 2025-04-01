@@ -59,6 +59,10 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
   checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
   skipUpdateVersion: (version) =>
     ipcRenderer.invoke("skip-update-version", version),
+  downloadUpdate: (url, filename) =>
+    ipcRenderer.invoke("download-update", url, filename),
+  cancelDownload: (downloadId) =>
+    ipcRenderer.invoke("cancel-download", downloadId),
 
   // Update dialog handlers
   showUpdateNotification: (updateInfo) => {
@@ -68,6 +72,13 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
         detail: updateInfo,
       })
     );
+  },
+
+  onDownloadProgress: (callback) => {
+    // Set up listener for download-progress events
+    ipcRenderer.on("download-progress", (event, data) => {
+      callback(data);
+    });
   },
 
   // Domain Structure

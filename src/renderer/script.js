@@ -123,36 +123,51 @@ async function initializeComponents() {
 }
 
 /**
- * Load a stylesheet dynamically
- * @param {string} href - Path to the CSS file
- */
-function loadStylesheet(href) {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.type = "text/css";
-  link.href = href;
-  document.head.appendChild(link);
-  log.debug(`Stylesheet loaded: ${href}`);
-}
-
-/**
  * Initialize the update notification system
  */
 function initUpdateNotification() {
   log.debug("Initializing update notification system");
 
+  // Pre-initialize the update dialog module to load CSS and create elements
+  try {
+    import("./modules/update-dialog.js")
+      .then((module) => {
+        try {
+          // Initialize without awaiting
+          module.initUpdateDialog();
+          log.debug("Update dialog pre-initialized");
+        } catch (err) {
+          log.warn(`Failed to pre-initialize update dialog: ${err.message}`);
+        }
+      })
+      .catch((err) => {
+        log.error(`Failed to import update dialog module: ${err.message}`);
+      });
+  } catch (err) {
+    log.error(`Error in update dialog initialization: ${err.message}`);
+  }
+
   // Listen for update notifications from the main process
-  document.addEventListener("show-update-notification", async (event) => {
+  document.addEventListener("show-update-notification", (event) => {
     log.info(
       `Update notification received for version ${event.detail?.version}`
     );
 
     // Import the update dialog module dynamically to avoid circular dependencies
     try {
-      const updateDialogModule = await import("./modules/update-dialog.js");
-      updateDialogModule.showUpdateDialog(event.detail);
+      import("./modules/update-dialog.js")
+        .then((module) => {
+          try {
+            module.showUpdateDialog(event.detail);
+          } catch (err) {
+            log.error(`Error showing update dialog: ${err.message}`);
+          }
+        })
+        .catch((err) => {
+          log.error(`Error importing update dialog module: ${err.message}`);
+        });
     } catch (error) {
-      log.error(`Error showing update dialog: ${error.message}`);
+      log.error(`Error processing update notification: ${error.message}`);
     }
   });
 }
@@ -374,9 +389,24 @@ function initializeMenuListeners() {
           // This will be triggered when a new version is detected
           if (data && data.version) {
             log.info(`Received show-update action for version ${data.version}`);
-            import("./modules/update-dialog.js").then((module) => {
-              module.showUpdateDialog(data);
-            });
+            try {
+              // Import dynamically and show dialog
+              import("./modules/update-dialog.js")
+                .then((module) => {
+                  try {
+                    module.showUpdateDialog(data);
+                  } catch (err) {
+                    log.error(`Error showing update dialog: ${err.message}`);
+                  }
+                })
+                .catch((err) => {
+                  log.error(
+                    `Error importing update dialog module: ${err.message}`
+                  );
+                });
+            } catch (err) {
+              log.error(`Error in update notification handler: ${err.message}`);
+            }
           }
           break;
 
@@ -655,6 +685,19 @@ window.addEventListener("error", (event) => {
     );
   }
 });
+
+/**
+ * Load a stylesheet dynamically
+ * @param {string} href - Path to the CSS file
+ */
+function loadStylesheet(href) {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.type = "text/css";
+  link.href = href;
+  document.head.appendChild(link);
+  log.debug(`Stylesheet loaded: ${href}`);
+}
 
 // Export key modules for console debugging
 window.app = {

@@ -130,6 +130,55 @@ function registerIpcHandlers() {
     }
   });
 
+  // Register download-related IPC handlers
+  ipcMain.handle("download-update", async (event, url, filename) => {
+    logger.debug(`IPC: download-update called for URL: ${url}`);
+    try {
+      // Import the download handler with explicit path
+      const downloadHandler = require(path.join(
+        __dirname,
+        "./download-handler.js"
+      ));
+
+      // Check if downloadFile function exists
+      if (typeof downloadHandler.downloadFile !== "function") {
+        logger.error(
+          "downloadFile function not found in download-handler module"
+        );
+        throw new Error("Download function not available");
+      }
+
+      // Get the browser window that sent the request
+      const win = BrowserWindow.fromWebContents(event.sender);
+
+      // Start the download
+      const result = await downloadHandler.downloadFile(win, url, filename);
+      return result;
+    } catch (error) {
+      logger.error(`Error downloading update: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Handle download cancellation
+  ipcMain.handle("cancel-download", async (event, downloadId) => {
+    logger.debug(`IPC: cancel-download called for ID: ${downloadId}`);
+    try {
+      // Import the download handler
+      const downloadHandler = require(path.join(
+        __dirname,
+        "./download-handler.js"
+      ));
+
+      // Call the cancel function
+      const result = downloadHandler.cancelDownload(downloadId);
+      return { success: result };
+    } catch (error) {
+      logger.error(`Error cancelling download: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
   // Root domain getter
   ipcMain.handle("get-root-domain", async (event) => {
     logger.debug("IPC: get-root-domain called");
