@@ -5,6 +5,9 @@
 import { log } from "../utils/logging.js";
 import { showStatus } from "./ui-helpers.js";
 
+// Track active tab for persisting between opens
+let activeTab = "general";
+
 /**
  * Initialize settings functionality
  */
@@ -103,6 +106,9 @@ export function initializeSettings() {
     });
   }
 
+  // Setup "Download Now" functionality in about section
+  setupDownloadNowButton();
+
   // GitHub repository link
   if (openGithubLink) {
     openGithubLink.addEventListener("click", (e) => {
@@ -154,6 +160,65 @@ export function initializeSettings() {
 }
 
 /**
+ * Set up download now button functionality in the about tab
+ */
+function setupDownloadNowButton() {
+  const downloadNowButton = document.getElementById("aboutDownloadButton");
+
+  if (downloadNowButton) {
+    log.debug("Setting up Download Now button in about tab");
+
+    downloadNowButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      try {
+        const downloadUrl = downloadNowButton.getAttribute("data-url");
+        const version = downloadNowButton.getAttribute("data-version");
+
+        if (
+          !downloadUrl ||
+          downloadUrl === "#" ||
+          downloadUrl === "javascript:void(0)"
+        ) {
+          log.warn("Download button clicked but no valid URL is set");
+          showStatus("error", "No valid download URL available", "settings");
+          return;
+        }
+
+        log.info(`Initiating download from about section: ${downloadUrl}`);
+
+        // Use the update-dialog's download progress dialog
+        const updateDialog = await import("./update-dialog.js");
+
+        // Generate a filename
+        const filename = `rebrand-tool-v${version || "latest"}-setup.exe`;
+
+        // Show the download dialog
+        updateDialog.showDownloadProgressDialog(
+          downloadUrl,
+          version || "latest",
+          filename
+        );
+      } catch (error) {
+        log.error(`Error handling download button click: ${error.message}`);
+
+        // Fallback to direct link if there's an error
+        const downloadUrl = downloadNowButton.getAttribute("data-url");
+        if (
+          downloadUrl &&
+          downloadUrl !== "#" &&
+          downloadUrl !== "javascript:void(0)"
+        ) {
+          window.open(downloadUrl, "_blank");
+        } else {
+          showStatus("error", "Download failed: Invalid URL", "settings");
+        }
+      }
+    });
+  }
+}
+
+/**
  * Update version tags throughout the settings page
  */
 function updateVersionTags(...versionElements) {
@@ -196,6 +261,9 @@ function initializeTabNavigation() {
       // Get the target tab
       const targetTab = button.getAttribute("data-tab");
 
+      // Save active tab for next time
+      activeTab = targetTab;
+
       // Remove active class from all buttons and panes
       tabButtons.forEach((btn) => btn.classList.remove("active"));
       tabPanes.forEach((pane) => pane.classList.remove("active"));
@@ -207,6 +275,11 @@ function initializeTabNavigation() {
       const targetPane = document.getElementById(`${targetTab}Tab`);
       if (targetPane) {
         targetPane.classList.add("active");
+
+        // Special handling for the about tab - automatically check for updates
+        if (targetTab === "about") {
+          checkForUpdatesOnAboutTab();
+        }
       }
 
       // Log tab switch
@@ -215,6 +288,25 @@ function initializeTabNavigation() {
   });
 
   log.debug("Settings tab navigation initialized");
+}
+
+/**
+ * Automatically check for updates when the about tab is activated
+ */
+function checkForUpdatesOnAboutTab() {
+  log.debug("About tab selected, checking for updates");
+  const settingsUpdateStatus = document.getElementById("settingsUpdateStatus");
+
+  if (settingsUpdateStatus) {
+    // Show checking status
+    settingsUpdateStatus.className = "settings-status-message checking";
+    settingsUpdateStatus.textContent = "Checking for updates...";
+  }
+
+  // Delay slightly to ensure UI updates first
+  setTimeout(() => {
+    checkForUpdates();
+  }, 100);
 }
 
 /**
@@ -391,6 +483,41 @@ export function openSettingsModal() {
 
     // Sync connection status when opening
     syncConnectionStatus();
+
+    // Activate the previously active tab
+    activateTab(activeTab);
+  }
+}
+
+/**
+ * Activate a specific settings tab
+ * @param {string} tabName The name of the tab to activate
+ */
+function activateTab(tabName) {
+  const tabButton = document.querySelector(
+    `.settings-nav-item[data-tab="${tabName}"]`
+  );
+  const tabPane = document.getElementById(`${tabName}Tab`);
+
+  if (tabButton && tabPane) {
+    // Deactivate all tabs
+    document.querySelectorAll(".settings-nav-item").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+    document.querySelectorAll(".settings-tab-pane").forEach((pane) => {
+      pane.classList.remove("active");
+    });
+
+    // Activate the desired tab
+    tabButton.classList.add("active");
+    tabPane.classList.add("active");
+
+    // If it's the about tab, trigger update check
+    if (tabName === "about") {
+      checkForUpdatesOnAboutTab();
+    }
+
+    log.debug(`Activated settings tab: ${tabName}`);
   }
 }
 
@@ -569,7 +696,7 @@ async function savePathSettings() {
 
     if (result.success) {
       log.info("Path settings saved successfully");
-      showStatus("success", "Path settings saved", "settings");
+      showStatus("success", "Path settings saved successfully", "settings");
     } else {
       log.error(`Failed to save path settings: ${result.error}`);
       showStatus(
@@ -620,7 +747,7 @@ async function saveGithubSettings() {
 
     if (result.success) {
       log.info("GitHub settings saved successfully");
-      showStatus("success", "GitHub settings saved", "settings");
+      showStatus("success", "GitHub settings saved successfully", "settings");
 
       // If we just updated the GitHub token, we should check for updates
       if (apiToken) {
@@ -654,6 +781,19 @@ async function saveGithubSettings() {
       "settings"
     );
   }
+}
+
+/**
+ * Helper function to get field value
+ * @param {string} id - Field ID
+ * @param {boolean} isNumber - Whether to parse as number
+ */
+function getFieldValue(id, isNumber = false) {
+  const field = document.getElementById(id);
+  if (!field) return null;
+
+  const value = field.value.trim();
+  return isNumber ? (value ? parseInt(value, 10) : null) : value;
 }
 
 /**
@@ -854,17 +994,62 @@ export async function checkForUpdates() {
       const result = await window.streamNetAPI.checkForUpdates();
 
       if (result.updateAvailable) {
-        // Update available
+        // Update status message with download link
         settingsUpdateStatus.className =
           "settings-status-message update-available";
-        settingsUpdateStatus.innerHTML = `Update available: v${result.version} <a href="${result.downloadUrl}" target="_blank">Download now</a>`;
+
+        // Add the "Download now" link directly in the status message if we have a valid URL
+        if (result.downloadUrl && result.downloadUrl !== "#") {
+          settingsUpdateStatus.innerHTML = `Update available: v${result.version} <a href="javascript:void(0)" data-url="${result.downloadUrl}" data-version="${result.version}">Download now</a>`;
+
+          // Set up event listener for the download link
+          setTimeout(() => {
+            const downloadLink = settingsUpdateStatus.querySelector("a");
+            if (downloadLink) {
+              downloadLink.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const url = downloadLink.getAttribute("data-url");
+                const version = downloadLink.getAttribute("data-version");
+
+                if (url && url !== "#" && url !== "javascript:void(0)") {
+                  // Use the update-dialog's download functionality
+                  try {
+                    const updateDialog = await import("./update-dialog.js");
+                    const filename = `rebrand-tool-v${
+                      version || "latest"
+                    }-setup.exe`;
+                    updateDialog.showDownloadProgressDialog(
+                      url,
+                      version,
+                      filename
+                    );
+                  } catch (err) {
+                    log.error(`Error showing download dialog: ${err.message}`);
+                    window.open(url, "_blank");
+                  }
+                } else {
+                  showStatus("error", "Invalid download URL", "settings");
+                }
+              });
+            }
+          }, 100);
+        } else {
+          settingsUpdateStatus.innerHTML = `Update available: v${result.version}`;
+        }
+
         log.info(`Update available: v${result.version}`);
 
         // Also update the toast notification
         const updateStatus = document.getElementById("updateStatus");
         if (updateStatus) {
+          // Make sure we don't use "#" as href
           updateStatus.className = "update-toast update-available visible";
-          updateStatus.innerHTML = `Update available: v${result.version} <a href="${result.downloadUrl}" target="_blank">Download now</a>`;
+          // Create a proper download link with valid attributes
+          if (result.downloadUrl && result.downloadUrl !== "#") {
+            updateStatus.innerHTML = `Update available: v${result.version} <a href="javascript:void(0)" data-url="${result.downloadUrl}" data-version="${result.version}">Download now</a>`;
+          } else {
+            updateStatus.innerHTML = `Update available: v${result.version}`;
+          }
         }
 
         showStatus("info", `Update available: v${result.version}`);
@@ -890,6 +1075,33 @@ export async function checkForUpdates() {
     // Reset button state with original content
     settingsCheckUpdatesBtn.disabled = false;
     settingsCheckUpdatesBtn.innerHTML = originalButtonText;
+  }
+}
+
+/**
+ * Register save button event handlers for configuration panels
+ * This is used to set up the save handlers for all configuration sections
+ */
+function registerSaveHandlers() {
+  const saveConnectionBtn = document.getElementById("saveConnectionBtn");
+  const saveCloudflareBtn = document.getElementById("saveCloudflareBtn");
+  const savePathsBtn = document.getElementById("savePathsBtn");
+  const saveGithubBtn = document.getElementById("saveGithubBtn");
+
+  if (saveConnectionBtn) {
+    saveConnectionBtn.addEventListener("click", saveConnectionSettings);
+  }
+
+  if (saveCloudflareBtn) {
+    saveCloudflareBtn.addEventListener("click", saveCloudflareSettings);
+  }
+
+  if (savePathsBtn) {
+    savePathsBtn.addEventListener("click", savePathSettings);
+  }
+
+  if (saveGithubBtn) {
+    saveGithubBtn.addEventListener("click", saveGithubSettings);
   }
 }
 

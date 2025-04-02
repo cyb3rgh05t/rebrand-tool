@@ -116,10 +116,88 @@ async function initializeComponents() {
   // Initialize debug panel toggle
   initializeDebugPanel();
 
+  // Initialize update notification system
+  initUpdateNotification();
+
   // Listen for menu actions from the main process
   initializeMenuListeners();
 
+  // Add click handler for toast notification
+  setupUpdateToastHandler();
+
   log.info("Application initialized");
+}
+
+/**
+ * Setup update toast notification click handler
+ */
+function setupUpdateToastHandler() {
+  const updateStatus = document.getElementById("updateStatus");
+  if (updateStatus) {
+    // Handle any click on the update toast
+    updateStatus.addEventListener("click", (event) => {
+      // Check if the click was on the download link
+      const downloadLink = event.target.closest("a");
+      if (downloadLink) {
+        event.preventDefault();
+
+        // Get download data from attributes
+        const downloadUrl = downloadLink.getAttribute("data-url");
+        const version = downloadLink.getAttribute("data-version");
+
+        // Check that we have a valid URL
+        if (
+          !downloadUrl ||
+          downloadUrl === "#" ||
+          downloadUrl === "javascript:void(0)"
+        ) {
+          log.error("Invalid or missing download URL in toast notification");
+          return;
+        }
+
+        // Import the update dialog module to use its download functionality
+        import("./modules/update-dialog.js")
+          .then((updateDialog) => {
+            try {
+              // Generate a filename
+              const filename = `rebrand-tool-v${version || "latest"}-setup.exe`;
+
+              // Hide the update toast
+              updateStatus.classList.remove("visible");
+
+              // Show the download dialog
+              updateDialog.showDownloadProgressDialog(
+                downloadUrl,
+                version,
+                filename
+              );
+
+              log.info(
+                `Initiated download from toast notification: ${downloadUrl}`
+              );
+            } catch (err) {
+              log.error(`Error handling update toast download: ${err.message}`);
+              // Fallback to original behavior
+              window.open(downloadUrl, "_blank");
+            }
+          })
+          .catch((err) => {
+            log.error(`Failed to import update dialog module: ${err.message}`);
+            // Fallback to original behavior
+            if (
+              downloadUrl &&
+              downloadUrl !== "#" &&
+              downloadUrl !== "javascript:void(0)"
+            ) {
+              window.open(downloadUrl, "_blank");
+            }
+          });
+      } else {
+        // If not clicking the download link, just hide the toast
+        updateStatus.classList.remove("visible");
+      }
+    });
+  }
 }
 
 /**
@@ -655,19 +733,6 @@ function initializeDebugPanel() {
 
   log.debug("Debug panel initialized");
 }
-
-// Add click handler to close the toast notification when clicked
-document.addEventListener("DOMContentLoaded", () => {
-  const updateStatus = document.getElementById("updateStatus");
-  if (updateStatus) {
-    updateStatus.addEventListener("click", () => {
-      updateStatus.classList.remove("visible");
-    });
-  }
-
-  // Initialize update notification system
-  initUpdateNotification();
-});
 
 // Listen for error events
 window.addEventListener("error", (event) => {

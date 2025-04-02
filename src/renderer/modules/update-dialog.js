@@ -7,6 +7,9 @@ import { log } from "../utils/logging.js";
 // Track whether dialog has been created
 let dialogCreated = false;
 
+// Track active download ID
+let activeDownloadId = null;
+
 /**
  * Inject the CSS for the update dialog directly into the document
  */
@@ -943,16 +946,13 @@ function formatReleaseNotes(notes, version) {
   }
 }
 
-// Track active download ID
-let activeDownloadId = null;
-
 /**
  * Create and show the download progress dialog
  * @param {string} url The URL to download from
  * @param {string} version The version being downloaded
  * @param {string} filename The filename to save as
  */
-function showDownloadProgressDialog(url, version, filename) {
+export function showDownloadProgressDialog(url, version, filename) {
   try {
     log.debug(`Showing download progress dialog for version ${version}`);
 
@@ -1328,4 +1328,5 @@ export default {
   initUpdateDialog,
   showUpdateDialog,
   hideUpdateDialog,
+  showDownloadProgressDialog,
 };
