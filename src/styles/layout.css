@@ -611,26 +611,3 @@
     gap: 10px;
   }
 }
-
-/* Ensure the buttons look like links */
-.about-link {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  text-decoration: none;
-  color: var(--primary, #3498db);
-  background: none;
-  border: none;
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: color 0.2s, background-color 0.2s;
-  border-radius: 6px;
-  text-align: left;
-  width: 100%;
-}
-
-.about-link:hover {
-  background-color: var(--bg-hover, #343a40);
-  color: var(--primary-hover, #2980b9);
-}

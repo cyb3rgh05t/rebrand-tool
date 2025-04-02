@@ -600,39 +600,6 @@
             </button>
           </div>
 
-          <!-- DNS Settings Section -->
-          <div class="destination-section">
-            <div class="dns-header">
-              <label class="destination-label">
-                Cloudflare DNS Setup
-                <div class="toggle-switch">
-                  <input type="checkbox" id="dnsToggle" class="toggle-input" />
-                  <label for="dnsToggle" class="toggle-label"></label>
-                </div>
-              </label>
-            </div>
-
-            <div id="dnsForm" class="dns-form" style="display: none">
-              <div class="form-field">
-                <label class="field-label">Subdomain</label>
-                <input
-                  type="text"
-                  id="subdomainInput"
-                  class="text-input"
-                  placeholder="e.g., exampleSubDomain"
-                />
-              </div>
-              <div class="dns-info">
-                Will create 6 DNS records for:<br />
-                <span id="dnsPreview" class="dns-domain-preview"
-                  >subdomain.streamnet.live</span
-                >
-              </div>
-              <!-- New section for DNS records preview -->
-              <div id="dnsRecordsPreviewContainer"></div>
-            </div>
-          </div>
-
           <!-- Domain Selection Section -->
           <div class="destination-section">
             <label class="destination-label">SELECT DESTINATION DOMAIN</label>
@@ -679,6 +646,39 @@
                   No modules selected for transfer
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- DNS Settings Section -->
+          <div class="destination-section">
+            <div class="dns-header">
+              <label class="destination-label">
+                Cloudflare DNS Setup
+                <div class="toggle-switch">
+                  <input type="checkbox" id="dnsToggle" class="toggle-input" />
+                  <label for="dnsToggle" class="toggle-label"></label>
+                </div>
+              </label>
+            </div>
+
+            <div id="dnsForm" class="dns-form" style="display: none">
+              <div class="form-field">
+                <label class="field-label">Subdomain</label>
+                <input
+                  type="text"
+                  id="subdomainInput"
+                  class="text-input"
+                  placeholder="e.g., exampleSubDomain"
+                />
+              </div>
+              <div class="dns-info">
+                Will create 6 DNS records for:<br />
+                <span id="dnsPreview" class="dns-domain-preview"
+                  >subdomain.streamnet.live</span
+                >
+              </div>
+              <!-- New section for DNS records preview -->
+              <div id="dnsRecordsPreviewContainer"></div>
             </div>
           </div>
 

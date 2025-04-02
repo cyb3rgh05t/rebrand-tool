@@ -867,22 +867,6 @@ select.text-input option:hover,
   font-size: 14px;
 }
 
-.status-message.success::after {
-  content: "✓";
-}
-
-.status-message.error::after {
-  content: "✕";
-}
-
-.status-message.info::after {
-  content: "ℹ";
-}
-
-.status-message.warning::after {
-  content: "!";
-}
-
 .status-message {
   padding-left: 36px; /* Make room for the icon */
 }

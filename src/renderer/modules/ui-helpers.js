@@ -3,14 +3,17 @@
  */
 import { log } from "../utils/logging.js";
 import { getSelectedItems } from "./module-selection.js";
+import { extractSubdomainFromDomain as utilExtractSubdomain } from "../utils/domain-utils.js";
 
 /**
- * Show status message to the user
+ * Show status message to the user with improved layout
  * @param {string} type Message type (success|error|info|warning)
  * @param {string} message Message content
  * @param {string} [target="main"] Target area ("main" or "settings")
+ * @param {Object} [options] Additional options
+ * @param {Object} [options.link] Optional link to display with the message
  */
-export function showStatus(type, message, target = "main") {
+export function showStatus(type, message, target = "main", options = {}) {
   // Determine which status message element to use
   const statusMessage = document.getElementById(
     target === "settings" ? "settingsStatusMessage" : "statusMessage"
@@ -18,9 +21,38 @@ export function showStatus(type, message, target = "main") {
 
   if (!statusMessage) return;
 
-  // Set the class and text
+  // Clear previous content
+  statusMessage.innerHTML = "";
+
+  // Reset classes
   statusMessage.className = `status-message ${type}`;
-  statusMessage.textContent = message;
+
+  // Create icon
+  const icon = document.createElement("span");
+  icon.className = "status-icon";
+  icon.textContent = {
+    success: "✓",
+    error: "✕",
+    info: "ℹ",
+    warning: "!",
+  }[type];
+
+  // Create text container
+  const textContainer = document.createElement("span");
+  textContainer.className = "status-text";
+  textContainer.textContent = message;
+
+  // Add optional link
+  if (options.link) {
+    const linkElement = document.createElement("a");
+    linkElement.href = options.link.url;
+    linkElement.textContent = options.link.text;
+    textContainer.appendChild(linkElement);
+  }
+
+  // Assemble the message
+  statusMessage.appendChild(icon);
+  statusMessage.appendChild(textContainer);
 
   // For settings status, use a different animation approach
   if (target === "settings") {
@@ -47,6 +79,8 @@ export function showStatus(type, message, target = "main") {
           // Hide after animation completes
           setTimeout(() => {
             statusMessage.style.display = "none";
+            statusMessage.innerHTML = ""; // Clear content
+            statusMessage.classList.remove("hiding");
           }, 300); // Match animation duration
         }
       }, 5000);
@@ -206,34 +240,7 @@ export async function checkConnectionStatus() {
  * @returns {string} Extracted subdomain or empty string
  */
 export function extractSubdomainFromDomain(domain) {
-  if (!domain || !domain.includes(".")) return "";
-
-  // Get root domain from app state
-  const rootDomain = window.appState?.rootDomain;
-  if (!rootDomain) {
-    log.error("Root domain not available in app state");
-    return "";
-  }
-
-  // Handle case where domain includes the root domain
-  if (domain.endsWith(`.${rootDomain}`)) {
-    const prefix = domain.slice(0, -(rootDomain.length + 1));
-    // If prefix has no dots, it's a direct subdomain
-    if (!prefix.includes(".")) {
-      return prefix;
-    }
-    // If prefix has dots (like sub.domain.example.com), take the first part
-    return prefix.split(".")[0];
-  }
-
-  // Fallback to simpler extraction if domain doesn't match root domain pattern
-  const parts = domain.split(".");
-  // If it has at least 3 parts (e.g., test.example.com), the first part is the subdomain
-  if (parts.length >= 3) {
-    return parts[0];
-  }
-
-  return "";
+  return utilExtractSubdomain(domain);
 }
 
 export default {
