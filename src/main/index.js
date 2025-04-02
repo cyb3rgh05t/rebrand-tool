@@ -9,6 +9,9 @@ const fs = require("fs");
 const configManager = require("./config-manager");
 console.log("Configuration manager initialized");
 
+// Load config service
+const configService = require("./services/config-service");
+
 // Now load other modules that may depend on configuration
 const { createLogger } = require("./utils/logger");
 const { registerIpcHandlers } = require("./ipc-handlers");
@@ -154,6 +157,9 @@ function ensureDirectories() {
 // Initialize the app when ready
 app.whenReady().then(() => {
   logger.info("Application starting");
+
+  // Initialize config service
+  configService.initialize();
 
   // Check for first run after update
   checkFirstRunAfterUpdate();

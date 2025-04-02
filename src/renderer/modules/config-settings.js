@@ -128,7 +128,7 @@ function setupSaveHandlers() {
 }
 
 /**
- * Save connection settings
+ * Save connection settings with improved feedback
  */
 async function saveConnectionSettings() {
   try {
@@ -138,6 +138,9 @@ async function saveConnectionSettings() {
       showStatus("error", "Configuration API not available", "settings");
       return;
     }
+
+    // Show saving status
+    showStatus("info", "Saving connection settings...", "settings");
 
     // Get form values
     const host = getFieldValue("configServerHost");
@@ -169,7 +172,7 @@ async function saveConnectionSettings() {
       log.info("Connection settings saved successfully");
       showStatus(
         "success",
-        "Connection settings saved successfully",
+        "Connection settings saved and applied - no restart needed",
         "settings"
       );
     } else {
@@ -191,7 +194,7 @@ async function saveConnectionSettings() {
 }
 
 /**
- * Save Cloudflare settings
+ * Save Cloudflare settings with improved feedback
  */
 async function saveCloudflareSettings() {
   try {
@@ -201,6 +204,9 @@ async function saveCloudflareSettings() {
       showStatus("error", "Configuration API not available", "settings");
       return;
     }
+
+    // Show saving status
+    showStatus("info", "Saving Cloudflare settings...", "settings");
 
     // Get form values
     const rootDomain = getFieldValue("configRootDomain");
@@ -233,7 +239,7 @@ async function saveCloudflareSettings() {
       log.info("Cloudflare settings saved successfully");
       showStatus(
         "success",
-        "Cloudflare settings saved successfully",
+        "Cloudflare settings saved and applied - no restart needed",
         "settings"
       );
 
@@ -258,7 +264,7 @@ async function saveCloudflareSettings() {
 }
 
 /**
- * Save path settings
+ * Save path settings with improved feedback
  */
 async function savePathSettings() {
   try {
@@ -268,6 +274,9 @@ async function savePathSettings() {
       showStatus("error", "Configuration API not available", "settings");
       return;
     }
+
+    // Show saving status
+    showStatus("info", "Saving path settings...", "settings");
 
     // Get form values
     const basePath = getFieldValue("configBasePath");
@@ -294,7 +303,11 @@ async function savePathSettings() {
 
     if (result.success) {
       log.info("Path settings saved successfully");
-      showStatus("success", "Path settings saved successfully", "settings");
+      showStatus(
+        "success",
+        "Path settings saved and applied - no restart needed",
+        "settings"
+      );
     } else {
       log.error(`Failed to save path settings: ${result.error}`);
       showStatus(
@@ -314,7 +327,7 @@ async function savePathSettings() {
 }
 
 /**
- * Save GitHub settings
+ * Save GitHub settings with improved feedback
  */
 async function saveGithubSettings() {
   try {
@@ -324,6 +337,9 @@ async function saveGithubSettings() {
       showStatus("error", "Configuration API not available", "settings");
       return;
     }
+
+    // Show saving status
+    showStatus("info", "Saving GitHub settings...", "settings");
 
     // Get form values
     const apiToken = getFieldValue("configGithubToken");
@@ -345,7 +361,11 @@ async function saveGithubSettings() {
 
     if (result.success) {
       log.info("GitHub settings saved successfully");
-      showStatus("success", "GitHub settings saved successfully", "settings");
+      showStatus(
+        "success",
+        "GitHub settings saved and applied - no restart needed",
+        "settings"
+      );
 
       // If we just updated the GitHub token, we should check for updates
       if (apiToken) {

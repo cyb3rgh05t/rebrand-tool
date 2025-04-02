@@ -6,6 +6,7 @@ const { app } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const { createLogger } = require("./utils/logger");
+const EventEmitter = require("events"); // Add this import
 
 // Create a config-specific logger
 const logger = createLogger("config-manager");
@@ -71,8 +72,11 @@ const DEFAULT_CONFIG = {
 /**
  * Configuration manager class
  */
-class ConfigManager {
+class ConfigManager extends EventEmitter {
+  // Extend EventEmitter
   constructor() {
+    super(); // Call EventEmitter constructor
+
     // User config file path in user data directory
     this.userDataPath = app ? app.getPath("userData") : ".";
     this.configFilePath = path.join(this.userDataPath, "config.json");
@@ -372,6 +376,13 @@ class ConfigManager {
     // Save the config
     this.saveConfig();
 
+    // Emit change event
+    this.emit("config-changed", {
+      path: path,
+      value: value,
+      section: parts[0],
+    });
+
     return true;
   }
 
@@ -399,6 +410,13 @@ class ConfigManager {
     };
 
     this.saveConfig();
+
+    // Emit change event
+    this.emit("config-changed", {
+      section: section,
+      values: values,
+    });
+
     return true;
   }
 

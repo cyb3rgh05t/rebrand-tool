@@ -3,12 +3,65 @@
  */
 const ssh2 = require("ssh2");
 const { createLogger } = require("./utils/logger");
+const configManager = require("./config-manager");
+const configService = require("./services/config-service");
 
 // Create a connection-specific logger
 const logger = createLogger("connection");
 
-// Import server configuration
+// Cache the connection configuration
+let CONNECTION_CONFIG = {
+  host: "",
+  port: 22,
+  username: "",
+  password: "",
+};
+
+// Import server configuration (for backward compatibility)
 const CONFIG = require("../config/serverConfig");
+
+/**
+ * Initialize the connection module
+ */
+function initialize() {
+  // Load initial configuration
+  refreshConfig();
+
+  // Register with config service for updates
+  configService.registerModule("connection", {
+    onConfigChanged({ section }) {
+      if (section === "connection") {
+        logger.info("Connection configuration changed, refreshing settings");
+        refreshConfig();
+      }
+    },
+  });
+
+  logger.info("Connection module initialized with dynamic config support");
+}
+
+/**
+ * Refresh the cached connection configuration
+ */
+function refreshConfig() {
+  try {
+    const connectionConfig = configManager.getSection("connection");
+
+    // Update our cached config
+    CONNECTION_CONFIG = {
+      host: connectionConfig.host || "",
+      port: connectionConfig.port || 22,
+      username: connectionConfig.username || "",
+      password: connectionConfig.password || "",
+    };
+
+    logger.debug(
+      `Connection configuration refreshed for host: ${CONNECTION_CONFIG.host}`
+    );
+  } catch (error) {
+    logger.error(`Error refreshing connection config: ${error.message}`);
+  }
+}
 
 /**
  * Test SFTP connection to verify server connectivity
@@ -41,15 +94,15 @@ async function testSftpConnection() {
         reject(err);
       });
 
-      // Connect with basic options
+      // Connect with basic options using cached config
       logger.debug(
-        `Connecting to ${CONFIG.connection.host}:${CONFIG.connection.port}`
+        `Connecting to ${CONNECTION_CONFIG.host}:${CONNECTION_CONFIG.port}`
       );
       conn.connect({
-        host: CONFIG.connection.host,
-        port: CONFIG.connection.port,
-        username: CONFIG.connection.username,
-        password: CONFIG.connection.password,
+        host: CONNECTION_CONFIG.host,
+        port: CONNECTION_CONFIG.port,
+        username: CONNECTION_CONFIG.username,
+        password: CONNECTION_CONFIG.password,
         readyTimeout: 10000,
       });
     });
@@ -177,15 +230,15 @@ function createSftpConnection() {
       logger.debug("SSH connection closed", hadError ? "with error" : "");
     });
 
-    // Connect with basic options
+    // Connect with basic options using cached config
     logger.debug(
-      `Connecting to ${CONFIG.connection.host}:${CONFIG.connection.port}`
+      `Connecting to ${CONNECTION_CONFIG.host}:${CONNECTION_CONFIG.port}`
     );
     conn.connect({
-      host: CONFIG.connection.host,
-      port: CONFIG.connection.port,
-      username: CONFIG.connection.username,
-      password: CONFIG.connection.password,
+      host: CONNECTION_CONFIG.host,
+      port: CONNECTION_CONFIG.port,
+      username: CONNECTION_CONFIG.username,
+      password: CONNECTION_CONFIG.password,
       readyTimeout: 20000,
       tryKeyboard: false,
     });
@@ -261,6 +314,9 @@ async function execSSHCommand(conn, command, description) {
     });
   });
 }
+
+// Initialize the module when loaded
+initialize();
 
 module.exports = {
   testSftpConnection,

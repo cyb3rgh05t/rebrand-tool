@@ -2,12 +2,131 @@
  * Cloudflare DNS operations module for StreamNet Panels
  */
 const { createLogger } = require("./utils/logger");
+const configManager = require("./config-manager");
+const configService = require("./services/config-service");
 
 // Create a DNS-specific logger
 const logger = createLogger("dns");
 
-// Import configuration
+// Cache DNS configuration
+let DNS_CONFIG = {
+  auth: {
+    apiToken: "",
+    email: "",
+    globalApiKey: "",
+  },
+  dns: {
+    zoneId: "",
+    rootDomain: "",
+    defaultTTL: 3600,
+  },
+  recordTemplates: {
+    aRecords: [],
+    aaaaRecords: [],
+  },
+};
+
+// Import configuration for backward compatibility
 const CF_CONFIG = require("../config/cloudflareConfig");
+
+/**
+ * Initialize the DNS module
+ */
+function initialize() {
+  // Load initial configuration
+  refreshConfig();
+
+  // Register with config service for updates
+  configService.registerModule("dns", {
+    onConfigChanged({ section }) {
+      if (section === "cloudflare") {
+        logger.info(
+          "Cloudflare configuration changed, refreshing DNS settings"
+        );
+        refreshConfig();
+      }
+    },
+  });
+
+  logger.info("DNS module initialized with dynamic config support");
+}
+
+/**
+ * Refresh the cached DNS configuration
+ */
+function refreshConfig() {
+  try {
+    const cloudflareConfig = configManager.getSection("cloudflare");
+
+    // Update our cached config
+    DNS_CONFIG = {
+      auth: {
+        apiToken: cloudflareConfig.apiToken || "",
+        email: cloudflareConfig.email || "",
+        globalApiKey: cloudflareConfig.apiKey || "",
+      },
+      dns: {
+        zoneId: cloudflareConfig.zoneId || "",
+        rootDomain: cloudflareConfig.rootDomain || "",
+        defaultTTL: cloudflareConfig.defaultTTL || 3600,
+      },
+      recordTemplates: {
+        aRecords: [
+          {
+            name: "admin.{{subdomain}}",
+            content: cloudflareConfig.ipv4Address || "",
+            type: "A",
+            ttl: 1,
+            proxied: true,
+          },
+          {
+            name: "localhost.{{subdomain}}",
+            content: "127.0.0.1",
+            type: "A",
+            ttl: 1,
+            proxied: false,
+          },
+          {
+            name: "{{subdomain}}",
+            content: cloudflareConfig.ipv4Address || "",
+            type: "A",
+            ttl: 1,
+            proxied: true,
+          },
+          {
+            name: "www.{{subdomain}}",
+            content: cloudflareConfig.ipv4Address || "",
+            type: "A",
+            ttl: 1,
+            proxied: true,
+          },
+        ],
+        aaaaRecords: [
+          {
+            name: "{{subdomain}}",
+            content: cloudflareConfig.ipv6Address || "",
+            type: "AAAA",
+            ttl: 1,
+            proxied: true,
+          },
+          {
+            name: "www.{{subdomain}}",
+            content: cloudflareConfig.ipv6Address || "",
+            type: "AAAA",
+            ttl: 1,
+            proxied: true,
+          },
+        ],
+      },
+    };
+
+    logger.debug(
+      `DNS configuration refreshed for domain: ${DNS_CONFIG.dns.rootDomain}`
+    );
+  } catch (error) {
+    logger.error(`Error refreshing DNS config: ${error.message}`);
+  }
+}
 
 /**
  * Create DNS records for a subdomain
@@ -24,13 +143,13 @@ async function createDnsRecords({ subdomain }) {
   }
 
   // Check if root domain is configured
-  if (!CF_CONFIG.dns.rootDomain) {
+  if (!DNS_CONFIG.dns.rootDomain) {
     logger.error("Root domain not configured in environment");
     return { error: "Root domain not configured in environment" };
   }
 
   // Check for API credentials
-  if (!CF_CONFIG.auth.apiToken && !CF_CONFIG.auth.globalApiKey) {
+  if (!DNS_CONFIG.auth.apiToken && !DNS_CONFIG.auth.globalApiKey) {
     logger.error("Cloudflare API credentials not configured");
     return { error: "Cloudflare API credentials not configured" };
   }
@@ -43,14 +162,14 @@ async function createDnsRecords({ subdomain }) {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Prepare record templates
-    const aRecords = CF_CONFIG.recordTemplates.aRecords.map((record) => {
+    const aRecords = DNS_CONFIG.recordTemplates.aRecords.map((record) => {
       return {
         ...record,
         name: record.name.replace("{{subdomain}}", subdomain),
       };
     });
 
-    const aaaaRecords = CF_CONFIG.recordTemplates.aaaaRecords.map((record) => {
+    const aaaaRecords = DNS_CONFIG.recordTemplates.aaaaRecords.map((record) => {
       return {
         ...record,
         name: record.name.replace("{{subdomain}}", subdomain),
@@ -64,7 +183,7 @@ async function createDnsRecords({ subdomain }) {
     );
     return {
       success: true,
-      message: `Created DNS records for ${subdomain}.${CF_CONFIG.dns.rootDomain}`,
+      message: `Created DNS records for ${subdomain}.${DNS_CONFIG.dns.rootDomain}`,
       records: [...aRecords, ...aaaaRecords],
     };
   }
@@ -90,16 +209,16 @@ async function createDnsRecords({ subdomain }) {
 
     // Configure authentication options
     let cfConfig;
-    if (CF_CONFIG.auth.apiToken) {
+    if (DNS_CONFIG.auth.apiToken) {
       logger.debug("Using API token for Cloudflare authentication");
-      cfConfig = { token: CF_CONFIG.auth.apiToken };
-    } else if (CF_CONFIG.auth.email && CF_CONFIG.auth.globalApiKey) {
+      cfConfig = { token: DNS_CONFIG.auth.apiToken };
+    } else if (DNS_CONFIG.auth.email && DNS_CONFIG.auth.globalApiKey) {
       logger.debug(
         "Using email and global API key for Cloudflare authentication"
       );
       cfConfig = {
-        email: CF_CONFIG.auth.email,
-        key: CF_CONFIG.auth.globalApiKey,
+        email: DNS_CONFIG.auth.email,
+        key: DNS_CONFIG.auth.globalApiKey,
       };
     } else {
       logger.error("No valid Cloudflare authentication method available");
@@ -139,7 +258,7 @@ async function createDnsRecords({ subdomain }) {
     const recordsToCreate = [];
 
     // Add A records
-    for (const template of CF_CONFIG.recordTemplates.aRecords) {
+    for (const template of DNS_CONFIG.recordTemplates.aRecords) {
       const recordName = template.name.replace("{{subdomain}}", subdomain);
       recordsToCreate.push({
         type: "A",
@@ -151,7 +270,7 @@ async function createDnsRecords({ subdomain }) {
     }
 
     // Add AAAA records
-    for (const template of CF_CONFIG.recordTemplates.aaaaRecords) {
+    for (const template of DNS_CONFIG.recordTemplates.aaaaRecords) {
       const recordName = template.name.replace("{{subdomain}}", subdomain);
       recordsToCreate.push({
         type: "AAAA",
@@ -166,7 +285,7 @@ async function createDnsRecords({ subdomain }) {
 
     // Actually create the records in Cloudflare
     const results = [];
-    const zoneId = CF_CONFIG.dns.zoneId;
+    const zoneId = DNS_CONFIG.dns.zoneId;
     logger.debug(`Using zone ID: ${zoneId}`);
 
     // Validate required properties for each record
@@ -226,9 +345,9 @@ async function createDnsRecords({ subdomain }) {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: CF_CONFIG.auth.apiToken
-                    ? `Bearer ${CF_CONFIG.auth.apiToken}`
-                    : `X-Auth-Email: ${CF_CONFIG.auth.email}\nX-Auth-Key: ${CF_CONFIG.auth.globalApiKey}`,
+                  Authorization: DNS_CONFIG.auth.apiToken
+                    ? `Bearer ${DNS_CONFIG.auth.apiToken}`
+                    : `X-Auth-Email: ${DNS_CONFIG.auth.email}\nX-Auth-Key: ${DNS_CONFIG.auth.globalApiKey}`,
                 },
               };
 
@@ -322,7 +441,7 @@ async function createDnsRecords({ subdomain }) {
     );
     return {
       success: true,
-      message: `Successfully created ${successCount} of ${recordsToCreate.length} DNS records for ${subdomain}.${CF_CONFIG.dns.rootDomain}`,
+      message: `Successfully created ${successCount} of ${recordsToCreate.length} DNS records for ${subdomain}.${DNS_CONFIG.dns.rootDomain}`,
       results,
     };
   } catch (error) {
@@ -341,7 +460,7 @@ async function createDnsRecords({ subdomain }) {
 async function getRootDomain() {
   try {
     logger.debug("Getting root domain from configuration");
-    const rootDomain = CF_CONFIG.dns.rootDomain;
+    const rootDomain = DNS_CONFIG.dns.rootDomain;
 
     if (!rootDomain) {
       logger.error(
@@ -357,6 +476,9 @@ async function getRootDomain() {
     throw new Error("Root domain not configured properly");
   }
 }
+
+// Initialize the module when loaded
+initialize();
 
 module.exports = {
   createDnsRecords,

@@ -125,6 +125,9 @@ async function initializeComponents() {
   // Add click handler for toast notification
   setupUpdateToastHandler();
 
+  // Set up configuration change listener
+  setupConfigChangeListener();
+
   log.info("Application initialized");
 }
 
@@ -732,6 +735,59 @@ function initializeDebugPanel() {
   }
 
   log.debug("Debug panel initialized");
+}
+
+/**
+ * Setup configuration change listener
+ * This should be added to the existing script.js
+ */
+function setupConfigChangeListener() {
+  if (window.streamNetAPI && window.streamNetAPI.onConfigChanged) {
+    log.info("Setting up configuration change listener");
+
+    window.streamNetAPI.onConfigChanged(({ section, path, values }) => {
+      log.info(`Configuration changed - section: ${section}`);
+
+      // Handle specific config changes
+      if (section === "connection") {
+        log.debug("Connection settings changed, updating connection status");
+        // Refresh connection status when connection config changes
+        settings.testConnection();
+      } else if (section === "cloudflare") {
+        log.debug("Cloudflare settings changed, updating DNS info");
+        // Refresh root domain when it changes
+        if (window.streamNetAPI && window.streamNetAPI.getRootDomain) {
+          window.streamNetAPI
+            .getRootDomain()
+            .then((domain) => {
+              if (domain !== window.appState.rootDomain) {
+                window.appState.rootDomain = domain;
+                log.info(`Root domain updated to: ${domain}`);
+
+                // Update DNS previews
+                domainManagement.updateDnsPreview();
+                dnsPreview.updatePreview();
+                domainManagement.updateNewDomainPreview();
+              }
+            })
+            .catch((err) => {
+              log.error(`Error refreshing root domain: ${err.message}`);
+            });
+        }
+      } else if (section === "paths") {
+        log.debug("Path settings changed, refreshing domain list");
+        // Refresh file listings when paths change
+        domainManagement.refreshDomainsList();
+      }
+
+      // Show a notification about the config change
+      uiHelpers.showStatus("info", `Configuration updated: ${section}`);
+    });
+
+    log.debug("Configuration change listener initialized");
+  } else {
+    log.warn("Configuration change API not available");
+  }
 }
 
 // Listen for error events

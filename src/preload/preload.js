@@ -117,6 +117,14 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
 
   importConfigEnv: (content) =>
     ipcRenderer.invoke("import-config-env", content),
+
+  // NEW: Configuration change events
+  onConfigChanged: (callback) => {
+    // Set up listener for config-changed events
+    ipcRenderer.on("config-changed", (event, data) => {
+      callback(data);
+    });
+  },
 });
 
 // Log preload script execution
