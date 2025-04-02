@@ -2,7 +2,7 @@
  * IPC handlers for StreamNet Panels
  * This module registers all the IPC handlers that the renderer process uses
  */
-const { ipcMain, BrowserWindow, app } = require("electron");
+const { ipcMain, BrowserWindow, app, dialog, shell } = require("electron");
 const { createLogger } = require("./utils/logger");
 const connection = require("./connection");
 const filesystem = require("./filesystem");
@@ -576,6 +576,31 @@ function registerIpcHandlers() {
         error: err.message,
         results: [],
       };
+    }
+  });
+
+  // Add these handlers
+  ipcMain.handle("open-github-repo", async (event) => {
+    logger.debug("IPC: open-github-repo called");
+    try {
+      await shell.openExternal("https://github.com/cyb3rgh05t/rebrand-tool");
+      return { success: true };
+    } catch (error) {
+      logger.error(`Error opening GitHub repo: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("open-issue-page", async (event) => {
+    logger.debug("IPC: open-issue-page called");
+    try {
+      await shell.openExternal(
+        "https://github.com/cyb3rgh05t/rebrand-tool/issues/new"
+      );
+      return { success: true };
+    } catch (error) {
+      logger.error(`Error opening issue page: ${error.message}`);
+      return { success: false, error: error.message };
     }
   });
 

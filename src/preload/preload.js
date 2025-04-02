@@ -52,6 +52,10 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
     shell.openExternal(url);
   },
 
+  // Add these to the streamNetAPI object in contextBridge.exposeInMainWorld
+  openGitHubRepo: () => ipcRenderer.invoke("open-github-repo"),
+  openIssuePage: () => ipcRenderer.invoke("open-issue-page"),
+
   // Debug and logging
   setLogLevel: (level) => ipcRenderer.invoke("set-log-level", level),
 

@@ -121,6 +121,8 @@ export function initializeSettings() {
   // Initialize log level in settings
   initializeLogLevel();
 
+  setupAboutButtons();
+
   log.debug("Enhanced settings functionality initialized");
 }
 
@@ -243,11 +245,9 @@ function initializeTabNavigation() {
 
         // Special handling for the about tab
         if (targetTab === "about") {
-          // Set up About tab links every time the tab is activated
-          initializeAboutTabLinks();
-
           // Keep the existing update check code
           checkForUpdatesOnAboutTab();
+          setupAboutButtons();
         }
       }
 
@@ -1048,82 +1048,79 @@ export async function checkForUpdates() {
 }
 
 /**
- * Handler for GitHub link clicks
+ * Set up the GitHub and Issue buttons in the About tab
  */
-function handleGithubLinkClick(e) {
-  e.preventDefault();
-  log.info("GitHub repository link clicked");
+function setupAboutButtons() {
+  log.debug("Setting up About tab buttons");
 
-  // Use Electron shell to open link in default browser if available
-  if (window.streamNetAPI && window.streamNetAPI.openExternalLink) {
-    log.debug("Opening GitHub repository using streamNetAPI.openExternalLink");
-    window.streamNetAPI.openExternalLink(
-      "https://github.com/cyb3rgh05t/rebrand-tool"
-    );
+  const githubButton = document.getElementById("openGithubLink");
+  const issueButton = document.getElementById("openReportIssueLink");
+
+  if (githubButton) {
+    // Remove any existing listeners to avoid duplicates
+    githubButton.replaceWith(githubButton.cloneNode(true));
+
+    // Get the fresh reference after replacement
+    const freshGithubButton = document.getElementById("openGithubLink");
+
+    if (freshGithubButton) {
+      freshGithubButton.addEventListener("click", function () {
+        log.info("GitHub button clicked");
+        if (window.streamNetAPI && window.streamNetAPI.openGitHubRepo) {
+          window.streamNetAPI
+            .openGitHubRepo()
+            .then((result) => {
+              if (!result.success) {
+                log.error(`Failed to open GitHub repo: ${result.error}`);
+              }
+            })
+            .catch((err) => {
+              log.error(`Error calling openGitHubRepo: ${err.message}`);
+            });
+        } else {
+          log.warn("openGitHubRepo API not available, using fallback");
+          window.open("https://github.com/cyb3rgh05t/rebrand-tool", "_blank");
+        }
+      });
+      log.debug("GitHub button handler attached");
+    }
   } else {
-    // Fallback to window.open
-    log.debug("Opening GitHub repository using window.open fallback");
-    window.open("https://github.com/cyb3rgh05t/rebrand-tool", "_blank");
-  }
-}
-
-/**
- * Handler for Report Issue link clicks
- */
-function handleReportIssueLinkClick(e) {
-  e.preventDefault();
-  log.info("Report issue link clicked");
-
-  // Use Electron shell to open link in default browser if available
-  if (window.streamNetAPI && window.streamNetAPI.openExternalLink) {
-    log.debug("Opening issue page using streamNetAPI.openExternalLink");
-    window.streamNetAPI.openExternalLink(
-      "https://github.com/cyb3rgh05t/rebrand-tool/issues/new"
-    );
-  } else {
-    // Fallback to window.open
-    log.debug("Opening issue page using window.open fallback");
-    window.open(
-      "https://github.com/cyb3rgh05t/rebrand-tool/issues/new",
-      "_blank"
-    );
-  }
-}
-
-/**
- * Initialize About tab links
- * This ensures links are properly set up when the About tab is opened
- */
-function initializeAboutTabLinks() {
-  log.debug("Initializing About tab links");
-
-  // Get link elements
-  const openGithubLink = document.getElementById("openGithubLink");
-  const openReportIssueLink = document.getElementById("openReportIssueLink");
-
-  // GitHub repository link
-  if (openGithubLink) {
-    // Remove any existing listeners first to prevent duplicates
-    openGithubLink.removeEventListener("click", handleGithubLinkClick);
-    // Add the click event listener
-    openGithubLink.addEventListener("click", handleGithubLinkClick);
-    log.debug("GitHub repository link handler attached");
-  } else {
-    log.warn("GitHub repository link element not found");
+    log.warn("GitHub button not found");
   }
 
-  // Report issue link
-  if (openReportIssueLink) {
-    // Remove any existing listeners first to prevent duplicates
-    openReportIssueLink.removeEventListener(
-      "click",
-      handleReportIssueLinkClick
-    );
-    // Add the click event listener
-    openReportIssueLink.addEventListener("click", handleReportIssueLinkClick);
-    log.debug("Report issue link handler attached");
+  if (issueButton) {
+    // Remove any existing listeners to avoid duplicates
+    issueButton.replaceWith(issueButton.cloneNode(true));
+
+    // Get the fresh reference after replacement
+    const freshIssueButton = document.getElementById("openReportIssueLink");
+
+    if (freshIssueButton) {
+      freshIssueButton.addEventListener("click", function () {
+        log.info("Issue button clicked");
+        if (window.streamNetAPI && window.streamNetAPI.openIssuePage) {
+          window.streamNetAPI
+            .openIssuePage()
+            .then((result) => {
+              if (!result.success) {
+                log.error(`Failed to open issue page: ${result.error}`);
+              }
+            })
+            .catch((err) => {
+              log.error(`Error calling openIssuePage: ${err.message}`);
+            });
+        } else {
+          log.warn("openIssuePage API not available, using fallback");
+          window.open(
+            "https://github.com/cyb3rgh05t/rebrand-tool/issues/new",
+            "_blank"
+          );
+        }
+      });
+      log.debug("Issue button handler attached");
+    }
   } else {
-    log.warn("Report issue link element not found");
+    log.warn("Issue button not found");
   }
 }
 
