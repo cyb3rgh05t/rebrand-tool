@@ -174,16 +174,28 @@ app.whenReady().then(() => {
   setTimeout(async () => {
     try {
       const updater = require("./updater");
-      const updateResult = await updater.checkForUpdates();
 
-      // If update is available, show the new update dialog through the renderer process
-      if (updateResult.updateAvailable && mainWindow) {
+      // Use checkForUpdatesRespectingPreferences instead of checkForUpdates
+      // This will check the ignored versions list
+      const updateResult = await updater.checkForUpdatesRespectingPreferences();
+
+      // Only show the update dialog if updateAvailable AND notifyUser are both true
+      if (
+        updateResult.updateAvailable &&
+        updateResult.notifyUser &&
+        mainWindow
+      ) {
         logger.info(
           `Update available (v${updateResult.version}), showing notification`
         );
         updater.showUpdateDialog(updateResult, mainWindow);
+      } else if (updateResult.updateAvailable && !updateResult.notifyUser) {
+        // Log that we're skipping notification for this version
+        logger.info(
+          `Update available (v${updateResult.version}) but skipping notification as requested by user`
+        );
       } else {
-        logger.info("No updates available or updates are being skipped");
+        logger.info("No updates available");
       }
     } catch (error) {
       logger.error(`Silent update check failed: ${error.message}`);

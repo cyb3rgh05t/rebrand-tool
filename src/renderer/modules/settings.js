@@ -109,41 +109,6 @@ export function initializeSettings() {
   // Setup "Download Now" functionality in about section
   setupDownloadNowButton();
 
-  // GitHub repository link
-  if (openGithubLink) {
-    openGithubLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      // Use Electron shell to open link in default browser if available
-      if (window.streamNetAPI && window.streamNetAPI.openExternalLink) {
-        window.streamNetAPI.openExternalLink(
-          "https://github.com/cyb3rgh05t/rebrand-tool"
-        );
-      } else {
-        // Fallback to window.open
-        window.open("https://github.com/cyb3rgh05t/rebrand-tool", "_blank");
-      }
-    });
-  }
-
-  // Report issue link
-  if (openReportIssueLink) {
-    openReportIssueLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      // Use Electron shell to open link in default browser if available
-      if (window.streamNetAPI && window.streamNetAPI.openExternalLink) {
-        window.streamNetAPI.openExternalLink(
-          "https://github.com/cyb3rgh05t/rebrand-tool/issues/new"
-        );
-      } else {
-        // Fallback to window.open
-        window.open(
-          "https://github.com/cyb3rgh05t/rebrand-tool/issues/new",
-          "_blank"
-        );
-      }
-    });
-  }
-
   // Initialize theme selection
   initializeThemeSelection();
 
@@ -276,8 +241,12 @@ function initializeTabNavigation() {
       if (targetPane) {
         targetPane.classList.add("active");
 
-        // Special handling for the about tab - automatically check for updates
+        // Special handling for the about tab
         if (targetTab === "about") {
+          // Set up About tab links every time the tab is activated
+          initializeAboutTabLinks();
+
+          // Keep the existing update check code
           checkForUpdatesOnAboutTab();
         }
       }
@@ -1075,6 +1044,86 @@ export async function checkForUpdates() {
     // Reset button state with original content
     settingsCheckUpdatesBtn.disabled = false;
     settingsCheckUpdatesBtn.innerHTML = originalButtonText;
+  }
+}
+
+/**
+ * Handler for GitHub link clicks
+ */
+function handleGithubLinkClick(e) {
+  e.preventDefault();
+  log.info("GitHub repository link clicked");
+
+  // Use Electron shell to open link in default browser if available
+  if (window.streamNetAPI && window.streamNetAPI.openExternalLink) {
+    log.debug("Opening GitHub repository using streamNetAPI.openExternalLink");
+    window.streamNetAPI.openExternalLink(
+      "https://github.com/cyb3rgh05t/rebrand-tool"
+    );
+  } else {
+    // Fallback to window.open
+    log.debug("Opening GitHub repository using window.open fallback");
+    window.open("https://github.com/cyb3rgh05t/rebrand-tool", "_blank");
+  }
+}
+
+/**
+ * Handler for Report Issue link clicks
+ */
+function handleReportIssueLinkClick(e) {
+  e.preventDefault();
+  log.info("Report issue link clicked");
+
+  // Use Electron shell to open link in default browser if available
+  if (window.streamNetAPI && window.streamNetAPI.openExternalLink) {
+    log.debug("Opening issue page using streamNetAPI.openExternalLink");
+    window.streamNetAPI.openExternalLink(
+      "https://github.com/cyb3rgh05t/rebrand-tool/issues/new"
+    );
+  } else {
+    // Fallback to window.open
+    log.debug("Opening issue page using window.open fallback");
+    window.open(
+      "https://github.com/cyb3rgh05t/rebrand-tool/issues/new",
+      "_blank"
+    );
+  }
+}
+
+/**
+ * Initialize About tab links
+ * This ensures links are properly set up when the About tab is opened
+ */
+function initializeAboutTabLinks() {
+  log.debug("Initializing About tab links");
+
+  // Get link elements
+  const openGithubLink = document.getElementById("openGithubLink");
+  const openReportIssueLink = document.getElementById("openReportIssueLink");
+
+  // GitHub repository link
+  if (openGithubLink) {
+    // Remove any existing listeners first to prevent duplicates
+    openGithubLink.removeEventListener("click", handleGithubLinkClick);
+    // Add the click event listener
+    openGithubLink.addEventListener("click", handleGithubLinkClick);
+    log.debug("GitHub repository link handler attached");
+  } else {
+    log.warn("GitHub repository link element not found");
+  }
+
+  // Report issue link
+  if (openReportIssueLink) {
+    // Remove any existing listeners first to prevent duplicates
+    openReportIssueLink.removeEventListener(
+      "click",
+      handleReportIssueLinkClick
+    );
+    // Add the click event listener
+    openReportIssueLink.addEventListener("click", handleReportIssueLinkClick);
+    log.debug("Report issue link handler attached");
+  } else {
+    log.warn("Report issue link element not found");
   }
 }
 

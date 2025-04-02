@@ -495,7 +495,7 @@ function createDialogElement() {
             </div>
 
             <!-- Release notes -->
-            <h3 class="update-dialog-notes-title">What's new:</h3>
+            <h3 class="update-dialog-notes-title" id="releaseNotesTitle">What's new in Release v0.0.0:</h3>
             <div class="update-dialog-notes" id="releaseNotesContent">
               Loading release notes...
             </div>
@@ -520,6 +520,28 @@ function createDialogElement() {
                 </svg>
                 Remind Later
               </button>
+              <button id="updateDialogSkip" class="update-dialog-button update-dialog-button-secondary">
+                <svg
+                  class="icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34"></path>
+                  <line x1="3" y1="15" x2="7" y2="15"></line>
+                  <line x1="3" y1="10" x2="13" y2="10"></line>
+                  <line x1="17" y1="10" x2="12" y2="15"></line>
+                  <line x1="17" y1="15" x2="12" y2="10"></line>
+                  <rect x="17" y="6" width="6" height="11" rx="2"></rect>
+                </svg>
+                Skip This Version
+              </button>
               <button id="updateDialogDownload" class="update-dialog-button update-dialog-button-primary" data-version="" data-url="">
                 <svg
                   class="icon"
@@ -541,8 +563,8 @@ function createDialogElement() {
               </button>
             </div>
 
-            <!-- Don't show again checkbox -->
-            <div class="update-dialog-checkbox">
+            <!-- Don't show again checkbox (now hidden as we have a Skip button) -->
+            <div class="update-dialog-checkbox" style="display: none;">
               <label>
                 <input type="checkbox" id="updateDialogDontShowAgain" />
                 Don't show again for this version
@@ -599,6 +621,52 @@ function setupEventListeners() {
         hideUpdateDialog();
       });
       log.debug("Remind Later button event listener attached");
+    }
+
+    // "Skip This Version" button (replaces the checkbox functionality)
+    const skipButton = document.getElementById("updateDialogSkip");
+    if (skipButton) {
+      skipButton.addEventListener("click", () => {
+        try {
+          // Get the version from the labeled element
+          const versionElement = document.getElementById("latestVersionLabel");
+          if (versionElement) {
+            // Extract version without the "v" prefix
+            const version = versionElement.textContent.replace(/^v/, "");
+
+            log.info(`User chose to skip updates for version ${version}`);
+
+            // Call the main process to save this preference
+            if (window.streamNetAPI && window.streamNetAPI.skipUpdateVersion) {
+              window.streamNetAPI
+                .skipUpdateVersion(version)
+                .then((result) => {
+                  if (result.success) {
+                    log.info(
+                      `Successfully set version ${version} to be skipped`
+                    );
+                  } else {
+                    log.error(`Failed to set version skip: ${result.error}`);
+                  }
+                })
+                .catch((err) => {
+                  log.error(`Error in skipUpdateVersion: ${err.message}`);
+                });
+            } else {
+              log.error("skipUpdateVersion API not available");
+            }
+          } else {
+            log.error("Version element not found, cannot skip version");
+          }
+
+          // Close the dialog regardless
+          hideUpdateDialog();
+        } catch (error) {
+          log.error(`Error in skip version handler: ${error.message}`);
+          hideUpdateDialog();
+        }
+      });
+      log.debug("Skip This Version button event listener attached");
     }
 
     // "Update Now" button
@@ -665,31 +733,6 @@ function setupEventListeners() {
       log.debug("Download button event listener attached");
     } else {
       log.error("Download button element not found");
-    }
-
-    // "Don't show again" checkbox
-    const dontShowCheckbox = document.getElementById(
-      "updateDialogDontShowAgain"
-    );
-    if (dontShowCheckbox) {
-      dontShowCheckbox.addEventListener("change", () => {
-        if (dontShowCheckbox.checked) {
-          const versionElement = document.getElementById("latestVersionLabel");
-          const version = versionElement
-            ? versionElement.textContent.replace("v", "")
-            : "";
-
-          if (
-            version &&
-            window.streamNetAPI &&
-            window.streamNetAPI.skipUpdateVersion
-          ) {
-            log.info(`User chose to skip notifications for version ${version}`);
-            window.streamNetAPI.skipUpdateVersion(version);
-          }
-        }
-      });
-      log.debug("Checkbox event listener attached");
     }
 
     // Backdrop click to close
@@ -798,9 +841,7 @@ function updateDialogContent(updateInfo) {
     const latestVersionLabel = document.getElementById("latestVersionLabel");
     const releaseNotesElement = document.getElementById("releaseNotesContent");
     const downloadButton = document.getElementById("updateDialogDownload");
-    const dontShowCheckbox = document.getElementById(
-      "updateDialogDontShowAgain"
-    );
+    const skipButton = document.getElementById("updateDialogSkip");
 
     if (newVersionLabel) {
       newVersionLabel.textContent = `v${updateInfo.version || "0.0.0"}`;
@@ -820,6 +861,16 @@ function updateDialogContent(updateInfo) {
       latestVersionLabel.textContent = `v${updateInfo.version || "0.0.0"}`;
     } else {
       log.warn("Latest version element not found");
+    }
+
+    // Update the release notes title to include the version
+    const releaseNotesTitle = document.getElementById("releaseNotesTitle");
+    if (releaseNotesTitle) {
+      releaseNotesTitle.textContent = `What's new in Release v${
+        updateInfo.version || "0.0.0"
+      }:`;
+    } else {
+      log.warn("Release notes title element not found");
     }
 
     if (releaseNotesElement) {
@@ -856,10 +907,12 @@ function updateDialogContent(updateInfo) {
       log.error("Download button not found when updating content");
     }
 
-    if (dontShowCheckbox) {
-      dontShowCheckbox.checked = false;
-    } else {
-      log.warn("Don't show checkbox not found");
+    // Update skip button version - this ensures the correct version is used when skipping
+    if (skipButton) {
+      skipButton.setAttribute("data-version", updateInfo.version || "0.0.0");
+      log.debug(
+        `Set skip button version attribute to: ${updateInfo.version || "0.0.0"}`
+      );
     }
 
     log.debug("Dialog content updated successfully");
