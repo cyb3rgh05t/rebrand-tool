@@ -7,6 +7,7 @@ export function getModuleDisplayName(moduleName) {
   // Map of module names to display names
   const displayNames = {
     cockpitpanel: "Cockpit Panel",
+    branding: "Branding",
     support: "Support",
     multiproxy: "MultiProxy",
     webviews: "WebViews",

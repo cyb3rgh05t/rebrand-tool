@@ -1,23 +1,10 @@
 /**
- * Component styles for StreamNet Panels
+ * Reusable UI components for StreamNet Panels
  */
 
 /* ==========================================================================
    BADGES AND INDICATORS
    ========================================================================== */
-/* Version badge */
-.version-badge {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: var(--font-weight-semibold);
-  padding: 2px 8px;
-  border-radius: 10px;
-  letter-spacing: 0.5px;
-  border: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-xs);
-}
-
 /* Status indicator */
 .status-indicator {
   width: 10px;
@@ -81,541 +68,182 @@
 }
 
 /* ==========================================================================
-   BUTTONS
+   STATUS MESSAGES
    ========================================================================== */
-/* Header buttons */
-.header-button {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: none;
-  border-radius: var(--button-radius);
-  padding: 6px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all var(--transition);
+/* Base status message styling */
+.status-message {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--item-radius);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  font-weight: var(--font-weight-medium);
+  animation: fadeIn 0.3s ease;
+  border-left: 4px solid transparent;
+  background-color: var(--bg-surface-dark);
+  overflow: hidden;
   display: flex;
   align-items: center;
-  gap: 6px;
-  height: 32px;
-}
-
-.header-button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.header-button:active {
-  transform: translateY(0);
-}
-
-.header-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.header-button .button-icon {
-  font-size: 14px;
-}
-
-.header-button.update-button {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.header-button.update-button:hover {
-  background: rgba(16, 185, 129, 0.25);
-}
-
-/* Settings Button in Header */
-.header-button.settings-button {
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 50% !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  background: rgba(79, 70, 229, 0.1) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  margin-left: 10px;
-  transition: all 0.2s ease !important;
-}
-
-.header-button.settings-button:hover {
-  background: rgba(79, 70, 229, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.header-button.settings-button:active {
-  transform: rotate(30deg) !important;
-}
-
-.settings-icon {
-  font-size: 18px;
-  color: var(--primary-light);
-  margin: 0 !important;
-  display: inline-block;
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.header-button.settings-button:hover .settings-icon {
-  transform: rotate(90deg);
-  color: white;
-}
-
-/* Small button variant */
-.small-button {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: none;
-  border-radius: var(--button-radius);
-  padding: 5px 10px;
-  margin-left: 10px;
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  transition: all var(--transition);
-  font-weight: var(--font-weight-medium);
-}
-
-.small-button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-/* Regular action buttons */
-.action-button {
-  display: block;
   width: 100%;
-  padding: 12px 16px;
-  margin-top: 16px;
-  border: none;
-  border-radius: var(--button-radius);
-  background-color: var(--primary);
-  color: white;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all var(--transition);
-  height: var(--form-control-height);
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-  letter-spacing: 0.01em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
 }
 
-.action-button::before {
+.status-message::before {
   content: "";
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 100%;
+  left: 0;
+  right: 0;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-.action-button:hover {
-  background-color: var(--secondary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.action-button:hover::before {
-  left: 100%;
-}
-
-.action-button:active {
-  transform: translateY(0);
-  box-shadow: var(--shadow-sm);
-}
-
-.action-button:disabled {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.4);
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-  border: 1px solid var(--border-subtle);
-}
-
-.action-button:disabled::before {
-  display: none;
-}
-
-.action-button.primary {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-}
-
-.action-button.primary:hover {
-  background: linear-gradient(135deg, var(--secondary), var(--primary));
-}
-
-.action-button.secondary {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--border-subtle);
-}
-
-.action-button.secondary:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-.action-button.full-width {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 12px 16px;
-  font-size: var(--font-size-md);
-}
-
-.big-action-button {
-  margin-top: 24px;
-  padding: 16px;
-  font-size: var(--font-size-lg);
-  height: auto;
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.01em;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-}
-
-.big-action-button:hover {
-  background: linear-gradient(135deg, var(--accent), var(--primary));
-}
-
-/* Icon buttons */
-.action-button.icon-button {
-  width: 42px !important;
-  height: 42px !important;
-  min-width: 42px;
-  min-height: 42px;
-  padding: 0;
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  vertical-align: middle;
-  border-radius: 8px;
-}
-
-/* Button icon */
-.button-icon {
-  margin-right: 8px;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-/* Module controls style */
-.module-controls,
-.panel-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-  justify-content: flex-start;
-}
-
-/* Enhanced Select/Unselect Buttons */
-.select-all-button,
-.unselect-all-button {
-  padding: 6px 10px;
-  color: white;
-  border: none;
-  border-radius: var(--button-radius);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: var(--font-weight-semibold);
-  height: 30px;
-  white-space: nowrap;
-  transition: all var(--transition);
-  box-shadow: var(--shadow-sm);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 1 auto; /* Allow buttons to shrink but not grow */
-  min-width: 110px; /* Set minimum width to ensure text fits */
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.select-all-button {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-}
-
-.select-all-button:hover {
-  background: linear-gradient(135deg, var(--secondary), var(--primary));
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.select-all-button:before {
-  content: "✓";
-  margin-right: 5px;
-  font-weight: bold;
-  font-size: 10px;
-}
-
-.unselect-all-button {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--border-subtle);
-}
-
-.unselect-all-button:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.unselect-all-button:before {
-  content: "✕";
-  margin-right: 5px;
-  font-weight: bold;
-  font-size: 10px;
-}
-
-/* Active state for both buttons */
-.select-all-button:active,
-.unselect-all-button:active {
-  transform: translateY(1px);
-  box-shadow: var(--shadow-xs);
-}
-
-/* ==========================================================================
-   FORM ELEMENTS
-   ========================================================================== */
-/* Form field container */
-.form-field {
-  margin-bottom: 16px;
-  position: relative;
-}
-
-/* Field labels */
-.field-label {
-  display: block;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--primary-light);
-  margin-bottom: 8px;
-  letter-spacing: 0.01em;
-}
-
-.field-label.small {
-  font-size: var(--font-size-xs);
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Text inputs */
-.text-input {
-  width: 100%;
-  padding: 12px 14px;
-  background-color: rgba(255, 255, 255, 0.05);
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--item-radius);
-  font-size: var(--font-size-md);
-  transition: all var(--transition);
-  box-sizing: border-box;
-  box-shadow: var(--shadow-inner);
-}
-
-.text-input:focus {
-  border-color: var(--primary);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
-  background-color: rgba(255, 255, 255, 0.07);
-}
-
-.text-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-/* Input validation styles */
-.text-input.valid-input {
-  border-color: var(--success);
-  background-color: var(--success-subtle);
-}
-
-.text-input.invalid-input {
-  border-color: var(--error);
-  background-color: var(--error-subtle);
-}
-
-/* Add an indicator icon for validated inputs */
-.text-input.valid-input + .validation-icon,
-.text-input.invalid-input + .validation-icon {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
+  background: linear-gradient(rgba(255, 255, 255, 0.03), transparent);
   pointer-events: none;
-  font-size: 14px;
 }
 
-.text-input.valid-input + .validation-icon::before {
+.status-message.success {
+  background-color: var(--success-subtle);
+  color: var(--success);
+  border-left-color: var(--success);
+}
+
+.status-message.error {
+  background-color: var(--error-subtle);
+  color: var(--error);
+  border-left-color: var(--error);
+}
+
+.status-message.info {
+  background-color: var(--info-subtle);
+  color: var(--info);
+  border-left-color: var(--info);
+}
+
+.status-message.warning {
+  background-color: var(--warning-subtle);
+  color: var(--warning);
+  border-left-color: var(--warning);
+}
+
+/* Status message icon */
+.status-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Icon content for different message types */
+.status-message.success .status-icon::before {
   content: "✓";
   color: var(--success);
 }
 
-.text-input.invalid-input + .validation-icon::before {
-  content: "✗";
+.status-message.error .status-icon::before {
+  content: "✕";
   color: var(--error);
 }
 
-/* Destination select dropdown styling */
-.destination-select {
+.status-message.info .status-icon::before {
+  content: "ℹ";
+  color: var(--info);
+}
+
+.status-message.warning .status-icon::before {
+  content: "!";
+  color: var(--warning);
+}
+
+.status-text {
   flex: 1;
-  height: var(--form-control-height);
-  padding: 0 14px;
-  background-color: rgba(30, 41, 59, 0.8);
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--item-radius);
-  font-size: var(--font-size-md);
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaaaaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  cursor: pointer;
-  transition: all var(--transition);
-  box-shadow: var(--shadow-inner);
-  font-weight: var(--font-weight-medium);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 
-.destination-select:focus {
-  border-color: var(--primary);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+/* Status message animation */
+@keyframes statusSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.destination-select option {
-  background-color: var(--bg-surface-elevated);
-  color: var(--text-primary);
-  padding: 10px;
+.status-message {
+  animation: statusSlideIn 0.3s ease-out;
 }
 
-/* Style for dropdown options */
-select.text-input,
-.destination-select {
-  color: var(--text-primary);
-  background-color: rgba(30, 41, 59, 0.8);
+/* Auto-hide animation */
+@keyframes statusFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
-select.text-input option,
-.destination-select option {
-  background-color: var(--bg-surface-elevated);
-  color: var(--text-primary);
-  padding: 8px;
+.status-message.hiding {
+  animation: statusFadeOut 0.5s ease-out forwards;
 }
 
-/* Ensure selected options are visible */
-select.text-input option:checked,
-.destination-select option:checked {
-  background-color: var(--primary);
-  color: white;
+/* Media Queries for status messages */
+/* Larger screens */
+@media screen and (min-width: 1200px) {
+  .status-message {
+    padding: 16px 20px;
+    font-size: var(--font-size-md);
+  }
+
+  .status-icon {
+    font-size: 18px;
+    margin-right: 14px;
+  }
 }
 
-/* Style for dropdown hover states */
-select.text-input option:hover,
-.destination-select option:hover {
-  background-color: var(--primary);
-  color: white;
+/* Medium screens and tablets */
+@media screen and (max-width: 991px) {
+  .status-message {
+    padding: 12px 16px;
+  }
 }
 
-/* Field hint text */
-.field-hint {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  margin-top: 6px;
-  line-height: 1.6;
+/* Mobile devices */
+@media screen and (max-width: 767px) {
+  .status-message {
+    padding: 10px 14px;
+    font-size: var(--font-size-xs);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  .status-icon {
+    font-size: 14px;
+    margin-right: 10px;
+  }
 }
 
-/* Form rows for horizontal layout */
-.form-row {
-  display: flex;
-  gap: 14px;
-  margin-bottom: 16px;
-}
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+  .status-message {
+    padding: 8px 12px;
+    border-radius: calc(var(--item-radius) - 2px);
+    border-left-width: 3px;
+  }
 
-.form-field.half {
-  flex: 1;
-}
-
-/* Password field with button */
-.password-field {
-  display: flex;
-  gap: 10px;
-}
-
-.password-field .text-input {
-  flex: 1;
-}
-
-/* Toggle switch */
-.toggle-switch {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-}
-
-.toggle-input {
-  height: 0;
-  width: 0;
-  visibility: hidden;
-  position: absolute;
-}
-
-.toggle-label {
-  cursor: pointer;
-  width: 48px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.1);
-  display: inline-block;
-  border-radius: 24px;
-  position: relative;
-  transition: background-color 0.3s;
-  border: 1px solid var(--border-subtle);
-}
-
-.toggle-label:after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  background: #fff;
-  border-radius: 18px;
-  transition: 0.3s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-.toggle-input:checked + .toggle-label {
-  background: var(--primary);
-}
-
-.toggle-input:checked + .toggle-label:after {
-  left: calc(100% - 2px);
-  transform: translateX(-100%);
-  background: #fff;
-}
-
-.toggle-label:active:after {
-  width: 26px;
+  .status-icon {
+    font-size: 12px;
+    margin-right: 8px;
+  }
 }
 
 /* ==========================================================================
@@ -804,295 +432,237 @@ select.text-input option:hover,
 }
 
 /* ==========================================================================
-   MODAL CLOSE BUTTON
+   PROGRESS BARS
    ========================================================================== */
-.close-modal {
-  color: var(--text-secondary);
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all var(--transition);
-  width: 32px;
-  height: 32px;
+/* Progress bar container */
+.progress-container {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  background-color: var(--bg-surface-dark);
+  border: 1px solid var(--border-subtle);
+  transition: background-color var(--transition-default);
+}
+
+/* Progress information layout */
+.progress-info {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-md);
 }
 
-.close-modal:hover {
-  color: var(--error);
-  background-color: var(--error-subtle);
-  transform: rotate(90deg);
-}
-
-/* ==========================================================================
-   UTILITY CLASSES
-   ========================================================================== */
-/* Spinning animation for refresh icons */
-.spinning {
-  display: inline-block;
-  animation: spin 1.5s linear infinite;
-}
-
-/* Fix refresh buttons styling */
-button[id*="Refresh"],
-button:has(.refresh-icon) {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border: none !important;
-  border-radius: 4px !important;
-  width: 28px !important;
-  height: 28px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  padding: 0 !important;
-}
-
-/* Hover effect for refresh buttons */
-button[id*="Refresh"]:hover,
-button:has(.refresh-icon):hover {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-/* Fix refresh icon */
-.refresh-icon {
-  display: inline-block !important;
-  font-size: 14px !important;
-}
-
-/* Remove duplicate refresh spinner */
-button:has(.refresh-icon) .refresh-icon + .refresh-icon {
-  display: none !important;
-}
-
-/* ==========================================================================
-   DEBUG PANEL ELEMENTS
-   ========================================================================== */
-/* Debug buttons container */
-.debug-buttons {
-  display: flex;
-  gap: 10px;
-  margin-left: auto;
-}
-
-/* Debug modal buttons styling */
-.debug-modal-content .modal-body button {
-  height: 38px;
-  padding: 0 16px;
-  border-radius: var(--button-radius);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  transition: all var(--transition);
-  box-shadow: var(--shadow-sm);
-  border: none;
-  margin-top: 0;
-  width: auto;
-}
-
-/* Clear Logs button */
-#clearLogsBtn {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+/* Progress bar container */
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+  box-shadow: var(--shadow-inner);
   border: 1px solid var(--border-subtle);
 }
 
-#clearLogsBtn:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-  border-color: rgba(255, 255, 255, 0.2);
+/* Progress bar itself */
+.progress-bar {
+  height: 100%;
+  width: 0;
+  background-color: var(--primary);
+  transition: width 0.3s ease, background-color 0.3s ease;
 }
 
-/* Download Logs button */
-#downloadLogsBtn {
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  color: var(--text-primary);
-  position: relative;
+.progress-bar.progress-success {
+  background-color: var(--success);
+}
+
+.progress-bar.progress-warning {
+  background-color: var(--warning);
+}
+
+.progress-bar.progress-error {
+  background-color: var(--error);
+}
+
+.progress-bar.progress-info {
+  background-color: var(--info);
+}
+
+/* ==========================================================================
+   CARDS
+   ========================================================================== */
+.card {
+  background-color: var(--bg-surface-elevated);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
+  transition: all var(--transition-default);
 }
 
-#downloadLogsBtn::before {
-  content: "";
-  position: absolute;
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface-dark);
+}
+
+.card-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-light);
+}
+
+.card-body {
+  padding: var(--spacing-md);
+}
+
+.card-footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface-dark);
+}
+
+/* ==========================================================================
+   TABS
+   ========================================================================== */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--spacing-md);
+}
+
+.tab {
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-default);
+  border-bottom: 2px solid transparent;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-surface-hover);
+}
+
+.tab.active {
+  color: var(--primary-light);
+  border-bottom-color: var(--primary);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ==========================================================================
+   MODALS - BASE STYLES
+   ========================================================================== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
   top: 0;
-  left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.7s;
-}
-
-#downloadLogsBtn:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-#downloadLogsBtn:hover::before {
-  left: 100%;
-}
-
-#downloadLogsBtn:active {
-  transform: translateY(1px);
-}
-
-/* Log output area */
-.log-output {
-  flex-grow: 1;
-  overflow-y: auto;
-  background-color: var(--bg-surface-dark);
-  border-radius: var(--item-radius);
-  padding: 12px;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
-  line-height: 1.5;
-}
-
-.log-entry {
-  margin-bottom: 4px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--border-subtle);
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.log-entry:last-child {
-  border-bottom: none;
-}
-
-/* Log level colors */
-.log-level-debug {
-  color: #888;
-}
-
-.log-level-info {
-  color: #2196f3;
-}
-
-.log-level-warn {
-  color: #ffc107;
-}
-
-.log-level-error {
-  color: #f44336;
-}
-
-.log-level-log {
-  color: #ccc;
-}
-
-/* ==========================================================================
-   STATUS MESSAGES
-   ========================================================================== */
-/* Base status message styling */
-.status-message {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border-radius: var(--item-radius);
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
-  position: relative;
-  box-shadow: var(--shadow-sm);
-  font-weight: var(--font-weight-medium);
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  overflow: auto;
   animation: fadeIn 0.3s ease;
-  border-left: 4px solid transparent;
-  background-color: var(--bg-surface-dark);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  box-sizing: border-box;
 }
 
-.status-message::before {
+.modal-content {
+  background-color: var(--bg-surface);
+  margin: 5% auto;
+  width: 90%;
+  max-width: 580px;
+  border-radius: var(--panel-radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  position: relative;
+  animation: modalFadeIn 0.4s ease-out;
+}
+
+.modal-content::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 100%;
-  background: linear-gradient(rgba(255, 255, 255, 0.03), transparent);
-  pointer-events: none;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  z-index: 1;
 }
 
-.status-message.success {
-  background-color: var(--success-subtle);
-  color: var(--success);
-  border-left-color: var(--success);
-}
-
-.status-message.error {
-  background-color: var(--error-subtle);
-  color: var(--error);
-  border-left-color: var(--error);
-}
-
-.status-message.info {
-  background-color: var(--info-subtle);
-  color: var(--info);
-  border-left-color: var(--info);
-}
-
-.status-message.warning {
-  background-color: var(--warning-subtle);
-  color: var(--warning);
-  border-left-color: var(--warning);
-}
-
-/* Status message icon */
-.status-icon {
-  display: inline-flex;
-  justify-content: center;
+.modal-header {
+  display: flex;
   align-items: center;
-  margin-right: 12px;
-  font-weight: bold;
-  font-size: 16px;
-  line-height: 1;
-  flex-shrink: 0;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(90deg, var(--primary-dark), var(--bg-surface));
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-/* Icon content for different message types */
-.status-message.success .status-icon::before {
-  content: "✓";
-  color: var(--success);
+.modal-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
 }
 
-.status-message.error .status-icon::before {
-  content: "✕";
-  color: var(--error);
+.modal-body {
+  padding: 24px;
 }
 
-.status-message.info .status-icon::before {
-  content: "ℹ";
-  color: var(--info);
+.close-modal {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--bg-surface-hover, rgba(255, 255, 255, 0.05));
+  color: var(--text-secondary, #cbd5e1);
+  transition: all var(--transition-default, 0.2s ease);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
-.status-message.warning .status-icon::before {
-  content: "!";
-  color: var(--warning);
+.close-modal:hover {
+  background-color: var(--bg-surface-highlight, rgba(255, 255, 255, 0.1));
+  color: var(--text-primary, #f8fafc);
 }
 
-.status-text {
-  flex: 1;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-}
-
-/* Status message animation */
-@keyframes statusSlideIn {
+/* Modal animations */
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -1100,70 +670,53 @@ button:has(.refresh-icon) .refresh-icon + .refresh-icon {
   }
 }
 
-.status-message {
-  animation: statusSlideIn 0.3s ease-out;
+/* ==========================================================================
+   THEME SPECIFIC OVERRIDES
+   ========================================================================== */
+/* Light Theme Overrides */
+.theme-light .console-log-box,
+.theme-light .progress-bar-container {
+  background-color: white;
+  border: 1px solid var(--border-subtle);
+  color: #333;
 }
 
-/* Auto-hide animation */
-@keyframes statusFadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+.theme-light .log-message {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.status-message.hiding {
-  animation: statusFadeOut 0.5s ease-out forwards;
+.theme-light .log-timestamp {
+  color: #666;
 }
 
-/* Media Queries for status messages */
-/* Larger screens */
-@media screen and (min-width: 1200px) {
-  .status-message {
-    padding: 16px 20px;
-    font-size: var(--font-size-md);
-  }
-
-  .status-icon {
-    font-size: 18px;
-    margin-right: 14px;
-  }
+.theme-light .status-message::before {
+  background: linear-gradient(rgba(0, 0, 0, 0.02), transparent);
 }
 
-/* Medium screens and tablets */
-@media screen and (max-width: 991px) {
-  .status-message {
-    padding: 12px 16px;
+/* Responsive adjustments for components */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 10% auto;
+  }
+
+  .console-log-box {
+    font-size: 11px;
   }
 }
 
-/* Mobile devices */
-@media screen and (max-width: 767px) {
-  .status-message {
-    padding: 10px 14px;
-    font-size: var(--font-size-xs);
-    margin-top: 12px;
-    line-height: 1.5;
+@media (max-width: 480px) {
+  .modal-header {
+    padding: 16px;
   }
 
-  .status-icon {
-    font-size: 14px;
-    margin-right: 10px;
-  }
-}
-
-/* Small mobile devices */
-@media screen and (max-width: 480px) {
-  .status-message {
-    padding: 8px 12px;
-    border-radius: calc(var(--item-radius) - 2px);
-    border-left-width: 3px;
+  .modal-body {
+    padding: 16px;
   }
 
-  .status-icon {
-    font-size: 12px;
-    margin-right: 8px;
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: var(--spacing-sm);
   }
 }

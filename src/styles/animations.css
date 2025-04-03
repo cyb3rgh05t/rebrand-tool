@@ -17,6 +17,18 @@
   }
 }
 
+/* Fade out animation */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+}
+
 /* Pulse animation for connection status */
 @keyframes pulse {
   0% {
@@ -50,6 +62,40 @@
   }
   to {
     transform: translateX(100%);
+  }
+}
+
+/* Slide left animation */
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Slide down animation */
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Slide up animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
@@ -102,18 +148,6 @@
   }
 }
 
-/* Toast slide-in animation */
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
 /* Modal animation */
 @keyframes modalFadeIn {
   from {
@@ -161,6 +195,67 @@
   }
   100% {
     opacity: 0.3;
+  }
+}
+
+/* Scale animation */
+@keyframes scale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Shake animation (for error states) */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+/* Bounce animation */
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Rotate animation */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -225,18 +320,20 @@
 
 /* Button shimmer animation */
 .action-button::before {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   animation-play-state: paused;
 }
 
 .action-button:hover::before {
+  animation-play-state: running;
+}
+
+.btn::before {
+  animation: shimmer 1.5s infinite;
+  animation-play-state: paused;
+}
+
+.btn:hover::before {
   animation-play-state: running;
 }
 
@@ -286,4 +383,121 @@
 .dns-record-item {
   animation: fadeIn 0.4s ease-out;
   animation-delay: calc(var(--item-index, 0) * 0.05s);
+}
+
+/* Button animation on click */
+.btn:active {
+  animation: scale 0.2s ease-out;
+}
+
+/* Error state animation */
+.text-input.invalid-input {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Success indicator animation */
+.text-input.valid-input + .validation-icon::before {
+  animation: bounce 0.5s ease-in-out;
+}
+
+/* Settings sidebar animation */
+.settings-sidebar {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+/* Settings panel animation */
+.settings-section {
+  animation: slideInRight 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.settings-section:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.settings-section:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+/* Utilities for manual animation application */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.4s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+.animate-spin {
+  animation: spin 1.5s linear infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+.animate-glow {
+  animation: glow 1.5s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-blink {
+  animation: blink 1.5s infinite;
+}
+
+.animate-breathe {
+  animation: breathe 1.5s infinite;
+}
+
+/* Animation delay utilities */
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+/* Animation duration utilities */
+.duration-300 {
+  animation-duration: 0.3s;
+}
+
+.duration-500 {
+  animation-duration: 0.5s;
+}
+
+.duration-700 {
+  animation-duration: 0.7s;
+}
+
+.duration-1000 {
+  animation-duration: 1s;
 }

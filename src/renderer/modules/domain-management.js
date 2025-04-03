@@ -268,7 +268,7 @@ export async function refreshDomainsList() {
 
   // Show loading state
   refreshDomainsBtn.disabled = true;
-  const refreshIcon = refreshDomainsBtn.querySelector(".refresh-icon");
+  const refreshIcon = refreshDomainsBtn.querySelector(".button-icon");
   if (refreshIcon) {
     refreshIcon.classList.add("spinning");
   }

@@ -1,7 +1,10 @@
 /**
- * Enhanced DNS preview styles for StreamNet Panels
+ * DNS preview styles for StreamNet Panels
  */
 
+/* ==========================================================================
+   DNS PREVIEW CONTAINER
+   ========================================================================== */
 /* Container for the entire DNS preview section */
 .dns-records-preview {
   margin-top: 16px;
@@ -24,6 +27,9 @@
   letter-spacing: 0.05em;
 }
 
+/* ==========================================================================
+   DNS RECORDS LIST
+   ========================================================================== */
 /* Records list container */
 .records-list {
   display: flex;
@@ -50,6 +56,7 @@
 .dns-record-item:hover {
   background-color: var(--bg-surface-highlight);
   border-left-color: var(--border-highlight);
+  transform: translateX(2px);
 }
 
 /* Record type badge (A or AAAA) */
@@ -70,6 +77,9 @@
   text-align: center;
 }
 
+/* ==========================================================================
+   RECORD DETAILS
+   ========================================================================== */
 /* Record details container */
 .record-details {
   flex: 1;
@@ -133,6 +143,9 @@
   max-width: 60%;
 }
 
+/* ==========================================================================
+   RECORD STATES & VARIATIONS
+   ========================================================================== */
 /* Proxy status badge */
 .proxy-status {
   font-size: 9px;
@@ -170,7 +183,49 @@
   min-width: 40px; /* Fixed width for AAAA */
 }
 
-/* Mobile responsiveness */
+/* ==========================================================================
+   THEME SPECIFIC OVERRIDES
+   ========================================================================== */
+.theme-light .dns-records-preview {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.theme-light .dns-record-item {
+  background-color: white;
+}
+
+.theme-light .dns-record-item:hover {
+  background-color: var(--bg-surface-hover);
+}
+
+.theme-light .record-name {
+  color: var(--primary);
+}
+
+.theme-light .proxy-status.proxied {
+  background-color: var(--success-subtle);
+  color: var(--success);
+}
+
+.theme-light .proxy-status.not-proxied {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+@media (max-width: 768px) {
+  .dns-records-preview {
+    padding: 12px;
+  }
+
+  .dns-record-item {
+    padding: 8px;
+  }
+}
+
 @media (max-width: 500px) {
   .dns-records-preview {
     padding: 10px;
@@ -193,5 +248,13 @@
   .proxy-status {
     margin-left: 0;
     margin-top: 4px;
+  }
+
+  .record-type {
+    min-width: 30px;
+    font-size: 8px;
+    padding: 2px 4px;
+    height: 16px;
+    margin-right: 8px;
   }
 }

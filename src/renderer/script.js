@@ -12,6 +12,7 @@ import * as dnsPreview from "./modules/dns-preview.js";
 import * as settings from "./modules/settings.js";
 import * as configSettings from "./modules/config-settings.js";
 import { updateSelectedModulesPreview } from "./modules/selected-modules-preview.js";
+import * as transferDialog from "./modules/transfer-dialog.js";
 
 // Global app state to avoid duplicate API calls
 window.appState = {
@@ -127,6 +128,9 @@ async function initializeComponents() {
 
   // Set up configuration change listener
   setupConfigChangeListener();
+
+  transferDialog.initTransferDialog();
+  console.log("Transfer dialog initialized");
 
   log.info("Application initialized");
 }

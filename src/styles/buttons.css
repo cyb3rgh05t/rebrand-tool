@@ -1,0 +1,616 @@
+/**
+ * Unified Button System for StreamNet Panels
+ */
+
+/* ==========================================================================
+   BUTTON BASE STYLES
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--button-radius);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  background-color: var(--bg-surface-elevated);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  height: var(--form-control-height);
+  letter-spacing: 0.01em;
+}
+
+/* Button hover state */
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background-color: var(--bg-surface-highlight);
+}
+
+/* Button active state */
+.btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Button disabled state */
+.btn:disabled {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Button shimmer effect */
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  background-size: 200% 100%;
+  transition: left 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:disabled::before {
+  display: none;
+}
+
+/* Button icon */
+.btn-icon {
+  margin-right: 8px;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+     BUTTON VARIATIONS
+     ========================================================================== */
+
+/* Primary button */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--text-on-primary);
+  font-weight: var(--font-weight-semibold);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+}
+
+/* Secondary button */
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Success button */
+.btn-success {
+  background: linear-gradient(135deg, var(--success), rgba(16, 185, 129, 0.8));
+  color: var(--text-on-primary);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), var(--success));
+}
+
+/* Warning button */
+.btn-warning {
+  background: linear-gradient(135deg, var(--warning), rgba(245, 158, 11, 0.8));
+  color: var(--text-on-primary);
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.8), var(--warning));
+}
+
+/* Danger button */
+.btn-danger {
+  background: linear-gradient(135deg, var(--error), rgba(239, 68, 68, 0.8));
+  color: var(--text-on-primary);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.8), var(--error));
+}
+
+/* ==========================================================================
+     BUTTON SIZES
+     ========================================================================== */
+
+/* Small button */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: var(--font-size-sm);
+  height: 32px;
+}
+
+/* Large button */
+.btn-lg {
+  padding: 14px 20px;
+  font-size: var(--font-size-lg);
+  height: auto;
+  min-height: 48px;
+}
+
+/* Full width button */
+.btn-full {
+  width: 100%;
+  display: flex;
+}
+
+/* ==========================================================================
+     BUTTON LAYOUT VARIATIONS
+     ========================================================================== */
+
+/* Icon button (square) */
+.btn-icon-only {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.btn-icon-only.btn-sm {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 6px;
+}
+
+.btn-icon-only.btn-lg {
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px;
+  min-height: 52px;
+  border-radius: 10px;
+}
+
+/* Icon button (circular) */
+.btn-circle {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 50% !important;
+}
+
+.btn-circle.btn-sm {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.btn-circle.btn-lg {
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px;
+  min-height: 52px;
+}
+
+/* Button group */
+.btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-group-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ==========================================================================
+     LEGACY COMPATIBILITY LAYER
+     ========================================================================== */
+
+/* Map existing action-button to the new system */
+.action-button {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: 16px;
+  border: none;
+  border-radius: var(--button-radius);
+  background-color: var(--primary);
+  color: white;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition);
+  height: var(--form-control-height);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.action-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.action-button:hover {
+  background-color: var(--secondary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.action-button:hover::before {
+  left: 100%;
+}
+
+.action-button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.action-button:disabled {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  border: 1px solid var(--border-subtle);
+}
+
+.action-button:disabled::before {
+  display: none;
+}
+
+.action-button.primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.action-button.primary:hover {
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+}
+
+.action-button.secondary {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
+}
+
+.action-button.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.action-button.full-width {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 16px;
+  font-size: var(--font-size-md);
+}
+
+.big-action-button {
+  margin-top: 24px;
+  padding: 16px;
+  font-size: var(--font-size-lg);
+  height: auto;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.01em;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+}
+
+.big-action-button:hover {
+  background: linear-gradient(135deg, var(--accent), var(--primary));
+}
+
+/* Icon buttons */
+.action-button.icon-button {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  vertical-align: middle;
+  border-radius: 8px;
+}
+
+/* Button icon */
+.button-icon {
+  margin-right: 8px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Header buttons */
+.header-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  border-radius: var(--button-radius);
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+}
+
+.header-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-button:active {
+  transform: translateY(0);
+}
+
+.header-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.header-button .button-icon {
+  font-size: 14px;
+}
+
+.header-button.update-button {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.header-button.update-button:hover {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+/* Settings Button in Header */
+.header-button.settings-button {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(79, 70, 229, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  margin-left: 10px;
+  transition: all 0.2s ease !important;
+}
+
+.header-button.settings-button:hover {
+  background: rgba(79, 70, 229, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.header-button.settings-button:active {
+  transform: rotate(30deg) !important;
+}
+
+.settings-icon {
+  font-size: 18px;
+  color: var(--primary-light);
+  margin: 0 !important;
+  display: inline-block;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.header-button.settings-button:hover .settings-icon {
+  transform: rotate(90deg);
+  color: white;
+}
+
+/* Select/Unselect Buttons */
+.select-all-button,
+.unselect-all-button {
+  padding: 6px 10px;
+  color: white;
+  border: none;
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  height: 30px;
+  white-space: nowrap;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 1 auto; /* Allow buttons to shrink but not grow */
+  min-width: 110px; /* Set minimum width to ensure text fits */
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.select-all-button {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.select-all-button:hover {
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.select-all-button:before {
+  content: "✓";
+  margin-right: 5px;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.unselect-all-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
+}
+
+.unselect-all-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.unselect-all-button:before {
+  content: "✕";
+  margin-right: 5px;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+/* Active state for both buttons */
+.select-all-button:active,
+.unselect-all-button:active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Small button variant */
+.small-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  border-radius: var(--button-radius);
+  padding: 5px 10px;
+  margin-left: 10px;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-weight: var(--font-weight-medium);
+}
+
+.small-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+     THEME SPECIFIC OVERRIDES
+     ========================================================================== */
+
+/* Light Theme Button Overrides */
+.theme-light .btn {
+  color: var(--text-primary);
+  background-color: var(--bg-surface-elevated);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .btn:hover {
+  background-color: var(--bg-surface-highlight);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.theme-light .btn:disabled {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .action-button:disabled {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Other Theme Variants */
+[class^="theme-"] .btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--text-on-primary);
+}
+
+[class^="theme-"] .btn-primary:hover {
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+}
+
+[class^="theme-"] .btn-secondary {
+  background-color: var(--bg-surface-hover);
+  border: 1px solid var(--border-subtle);
+}
+
+[class^="theme-"] .btn-secondary:hover {
+  background-color: var(--bg-surface-highlight);
+  border-color: var(--border-highlight);
+}
+
+/* Responsive adjustments for buttons */
+@media (max-width: 768px) {
+  .select-all-button,
+  .unselect-all-button {
+    min-width: 90px;
+    font-size: 10px;
+  }
+
+  .header-button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .select-all-button,
+  .unselect-all-button {
+    min-width: auto;
+    padding: 5px 8px;
+  }
+
+  .btn-icon-only {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .action-button {
+    padding: 10px 14px;
+  }
+}

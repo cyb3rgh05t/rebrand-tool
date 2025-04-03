@@ -14,6 +14,10 @@ const MODULE_PATHS = {
   cockpitpanel: {
     sourcePath: "cockpitpanel",
   },
+  branding: {
+    api: "assets/img",
+    panel: "includes/db",
+  },
   support: {
     api: "api/support",
     panel: "panel/support",
@@ -41,8 +45,12 @@ const MODULE_PATHS = {
     panel: "panel/smarterspro",
   },
   ibo: {
-    api: "api/ibo",
-    panel: "panel/ibo",
+    api: "api/ibosol",
+    panel: "panel/ibosol",
+  },
+  nextv: {
+    api: "api/nextv",
+    panel: "panel/nextv",
   },
   neutro: {
     api: "api/neutro",
@@ -103,8 +111,8 @@ const MODULE_PATHS = {
     panel: "panel/downloader",
   },
   sh9store: {
-    api: "api/sh9store",
-    panel: "panel/sh9store",
+    api: "api/s9hstore",
+    panel: "panel/s9hstore",
   },
 };
 

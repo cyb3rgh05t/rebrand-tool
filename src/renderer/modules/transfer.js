@@ -5,10 +5,10 @@ import { log } from "../utils/logging.js";
 import { showStatus } from "./ui-helpers.js";
 import { getSelectedItems, clearAllSelections } from "./module-selection.js";
 import { createDnsRecords } from "./dns-handling.js";
+import * as transferDialog from "./transfer-dialog.js";
 
 /**
- * Enhanced handleTransfer function that resets all states after completion
- * This should replace the existing handleTransfer function in src/renderer/modules/transfer.js
+ * Enhanced handleTransfer function with progress dialog
  */
 export async function handleTransfer() {
   const domainSelect = document.getElementById("domainSelect");
@@ -40,14 +40,31 @@ export async function handleTransfer() {
       : "Transferring...";
   }
 
-  // Show appropriate status message
+  // Show the transfer dialog - different title based on operation
+  const dialogTitle = hasDnsOnly
+    ? "DNS Record Creation"
+    : isDnsEnabled
+    ? "File Transfer & DNS Setup"
+    : "File Transfer";
+
+  transferDialog.showTransferDialog(dialogTitle);
+
+  // Show appropriate initial status
   if (hasDnsOnly) {
-    showStatus("info", `Creating DNS records for ${domain}...`);
-    log.info(`Creating DNS records for ${domain}`);
+    transferDialog.updateTransferStatus(
+      `Creating DNS records for ${domain}...`
+    );
+    transferDialog.addTransferLog(
+      `Starting DNS creation for ${domain}`,
+      "info"
+    );
   } else {
-    showStatus("info", `Starting transfer to ${domain}/public_html...`);
-    log.info(
-      `Starting transfer of ${selectedItems.size} items to ${domain}/public_html`
+    transferDialog.updateTransferStatus(
+      `Preparing transfer to ${domain}/public_html...`
+    );
+    transferDialog.addTransferLog(
+      `Starting transfer of ${selectedItems.size} items to ${domain}/public_html`,
+      "info"
     );
   }
 
@@ -60,52 +77,134 @@ export async function handleTransfer() {
       let invalidCount = 0;
 
       // Check each item for valid path
+      transferDialog.addTransferLog("Validating selected items...", "info");
       for (const [key, item] of selectedItems.entries()) {
         if (!item.path) {
-          log.error(`Item ${key} (${item.name}) has no path defined`);
+          transferDialog.addTransferLog(
+            `Item ${key} (${item.name}) has no path defined`,
+            "error"
+          );
           invalidCount++;
         } else {
           validItems.set(key, item);
+          transferDialog.addTransferLog(
+            `Validated item: ${item.name}`,
+            "debug"
+          );
         }
       }
 
       if (invalidCount > 0) {
-        log.error(`Found ${invalidCount} items with missing paths`);
-        showStatus(
-          "error",
-          `Cannot transfer: ${invalidCount} items have missing paths`
+        transferDialog.addTransferLog(
+          `Found ${invalidCount} items with missing paths`,
+          "error"
         );
+        transferDialog.updateTransferStatus(
+          `Cannot transfer: ${invalidCount} items have missing paths`,
+          "error"
+        );
+        transferDialog.completeTransfer({
+          success: false,
+          error: `${invalidCount} items have missing paths`,
+          successCount: 0,
+          totalCount: selectedItems.size,
+        });
         return;
       }
 
       // Convert Map to array for API
       const itemsArray = Array.from(validItems.values());
-
-      // Log all items being transferred for debugging
-      log.debug(`Transferring ${itemsArray.length} items:`);
-      itemsArray.forEach((item, index) => {
-        log.debug(`Item ${index + 1}: ${item.name}, path: ${item.path}`);
-      });
+      transferDialog.updateTransferProgress(
+        10,
+        `Preparing to transfer ${itemsArray.length} items...`
+      );
 
       // Call the API to transfer files
       if (!window.streamNetAPI || !window.streamNetAPI.transferItems) {
         throw new Error("Transfer API not available");
       }
 
+      transferDialog.addTransferLog(
+        `Starting transfer to ${domain}/public_html`,
+        "info"
+      );
+      transferDialog.updateTransferProgress(20, "Transfer in progress...");
+
+      // We can't easily get real-time progress updates from the backend, so we'll
+      // simulate progress updates while waiting for the transfer to complete
+      let progressInterval = setInterval(() => {
+        // Don't increase past 90% since we don't know when it will finish
+        const currentWidth =
+          document.getElementById("transferProgressBar")?.style.width || "20%";
+        const currentPercent = parseInt(currentWidth, 10);
+
+        if (currentPercent < 90) {
+          const newPercent = Math.min(currentPercent + 5, 90);
+          transferDialog.updateTransferProgress(
+            newPercent,
+            "Transfer in progress..."
+          );
+        }
+
+        // Check if the transfer was cancelled
+        if (transferDialog.isTransferCancelled()) {
+          clearInterval(progressInterval);
+        }
+      }, 1000);
+
+      // Perform the actual transfer
       const result = await window.streamNetAPI.transferItems(
         itemsArray,
         `${domain}/public_html`
       );
 
+      // Clear progress update interval
+      clearInterval(progressInterval);
+
       transferSuccess = result.success;
 
       if (result.success) {
-        log.info(
-          `Transfer complete: ${result.successCount}/${result.totalCount} items transferred`
+        transferDialog.updateTransferProgress(
+          95,
+          `Transfer complete: ${result.successCount}/${result.totalCount} items transferred`,
+          result.successCount === result.totalCount ? "success" : "warning"
         );
+
+        // Log each result from the operation
+        if (result.results) {
+          result.results.forEach((item) => {
+            if (item.status === "success") {
+              transferDialog.addTransferLog(
+                `Successfully transferred: ${item.name}`,
+                "success"
+              );
+            } else {
+              transferDialog.addTransferLog(
+                `Failed to transfer: ${item.name} - ${item.error}`,
+                "error"
+              );
+            }
+          });
+        }
       } else {
-        log.error(`Transfer failed: ${result.error}`);
+        transferDialog.updateTransferProgress(
+          30,
+          `Transfer failed: ${result.error}`,
+          "error"
+        );
+        transferDialog.addTransferLog(
+          `Transfer failed: ${result.error}`,
+          "error"
+        );
+
         if (!isDnsEnabled) {
+          transferDialog.completeTransfer({
+            success: false,
+            error: result.error || "Unknown error",
+            successCount: 0,
+            totalCount: itemsArray.length,
+          });
+
           showStatus(
             "error",
             `Transfer failed: ${result.error || "Unknown error"}`
@@ -118,35 +217,89 @@ export async function handleTransfer() {
     // Create DNS records if enabled
     let dnsSuccess = false;
     if (isDnsEnabled) {
-      if (transferButton) {
-        transferButton.textContent = "Creating DNS...";
-      }
+      transferDialog.updateTransferStatus("Creating DNS records...");
+      transferDialog.addTransferLog("Starting DNS record creation", "info");
 
-      showStatus("info", "Creating DNS records...");
       try {
+        transferDialog.updateTransferProgress(
+          hasDnsOnly ? 50 : 96,
+          "Creating DNS records..."
+        );
         const dnsResult = await createDnsRecords();
 
         if (dnsResult.success) {
           dnsSuccess = true;
-          log.info("DNS records created successfully");
-          showStatus("success", `DNS records created successfully`);
+          transferDialog.addTransferLog(
+            "DNS records created successfully",
+            "success"
+          );
+
+          // Log individual records if available
+          if (dnsResult.results) {
+            dnsResult.results.forEach((record) => {
+              if (record.status === "created") {
+                transferDialog.addTransferLog(
+                  `Created DNS record: ${record.name} (${record.type})`,
+                  "success"
+                );
+              } else {
+                transferDialog.addTransferLog(
+                  `Failed to create DNS record: ${record.name} - ${record.error}`,
+                  "error"
+                );
+              }
+            });
+          }
+
+          transferDialog.updateTransferProgress(
+            100,
+            "DNS records created successfully",
+            "success"
+          );
         } else {
-          log.error(`DNS creation failed: ${dnsResult.error}`);
-          showStatus(
-            "warning",
-            `DNS creation failed: ${dnsResult.error || "Unknown error"}`
+          transferDialog.addTransferLog(
+            `DNS creation failed: ${dnsResult.error}`,
+            "error"
+          );
+          transferDialog.updateTransferProgress(
+            hasDnsOnly ? 20 : 97,
+            `DNS creation failed: ${dnsResult.error}`,
+            "error"
           );
         }
       } catch (dnsError) {
-        log.error(`Error during DNS creation: ${dnsError.message}`);
-        showStatus(
-          "warning",
-          `DNS creation failed: ${dnsError.message || "Unknown error"}`
+        transferDialog.addTransferLog(
+          `Error during DNS creation: ${dnsError.message}`,
+          "error"
+        );
+        transferDialog.updateTransferProgress(
+          hasDnsOnly ? 20 : 97,
+          `DNS creation error: ${dnsError.message}`,
+          "error"
         );
       }
     }
 
-    // Show final success/status message
+    // Complete the transfer process and update dialog
+    const finalResult = {
+      success: hasDnsOnly
+        ? dnsSuccess
+        : transferSuccess && (!isDnsEnabled || dnsSuccess),
+      successCount:
+        selectedItems.size > 0
+          ? transferSuccess
+            ? selectedItems.size
+            : 0
+          : dnsSuccess
+          ? 1
+          : 0,
+      totalCount: selectedItems.size > 0 ? selectedItems.size : 1,
+      error: null,
+    };
+
+    transferDialog.completeTransfer(finalResult);
+
+    // Show final status message in the main UI
     if (hasDnsOnly) {
       // DNS only mode
       if (dnsSuccess) {
@@ -189,6 +342,22 @@ export async function handleTransfer() {
       resetStatesAfterTransfer();
     }
   } catch (error) {
+    transferDialog.addTransferLog(
+      `Error during operation: ${error.message}`,
+      "error"
+    );
+    transferDialog.updateTransferProgress(
+      0,
+      `Operation failed: ${error.message}`,
+      "error"
+    );
+    transferDialog.completeTransfer({
+      success: false,
+      error: error.message,
+      successCount: 0,
+      totalCount: selectedItems.size || 1,
+    });
+
     log.error(`Error during operation: ${error.message}`);
     showStatus("error", `Operation failed: ${error.message}`);
   } finally {

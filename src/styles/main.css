@@ -6,20 +6,37 @@
 /* ==========================================================================
    FOUNDATION STYLES
    ========================================================================== */
-/* Variables and theming */
+/* Core variables and theme definitions */
 @import "variables.css";
 
-/* ==========================================================================
-   LAYOUT STYLES
-   ========================================================================== */
-/* Core layout elements */
-@import "layout.css";
+/* Typography styles */
+@import "typography.css";
 
 /* ==========================================================================
    COMPONENT STYLES
    ========================================================================== */
-/* Reusable UI components */
+/* Buttons and interactive controls */
+@import "buttons.css";
+
+/* Form elements */
+@import "forms.css";
+
+/* UI Components */
 @import "components.css";
+
+/* Animations */
+@import "animations.css";
+
+/* ==========================================================================
+   LAYOUT STYLES
+   ========================================================================== */
+/* Core layout structure */
+@import "layout.css";
+
+/* Dialog layout structure */
+@import "update.css";
+@import "download.css";
+@import "settings.css";
 
 /* ==========================================================================
    FEATURE-SPECIFIC STYLES
@@ -33,38 +50,214 @@
 /* DNS preview functionality */
 @import "dns-preview.css";
 
-/* Settings functionality */
-@import "settings.css";
-
-/* Domain Preview functionality */
-@import "selected-modules-preview.css";
-
-/* Dialogs */
-@import "domain-dialog.css";
-@import "debug-dialog.css";
-//@import "update-dialog.css";
-@import "theme-dialog.css";
-/* ==========================================================================
-   ANIMATIONS
-   ========================================================================== */
-/* All animations in one place */
-@import "animations.css";
+/* Modal dialogs and overlays */
+@import "modals.css";
 
 /* ==========================================================================
-   THEME SWITCHER
+   UTILITY CLASSES
    ========================================================================== */
-/* Theme switching will be controlled by adding class to body or html */
-.theme-light {
-  /* Light theme custom overrides will come from variables.css */
+/* Hidden elements */
+.hidden {
+  display: none !important;
 }
 
-.theme-dark {
-  /* Dark theme is the default in variables.css */
+/* Visually hidden (for accessibility) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Text utilities */
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.text-success {
+  color: var(--success);
+}
+.text-error {
+  color: var(--error);
+}
+.text-warning {
+  color: var(--warning);
+}
+.text-info {
+  color: var(--info);
+}
+
+/* Background utilities */
+.bg-primary {
+  background-color: var(--primary);
+}
+.bg-surface {
+  background-color: var(--bg-surface);
+}
+.bg-elevated {
+  background-color: var(--bg-surface-elevated);
+}
+.bg-dark {
+  background-color: var(--bg-surface-dark);
+}
+
+/* Layout utilities */
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-end {
+  justify-content: flex-end;
+}
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+/* Spacing utilities */
+.m-0 {
+  margin: 0;
+}
+.mt-xs {
+  margin-top: var(--spacing-xs);
+}
+.mt-sm {
+  margin-top: var(--spacing-sm);
+}
+.mt-md {
+  margin-top: var(--spacing-md);
+}
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+.mb-xs {
+  margin-bottom: var(--spacing-xs);
+}
+.mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+
+.p-0 {
+  padding: 0;
+}
+.p-xs {
+  padding: var(--spacing-xs);
+}
+.p-sm {
+  padding: var(--spacing-sm);
+}
+.p-md {
+  padding: var(--spacing-md);
+}
+.p-lg {
+  padding: var(--spacing-lg);
+}
+
+/* Animation utilities */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+.animate-spin {
+  animation: spin 1.5s linear infinite;
+}
+
+/* Border utilities */
+.rounded-sm {
+  border-radius: var(--border-radius-sm);
+}
+.rounded-md {
+  border-radius: var(--border-radius-md);
+}
+.rounded-lg {
+  border-radius: var(--border-radius-lg);
+}
+.rounded-full {
+  border-radius: var(--border-radius-full);
+}
+
+.border {
+  border: 1px solid var(--border-subtle);
+}
+.border-t {
+  border-top: 1px solid var(--border-subtle);
+}
+.border-b {
+  border-bottom: 1px solid var(--border-subtle);
+}
+.border-l {
+  border-left: 1px solid var(--border-subtle);
+}
+.border-r {
+  border-right: 1px solid var(--border-subtle);
+}
+
+/* Shadow utilities */
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+.shadow-inner {
+  box-shadow: var(--shadow-inner);
 }
 
 /* ==========================================================================
-   HIGH DENSITY DISPLAY ADJUSTMENTS
+   MEDIA QUERIES
    ========================================================================== */
+/* For high density displays */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   body {
     font-size: 15px;
@@ -75,9 +268,7 @@
   }
 }
 
-/* ==========================================================================
-   PRINT STYLES
-   ========================================================================== */
+/* Print styles */
 @media print {
   body {
     background: white;
@@ -95,37 +286,23 @@
   }
 }
 
-/* ==========================================================================
-   VENDOR PREFIXES & FALLBACKS
-   ========================================================================== */
-/* For browsers that don't support backdrop-filter */
-@supports not (backdrop-filter: blur(5px)) {
-  .panel,
-  .modal-content,
-  .update-toast {
-    background-color: var(--bg-surface);
+/* For prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
-/* ==========================================================================
-   ACCESSIBILITY ENHANCEMENTS
-   ========================================================================== */
-/* Improved focus outlines for accessibility */
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* High contrast mode support */
+/* For forced colors (high contrast) mode */
 @media (forced-colors: active) {
-  .action-button,
-  .header-button,
-  .modal-content,
-  .panel {
-    border: 1px solid CanvasText;
-  }
-
-  .status-indicator {
+  /* Add overrides for high contrast mode if needed */
+  .btn,
+  .action-button {
     border: 1px solid CanvasText;
   }
 }

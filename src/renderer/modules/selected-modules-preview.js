@@ -17,6 +17,7 @@ export function updateSelectedModulesPreview(selectedItems) {
   const iconMap = {
     // Panels
     cockpitpanel: "rebrands",
+    branding: "branding",
     support: "telegram",
     multiproxy: "multi",
     webviews: "android",
@@ -26,6 +27,7 @@ export function updateSelectedModulesPreview(selectedItems) {
     tivimate: "tivimate",
     smarterspro: "smarters",
     ibo: "ibosol",
+    nextv: "nextv",
     neutro: "neutro",
     neu: "pneu",
     easy: "peasy",

@@ -1,6 +1,44 @@
-# Changelog
+# Full Changelog
 
-All notable changes to StreamNet Rebrand Panel Tool will be documented in this file.
+All notable changes to Rebrands Panel Tool will be documented in this file.
+
+## [2.5.0] - 2025-04-02
+
+### Added
+
+- Completely redesigned Update Notification System with modern UI
+- New dark-mode optimized update dialog with animated transitions
+- "Don't show again for this version" option for update notifications
+- Enhanced release notes display in update dialog
+- Better platform-specific download URL detection
+- New transfer progress dialog with real-time feedback
+- Detailed logging during file transfers and DNS creation
+- Progress bar with visual indicators for transfer status
+- Summary display with success/failure counts after transfer
+- Ability to cancel ongoing transfers
+- Auto-scroll functionality in transfer logs with toggle option
+- Theme compatibility across all application themes
+- Command and output specific styling in transfer logs
+
+### Changed
+
+- Improved user preferences system for update notifications
+- Enhanced styling and layout for all notification dialogs
+- Switched from Electron's native dialog to custom HTML/CSS dialogs for updates
+- Refined UI feedback system throughout the application
+- Better handling of version comparison during update checks
+- Enhanced transfer process with clearer visual feedback
+- Improved error handling during transfer operations
+- Better integration with theme system for consistent UI
+- More informative status updates during file operations
+- Modernized the transfer experience with detailed progress tracking
+
+### Fixed
+
+- Update dialog display issues in dark mode
+- Inconsistent notification behavior when multiple updates are available
+- Version skipping functionality not being honored consistently
+- Release notes truncation issues in update dialog
 
 ## [2.4.4] - 2025-04-02
 

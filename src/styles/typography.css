@@ -1,0 +1,405 @@
+/**
+ * Typography styles for StreamNet Panels
+ */
+
+/* ==========================================================================
+   HEADINGS
+   ========================================================================== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+h2 {
+  font-size: var(--font-size-xl);
+  color: var(--primary-light);
+  font-weight: var(--font-weight-semibold);
+}
+
+h3 {
+  font-size: var(--font-size-lg);
+  color: var(--accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+h4 {
+  font-size: var(--font-size-md);
+  color: var(--primary-light);
+  font-weight: var(--font-weight-semibold);
+}
+
+h5 {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+h6 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+     TEXT STYLES
+     ========================================================================== */
+p {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  line-height: var(--line-height-normal);
+}
+
+small,
+.text-small {
+  font-size: var(--font-size-sm);
+}
+
+.text-xs {
+  font-size: var(--font-size-xs);
+}
+
+.text-md {
+  font-size: var(--font-size-md);
+}
+
+.text-lg {
+  font-size: var(--font-size-lg);
+}
+
+.text-xl {
+  font-size: var(--font-size-xl);
+}
+
+.text-2xl {
+  font-size: var(--font-size-2xl);
+}
+
+.text-3xl {
+  font-size: var(--font-size-3xl);
+}
+
+/* ==========================================================================
+     FONT WEIGHTS
+     ========================================================================== */
+.font-normal {
+  font-weight: var(--font-weight-normal);
+}
+
+.font-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+/* ==========================================================================
+     TEXT COLORS
+     ========================================================================== */
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-error {
+  color: var(--error);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+.text-info {
+  color: var(--info);
+}
+
+/* ==========================================================================
+     TEXT STYLING
+     ========================================================================== */
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+.text-lowercase {
+  text-transform: lowercase;
+}
+
+.text-italic {
+  font-style: italic;
+}
+
+.text-underline {
+  text-decoration: underline;
+}
+
+.text-strike {
+  text-decoration: line-through;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.letter-spacing-tight {
+  letter-spacing: -0.01em;
+}
+
+.letter-spacing-normal {
+  letter-spacing: normal;
+}
+
+.letter-spacing-wide {
+  letter-spacing: 0.05em;
+}
+
+.line-height-tight {
+  line-height: var(--line-height-tight);
+}
+
+.line-height-normal {
+  line-height: var(--line-height-normal);
+}
+
+.line-height-relaxed {
+  line-height: var(--line-height-relaxed);
+}
+
+/* ==========================================================================
+     MONO TEXT
+     ========================================================================== */
+code,
+pre,
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+pre {
+  margin: 0 0 var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-md);
+  overflow: auto;
+  line-height: var(--line-height-normal);
+}
+
+code {
+  padding: 2px 4px;
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-xs);
+}
+
+pre code {
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+/* ==========================================================================
+     LINKS
+     ========================================================================== */
+a {
+  color: var(--primary-light);
+  text-decoration: none;
+  transition: color var(--transition-default);
+}
+
+a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.text-link {
+  color: var(--primary-light);
+  text-decoration: none;
+  transition: color var(--transition-default);
+}
+
+.text-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+     TRUNCATION
+     ========================================================================== */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+     LISTS
+     ========================================================================== */
+ul,
+ol {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  padding-left: var(--spacing-lg);
+}
+
+li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.list-none {
+  list-style: none;
+  padding-left: 0;
+}
+
+.list-disc {
+  list-style-type: disc;
+}
+
+.list-circle {
+  list-style-type: circle;
+}
+
+.list-square {
+  list-style-type: square;
+}
+
+.list-decimal {
+  list-style-type: decimal;
+}
+
+/* ==========================================================================
+     BLOCKQUOTE
+     ========================================================================== */
+blockquote {
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-left: 4px solid var(--primary);
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-sm);
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+     RESPONSIVE TYPOGRAPHY
+     ========================================================================== */
+@media (max-width: 768px) {
+  h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  h2 {
+    font-size: var(--font-size-lg);
+  }
+
+  h3 {
+    font-size: var(--font-size-md);
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: var(--font-size-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
+}
+
+/* ==========================================================================
+     ABBREVIATIONS AND UTILITY CLASSES
+     ========================================================================== */
+abbr[title] {
+  cursor: help;
+  border-bottom: 1px dotted;
+  text-decoration: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.break-words {
+  word-wrap: break-word;
+}
+
+.break-all {
+  word-break: break-all;
+}
+
+.hyphens-auto {
+  hyphens: auto;
+}
