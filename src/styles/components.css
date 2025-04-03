@@ -804,104 +804,6 @@ select.text-input option:hover,
 }
 
 /* ==========================================================================
-   STATUS MESSAGES
-   ========================================================================== */
-.status-message {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border-radius: var(--item-radius);
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
-  position: relative;
-  box-shadow: var(--shadow-sm);
-  font-weight: var(--font-weight-medium);
-  animation: fadeIn 0.3s ease;
-  border-left: 4px solid transparent;
-  background-color: var(--bg-surface-dark);
-  overflow: hidden;
-}
-
-.status-message::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background: linear-gradient(rgba(255, 255, 255, 0.03), transparent);
-  pointer-events: none;
-}
-
-.status-message.success {
-  background-color: var(--success-subtle);
-  color: var(--success);
-  border-left-color: var(--success);
-}
-
-.status-message.error {
-  background-color: var(--error-subtle);
-  color: var(--error);
-  border-left-color: var(--error);
-}
-
-.status-message.info {
-  background-color: var(--info-subtle);
-  color: var(--info);
-  border-left-color: var(--info);
-}
-
-.status-message.warning {
-  background-color: var(--warning-subtle);
-  color: var(--warning);
-  border-left-color: var(--warning);
-}
-
-/* Status message icon */
-.status-message::after {
-  font-weight: bold;
-  margin-right: 8px;
-  display: inline-block;
-  position: absolute;
-  left: 14px;
-  top: 14px;
-  font-size: 14px;
-}
-
-.status-message {
-  padding-left: 36px; /* Make room for the icon */
-}
-
-/* Status message animation */
-@keyframes statusSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.status-message {
-  animation: statusSlideIn 0.3s ease-out;
-}
-
-/* Auto-hide animation */
-@keyframes statusFadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-.status-message.hiding {
-  animation: statusFadeOut 0.5s ease-out forwards;
-}
-
-/* ==========================================================================
    MODAL CLOSE BUTTON
    ========================================================================== */
 .close-modal {
@@ -1085,4 +987,183 @@ button:has(.refresh-icon) .refresh-icon + .refresh-icon {
 
 .log-level-log {
   color: #ccc;
+}
+
+/* ==========================================================================
+   STATUS MESSAGES
+   ========================================================================== */
+/* Base status message styling */
+.status-message {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--item-radius);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  font-weight: var(--font-weight-medium);
+  animation: fadeIn 0.3s ease;
+  border-left: 4px solid transparent;
+  background-color: var(--bg-surface-dark);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.status-message::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.03), transparent);
+  pointer-events: none;
+}
+
+.status-message.success {
+  background-color: var(--success-subtle);
+  color: var(--success);
+  border-left-color: var(--success);
+}
+
+.status-message.error {
+  background-color: var(--error-subtle);
+  color: var(--error);
+  border-left-color: var(--error);
+}
+
+.status-message.info {
+  background-color: var(--info-subtle);
+  color: var(--info);
+  border-left-color: var(--info);
+}
+
+.status-message.warning {
+  background-color: var(--warning-subtle);
+  color: var(--warning);
+  border-left-color: var(--warning);
+}
+
+/* Status message icon */
+.status-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Icon content for different message types */
+.status-message.success .status-icon::before {
+  content: "✓";
+  color: var(--success);
+}
+
+.status-message.error .status-icon::before {
+  content: "✕";
+  color: var(--error);
+}
+
+.status-message.info .status-icon::before {
+  content: "ℹ";
+  color: var(--info);
+}
+
+.status-message.warning .status-icon::before {
+  content: "!";
+  color: var(--warning);
+}
+
+.status-text {
+  flex: 1;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* Status message animation */
+@keyframes statusSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.status-message {
+  animation: statusSlideIn 0.3s ease-out;
+}
+
+/* Auto-hide animation */
+@keyframes statusFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.status-message.hiding {
+  animation: statusFadeOut 0.5s ease-out forwards;
+}
+
+/* Media Queries for status messages */
+/* Larger screens */
+@media screen and (min-width: 1200px) {
+  .status-message {
+    padding: 16px 20px;
+    font-size: var(--font-size-md);
+  }
+
+  .status-icon {
+    font-size: 18px;
+    margin-right: 14px;
+  }
+}
+
+/* Medium screens and tablets */
+@media screen and (max-width: 991px) {
+  .status-message {
+    padding: 12px 16px;
+  }
+}
+
+/* Mobile devices */
+@media screen and (max-width: 767px) {
+  .status-message {
+    padding: 10px 14px;
+    font-size: var(--font-size-xs);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  .status-icon {
+    font-size: 14px;
+    margin-right: 10px;
+  }
+}
+
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+  .status-message {
+    padding: 8px 12px;
+    border-radius: calc(var(--item-radius) - 2px);
+    border-left-width: 3px;
+  }
+
+  .status-icon {
+    font-size: 12px;
+    margin-right: 8px;
+  }
 }

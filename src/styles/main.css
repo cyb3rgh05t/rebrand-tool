@@ -39,6 +39,11 @@
 /* Domain Preview functionality */
 @import "selected-modules-preview.css";
 
+/* Dialogs */
+@import "domain-dialog.css";
+@import "debug-dialog.css";
+//@import "update-dialog.css";
+@import "theme-dialog.css";
 /* ==========================================================================
    ANIMATIONS
    ========================================================================== */

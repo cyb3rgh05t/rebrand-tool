@@ -1030,182 +1030,6 @@
 }
 
 /* ==========================================================================
-         STATUS MESSAGES IN SETTINGS
-         ========================================================================== */
-.settings-status-message {
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  margin-bottom: 16px;
-  position: relative;
-  background-color: var(--bg-surface-dark, #111827);
-  color: var(--text-primary, #f8fafc);
-  border-left: 4px solid transparent;
-}
-
-.settings-status-message.checking {
-  background-color: var(--info-subtle, rgba(59, 130, 246, 0.15));
-  border-left-color: var(--info, #3b82f6);
-  color: var(--info, #3b82f6);
-}
-
-.settings-status-message.update-available {
-  background-color: var(--success-subtle, rgba(16, 185, 129, 0.15));
-  border-left-color: var(--success, #10b981);
-  color: var(--success, #10b981);
-}
-
-.settings-status-message.update-not-available {
-  background-color: var(--neutral-subtle);
-  border-left-color: var(--text-secondary);
-  color: var(--text-secondary);
-}
-
-.settings-status-message.error {
-  background-color: var(--error-subtle, rgba(239, 68, 68, 0.15));
-  border-left-color: var(--error, #ef4444);
-  color: var(--error, #ef4444);
-}
-
-.settings-status-message a {
-  color: var(--primary-light);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.settings-status-message a:hover {
-  text-decoration: underline;
-}
-
-/* Toast-style status message for settings page */
-/* Enhanced Settings Status Message */
-#settingsStatusMessage {
-  position: absolute;
-  bottom: 60px; /* Adjusted to be more visually appealing */
-  left: 50%; /* Center horizontally */
-  transform: translateX(-50%); /* Ensure true center */
-  width: auto;
-  max-width: 350px; /* Increased max-width for better readability */
-  background-color: var(--bg-surface-elevated, #334155);
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 14px 20px;
-  z-index: 1100; /* Ensure it's above other elements */
-  border-left: 4px solid transparent;
-  opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease, bottom 0.3s ease;
-}
-
-/* Make status more toast-like */
-#settingsStatusMessage {
-  font-size: 14px;
-  padding-left: 14px;
-  text-align: center;
-  min-width: 200px;
-}
-
-/* Status message variants */
-#settingsStatusMessage.success {
-  background-color: var(--success-subtle, rgba(16, 185, 129, 0.15));
-  color: var(--success, #10b981);
-  border-left-color: var(--success, #10b981);
-}
-
-#settingsStatusMessage.error {
-  background-color: var(--error-subtle, rgba(239, 68, 68, 0.15));
-  color: var(--error, #ef4444);
-  border-left-color: var(--error, #ef4444);
-}
-
-#settingsStatusMessage.info {
-  background-color: var(--info-subtle, rgba(59, 130, 246, 0.15));
-  color: var(--info, #3b82f6);
-  border-left-color: var(--info, #3b82f6);
-}
-
-#settingsStatusMessage.warning {
-  background-color: var(--warning-subtle, rgba(245, 158, 11, 0.15));
-  color: var(--warning, #f59e0b);
-  border-left-color: var(--warning, #f59e0b);
-}
-
-/* Visibility and animation */
-#settingsStatusMessage.visible {
-  bottom: 80px; /* Slight lift when visible */
-  opacity: 1;
-  transform: translate(-50%, 0);
-  animation: settingsStatusSlideUp 0.3s ease-out forwards;
-}
-
-#settingsStatusMessage.hiding {
-  bottom: 40px;
-  opacity: 0;
-  animation: settingsStatusSlideDown 0.3s ease-in forwards;
-}
-
-/* Status message content styling */
-#settingsStatusMessage .status-icon {
-  margin-right: 10px;
-  font-size: 18px;
-  vertical-align: middle;
-}
-
-#settingsStatusMessage a {
-  color: var(--primary-light);
-  text-decoration: underline;
-  font-weight: 600;
-  margin-left: 8px;
-  transition: color 0.2s ease;
-}
-
-#settingsStatusMessage a:hover {
-  color: var(--accent);
-}
-
-/* Animations */
-@keyframes settingsStatusSlideUp {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 20px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-@keyframes settingsStatusSlideDown {
-  from {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-  to {
-    opacity: 0;
-    transform: translate(-50%, 20px);
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  #settingsStatusMessage {
-    max-width: 90%;
-    width: calc(100% - 40px);
-    left: 20px;
-    transform: none;
-  }
-
-  #settingsStatusMessage.visible {
-    left: 20px;
-    transform: none;
-  }
-
-  #settingsStatusMessage.hiding {
-    left: 20px;
-    transform: none;
-  }
-}
-
-/* ==========================================================================
          ANIMATIONS
          ========================================================================== */
 @keyframes settingsFadeIn {
@@ -1433,24 +1257,33 @@
   margin: 0;
 }
 
-/* Toast-style status message for settings page */
+/* ==========================================================================
+         STATUS MESSAGES IN SETTINGS
+         ========================================================================== */
+/* Settings-specific status message styling */
 #settingsStatusMessage {
   position: absolute;
-  bottom: 80px; /* Position right above the version/copyright line */
-  left: 10px;
+  bottom: 90px; /* Position above the footer */
+  left: 16px;
+  right: 16px;
   width: auto;
-  max-width: 15%;
-  background-color: var(--bg-surface);
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin: 0;
   padding: 12px 16px;
-  z-index: 1001;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: var(--bg-surface-dark);
+  color: var(--text-primary);
   border-left: 4px solid transparent;
-  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: none;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(10px);
   transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 100;
 }
 
-/* Status colors */
+/* Status message variants for settings */
 #settingsStatusMessage.success {
   background-color: var(--success-subtle);
   color: var(--success);
@@ -1475,42 +1308,102 @@
   border-left-color: var(--warning);
 }
 
-/* Animation */
-@keyframes settingsStatusSlideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+/* Status icon for settings status message */
+#settingsStatusMessage .status-icon {
+  margin-right: 10px;
 }
 
+/* Animation states for settings status message */
 #settingsStatusMessage.visible {
-  animation: settingsStatusSlideUp 0.3s ease-out forwards;
-}
-
-/* Hide animation */
-@keyframes settingsStatusSlideDown {
-  from {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(20px);
-    opacity: 0;
-  }
+  opacity: 1;
+  transform: translateY(0);
+  display: flex;
 }
 
 #settingsStatusMessage.hiding {
-  animation: settingsStatusSlideDown 0.3s ease-in forwards;
+  opacity: 0;
+  transform: translateY(10px);
 }
 
-/* Make status more toast-like */
+/* Remove any conflicting styles */
+.settings-status-message {
+  display: none; /* Hide any old status-message format */
+}
+
+/* Enhanced Settings Status Message for modal and positioning */
 #settingsStatusMessage {
-  font-size: 14px;
-  padding-left: 14px;
-  text-align: center;
-  min-width: 200px;
+  position: absolute;
+  bottom: 90px !important; /* Position above the footer */
+  left: 16px !important;
+  right: 16px !important;
+  width: auto;
+  max-width: none;
+  transform: translateY(10px) !important;
+  z-index: 100;
+}
+
+/* Fix any other styles that might be positioning the status message incorrectly */
+.settings-sidebar {
+  position: relative; /* Ensure relative positioning so absolute children work */
+}
+
+#settingsStatusMessage.visible {
+  transform: translateY(0) !important;
+}
+
+#settingsStatusMessage.hiding {
+  transform: translateY(10px) !important;
+}
+
+/* Media query for tablet and larger screens */
+@media screen and (min-width: 768px) {
+  #settingsStatusMessage {
+    width: auto;
+    left: 16px !important;
+    right: 16px !important;
+    font-size: 14px;
+    padding: 14px 18px;
+  }
+}
+
+/* Media query for smaller screens and mobile devices */
+@media screen and (max-width: 767px) {
+  #settingsStatusMessage {
+    bottom: 70px !important; /* Adjusted for mobile layout */
+    left: 10px !important;
+    right: 10px !important;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+
+  #settingsStatusMessage .status-icon {
+    margin-right: 8px;
+    font-size: 14px;
+  }
+}
+
+/* Very small screens */
+@media screen and (max-width: 480px) {
+  #settingsStatusMessage {
+    bottom: 60px !important;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+/* When sidebar is stacked in mobile view */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  .settings-container {
+    flex-direction: column;
+  }
+
+  #settingsStatusMessage {
+    /* For the stacked mobile layout where sidebar becomes horizontal */
+    position: fixed;
+    bottom: 10px !important;
+    left: 10px !important;
+    right: 10px !important;
+    max-width: calc(100% - 20px);
+    z-index: 1002; /* Above other elements */
+  }
 }

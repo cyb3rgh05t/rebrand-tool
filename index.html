@@ -604,7 +604,7 @@
           <div class="destination-section">
             <label class="destination-label">SELECT DESTINATION DOMAIN</label>
             <div class="domain-selection-container">
-              <select id="domainSelect" class="destination-select">
+              <select id="domainSelect" class="text-input">
                 <option value="">Loading domains...</option>
                 <!-- Will be populated dynamically with Virtualmin domains -->
               </select>
@@ -709,6 +709,7 @@
             <span class="close-modal">&times;</span>
           </div>
           <div class="modal-body">
+            <!-- Form fields with their existing structure -->
             <div class="form-field">
               <label class="field-label">Subdomain Name</label>
               <input
@@ -1530,7 +1531,7 @@
     </div>
 
     <!-- Debug panel modal (hidden by default) -->
-    <div id="debugModal" class="modal" style="display: none">
+    <div id="debugModal" class="modal">
       <div class="modal-content debug-modal-content">
         <div class="modal-header">
           <h3>Debug Console</h3>

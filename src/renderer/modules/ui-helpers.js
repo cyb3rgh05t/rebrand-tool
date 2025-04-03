@@ -30,12 +30,6 @@ export function showStatus(type, message, target = "main", options = {}) {
   // Create icon
   const icon = document.createElement("span");
   icon.className = "status-icon";
-  icon.textContent = {
-    success: "✓",
-    error: "✕",
-    info: "ℹ",
-    warning: "!",
-  }[type];
 
   // Create text container
   const textContainer = document.createElement("span");
@@ -47,6 +41,7 @@ export function showStatus(type, message, target = "main", options = {}) {
     const linkElement = document.createElement("a");
     linkElement.href = options.link.url;
     linkElement.textContent = options.link.text;
+    textContainer.appendChild(document.createTextNode(" "));
     textContainer.appendChild(linkElement);
   }
 
@@ -56,12 +51,12 @@ export function showStatus(type, message, target = "main", options = {}) {
 
   // For settings status, use a different animation approach
   if (target === "settings") {
-    // Reset animation by removing and re-adding the visible class
+    // Reset animation by removing classes
     statusMessage.classList.remove("visible");
     statusMessage.classList.remove("hiding");
 
     // Show the message
-    statusMessage.style.display = "block";
+    statusMessage.style.display = "flex";
 
     // Trigger animation in next frame
     requestAnimationFrame(() => {
@@ -79,7 +74,6 @@ export function showStatus(type, message, target = "main", options = {}) {
           // Hide after animation completes
           setTimeout(() => {
             statusMessage.style.display = "none";
-            statusMessage.innerHTML = ""; // Clear content
             statusMessage.classList.remove("hiding");
           }, 300); // Match animation duration
         }
@@ -87,7 +81,7 @@ export function showStatus(type, message, target = "main", options = {}) {
     }
   } else {
     // Original behavior for main status message
-    statusMessage.style.display = "block";
+    statusMessage.style.display = "flex";
 
     // Auto-hide after 5 seconds for non-error messages
     if (type !== "error") {
