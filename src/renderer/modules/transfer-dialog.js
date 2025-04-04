@@ -394,17 +394,17 @@ function addDomainLinkSection(domainInfo) {
 
   // Create content without any event handlers initially
   domainLinkSection.innerHTML = `
-      <div class="domain-link-header">Your domain is ready:</div>
-      <div class="domain-link-container">
-        <button class="domain-link-button" id="openDomainBtn">
-          <span class="domain-link-icon">🌐</span>
-          <span class="domain-link-text">Open ${fullDomain}</span>
-        </button>
-      </div>
-      <div class="domain-link-info">
-        Click the button above to open your domain in your default web browser.
-      </div>
-    `;
+        <div class="domain-link-header">Your domain is ready:</div>
+        <div class="domain-link-container">
+          <button class="domain-link-button" id="openDomainBtn">
+            <span class="domain-link-icon">🌐</span>
+            <span class="domain-link-text">Open ${fullDomain}</span>
+          </button>
+        </div>
+        <div class="domain-link-info">
+          Click the button above to open your domain in your default web browser.
+        </div>
+      `;
 
   // Here's the key fix: delay attaching the event handler to ensure the DOM is ready
   setTimeout(() => {
@@ -418,9 +418,9 @@ function addDomainLinkSection(domainInfo) {
     }
   }, 100);
 
-  // IMPROVED DISPLAY OF TRANSFERRED ITEMS
+  // IMPROVED DISPLAY OF TRANSFERRED ITEMS WITH ORGANIZED SECTIONS
   if (domainInfo.transferredItems && domainInfo.transferredItems.length > 0) {
-    // Icon mapping for modules (reusing the mapping from domain-analyzer.js)
+    // Icon mapping for modules
     const iconMap = {
       // Panels
       cockpitpanel: "rebrands",
@@ -473,69 +473,128 @@ function addDomainLinkSection(domainInfo) {
       return `<img src="${iconPath}" alt="${item.name}" class="item-icon" onerror="this.onerror=null; this.src='src/icons/module.png';">`;
     };
 
-    // Categorize items
-    const cockpitPanel = [];
-    const panelModules = [];
-    const apiModules = [];
-    const otherItems = [];
+    // Categorize items into sections to match the domain analysis structure
+    const cockpitPanel = []; // Main Panel section
+    const brandingModules = []; // Brandings section (Support and Branding)
+    const otherPanelModules = []; // Regular panel modules
+    const apiModules = []; // API modules
+    const otherItems = []; // Anything else
 
     domainInfo.transferredItems.forEach((item) => {
       const itemName = item.name ? item.name.toLowerCase() : "";
       const itemPath = item.path ? item.path.toLowerCase() : "";
 
+      // Main Panel (Cockpit Panel)
       if (
         itemName.includes("cockpitpanel") ||
-        itemPath.includes("cockpitpanel")
+        itemPath.includes("cockpitpanel") ||
+        itemPath.includes("dashboard.php")
       ) {
         cockpitPanel.push(item);
-      } else if (itemName.includes("panel") || itemPath.includes("panel/")) {
-        panelModules.push(item);
-      } else if (itemName.includes("api") || itemPath.includes("api/")) {
+      }
+      // Brandings (Support and Branding)
+      else if (
+        itemName.includes("support") ||
+        itemPath.includes("support") ||
+        itemName.includes("branding") ||
+        itemPath.includes("branding") ||
+        itemPath.includes("assets/branding.php")
+      ) {
+        brandingModules.push(item);
+      }
+      // API Modules
+      else if (itemName.includes("api") || itemPath.includes("api/")) {
         apiModules.push(item);
-      } else {
+      }
+      // Panel Modules
+      else if (itemName.includes("panel") || itemPath.includes("panel/")) {
+        otherPanelModules.push(item);
+      }
+      // Other items
+      else {
         otherItems.push(item);
       }
     });
 
-    // Create the transferred items HTML
+    // Create the transferred items HTML starting with the header
     let itemsHtml = `
-        <div class="transferred-items-header">Transferred Items:</div>
-        <div class="transferred-items-content">
-      `;
+          <div class="transferred-items-header">Transferred Items:</div>
+          <div class="transferred-items-content">
+        `;
 
     // Main Panel section
     if (cockpitPanel.length > 0) {
       itemsHtml += `
-          <div class="transfer-category">
-            <div class="category-title">PANEL:</div>
-            <div class="item-list">
-        `;
+            <div class="transfer-category">
+              <div class="category-title">MAIN PANEL:</div>
+              <div class="item-list">
+          `;
 
       cockpitPanel.forEach((item) => {
         const displayName = "Cockpit Panel";
         itemsHtml += `
-            <div class="transfer-item">
-              ${getIconHtml(item)}
-              <span class="item-name">${displayName}</span>
-            </div>
-          `;
+              <div class="transfer-item">
+                ${getIconHtml(item)}
+                <span class="item-name">${displayName}</span>
+              </div>
+            `;
       });
 
       itemsHtml += `
+              </div>
             </div>
-          </div>
-        `;
+          `;
+    }
+
+    // Brandings section
+    if (brandingModules.length > 0) {
+      itemsHtml += `
+            <div class="transfer-category">
+              <div class="category-title">BRANDINGS:</div>
+              <div class="item-list">
+          `;
+
+      // Use a set to prevent duplicates
+      const processedModules = new Set();
+
+      brandingModules.forEach((item) => {
+        // Extract the module name without suffixes
+        let displayName = item.name || item.path.split("/").pop() || "Unknown";
+        displayName = displayName.replace(/panel|api/i, "").trim();
+        // Capitalize first letter
+        displayName =
+          displayName.charAt(0).toUpperCase() + displayName.slice(1);
+
+        // Get a consistent key for deduplication
+        const moduleKey = displayName.toLowerCase();
+
+        if (!processedModules.has(moduleKey)) {
+          processedModules.add(moduleKey);
+
+          itemsHtml += `
+                <div class="transfer-item">
+                  ${getIconHtml(item)}
+                  <span class="item-name">${displayName}</span>
+                </div>
+              `;
+        }
+      });
+
+      itemsHtml += `
+              </div>
+            </div>
+          `;
     }
 
     // Panel Modules section
-    if (panelModules.length > 0) {
+    if (otherPanelModules.length > 0) {
       itemsHtml += `
-          <div class="transfer-category">
-            <div class="category-title">PANEL MODULES:</div>
-            <div class="item-list">
-        `;
+            <div class="transfer-category">
+              <div class="category-title">PANEL MODULES:</div>
+              <div class="item-list">
+          `;
 
-      panelModules.forEach((item) => {
+      otherPanelModules.forEach((item) => {
         // Clean up the display name
         let displayName = item.name || item.path.split("/").pop() || "Unknown";
         displayName = displayName.replace(/panel/i, "").trim();
@@ -544,26 +603,26 @@ function addDomainLinkSection(domainInfo) {
           displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
         itemsHtml += `
-            <div class="transfer-item">
-              ${getIconHtml(item)}
-              <span class="item-name">${displayName}</span>
-            </div>
-          `;
+              <div class="transfer-item">
+                ${getIconHtml(item)}
+                <span class="item-name">${displayName}</span>
+              </div>
+            `;
       });
 
       itemsHtml += `
+              </div>
             </div>
-          </div>
-        `;
+          `;
     }
 
     // API Modules section
     if (apiModules.length > 0) {
       itemsHtml += `
-          <div class="transfer-category">
-            <div class="category-title">API MODULES:</div>
-            <div class="item-list">
-        `;
+            <div class="transfer-category">
+              <div class="category-title">API MODULES:</div>
+              <div class="item-list">
+          `;
 
       apiModules.forEach((item) => {
         // Clean up the display name
@@ -574,42 +633,42 @@ function addDomainLinkSection(domainInfo) {
           displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
         itemsHtml += `
-            <div class="transfer-item">
-              ${getIconHtml(item)}
-              <span class="item-name">${displayName}</span>
-            </div>
-          `;
+              <div class="transfer-item">
+                ${getIconHtml(item)}
+                <span class="item-name">${displayName}</span>
+              </div>
+            `;
       });
 
       itemsHtml += `
+              </div>
             </div>
-          </div>
-        `;
+          `;
     }
 
     // Other items (if any)
     if (otherItems.length > 0) {
       itemsHtml += `
-          <div class="transfer-category">
-            <div class="category-title">OTHER:</div>
-            <div class="item-list">
-        `;
+            <div class="transfer-category">
+              <div class="category-title">OTHER:</div>
+              <div class="item-list">
+          `;
 
       otherItems.forEach((item) => {
         const displayName = item.name || item.path || "Unknown";
 
         itemsHtml += `
-            <div class="transfer-item">
-              ${getIconHtml(item)}
-              <span class="item-name">${displayName}</span>
-            </div>
-          `;
+              <div class="transfer-item">
+                ${getIconHtml(item)}
+                <span class="item-name">${displayName}</span>
+              </div>
+            `;
       });
 
       itemsHtml += `
+              </div>
             </div>
-          </div>
-        `;
+          `;
     }
 
     itemsHtml += `</div>`;
@@ -630,21 +689,21 @@ function addDomainLinkSection(domainInfo) {
     let dnsFullDomain = fullDomain;
 
     dnsSection.innerHTML = `
-        <div class="dns-created-header">DNS Records created:</div>
-        <div class="dns-records-container">
-          <div class="dns-info">DNS records for <span class="domain-highlight">${dnsFullDomain}</span> were successfully created.</div>
-          <div class="dns-records-list">
-            <div class="dns-record-item">
-              <span class="dns-record-type">A Records:</span>
-              <span class="dns-record-domain">${dnsFullDomain}</span>
-            </div>
-            <div class="dns-record-item">
-              <span class="dns-record-type">AAAA Records:</span>
-              <span class="dns-record-domain">${dnsFullDomain}</span>
+          <div class="dns-created-header">DNS Records created:</div>
+          <div class="dns-records-container">
+            <div class="dns-info">DNS records for <span class="domain-highlight">${dnsFullDomain}</span> were successfully created.</div>
+            <div class="dns-records-list">
+              <div class="dns-record-item">
+                <span class="dns-record-type">A Records:</span>
+                <span class="dns-record-domain">${dnsFullDomain}</span>
+              </div>
+              <div class="dns-record-item">
+                <span class="dns-record-type">AAAA Records:</span>
+                <span class="dns-record-domain">${dnsFullDomain}</span>
+              </div>
             </div>
           </div>
-        </div>
-      `;
+        `;
 
     domainLinkSection.appendChild(dnsSection);
   }

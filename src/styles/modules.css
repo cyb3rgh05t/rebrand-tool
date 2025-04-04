@@ -11,6 +11,111 @@
   margin-bottom: 18px;
 }
 
+/* Row container for side-by-side subsections */
+.subsections-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* Make subsections take half width each */
+.module-subsection.half-width {
+  flex: 1;
+  min-width: 0; /* Important for proper flexbox behavior with overflow */
+  margin-bottom: 0; /* Remove bottom margin as the row handles spacing */
+}
+
+/* Adjust selection items grid for half-width containers - exactly 2 items per row */
+.module-subsection.half-width .selection-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+/* Ensure proper spacing between subsection rows */
+.subsections-row + .subsections-row {
+  margin-top: 0;
+}
+
+/* Keep existing styles for module subsections */
+.selection-category .module-subsection {
+  margin-bottom: 16px;
+  padding: var(--spacing-md);
+  border-radius: var(--item-radius);
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover effect for subsections */
+.selection-category .module-subsection:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Gradient overlay */
+.selection-category .module-subsection::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.03), transparent);
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  /* Keep side-by-side on medium screens but reduce gap */
+  .subsections-row {
+    gap: 15px;
+  }
+
+  /* Still maintain 2 items per row on medium screens */
+  .module-subsection.half-width .selection-items {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  /* Stack vertically on mobile */
+  .subsections-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .module-subsection.half-width {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  /* Keep 2 items per row even on tablet */
+  .module-subsection.half-width .selection-items {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Add space between stacked subsections */
+  .module-subsection.half-width + .module-subsection.half-width {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Even more compact on small mobile */
+  .subsections-row {
+    gap: 15px;
+  }
+
+  /* On very small screens, switch to 1 item per row */
+  .module-subsection.half-width .selection-items {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ==========================================================================
      SELECTION ITEMS
      ========================================================================== */

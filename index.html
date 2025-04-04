@@ -45,6 +45,7 @@
 
         <div class="panel-content">
           <!-- Panels Section -->
+          <!-- Panels Section with side-by-side subcategories -->
           <div class="selection-category">
             <h3 class="category-title">Select Panels</h3>
 
@@ -57,124 +58,158 @@
               </button>
             </div>
 
-            <div class="selection-items">
-              <!-- Cockpit Panel -->
-              <div
-                class="selection-item"
-                data-tooltip="Main control panel for Rebrands"
-              >
-                <input
-                  type="checkbox"
-                  id="cockpitPanel"
-                  class="module-checkbox"
-                  data-type="panel"
-                  data-name="cockpitpanel"
-                  data-source="cockpitpanel"
-                />
-                <span class="module-icon panel-icon">
-                  <img
-                    src="src/icons/rebrands.png"
-                    alt="Cockpit Panel"
-                    class="icon-image"
-                  />
-                </span>
-                <label for="cockpitPanel" class="module-name"
-                  >Cockpit Panel</label
-                >
+            <!-- First row of panels: Admin + Branding -->
+            <div class="subsections-row">
+              <!-- ADMIN PANELS Subsection -->
+              <div class="module-subsection half-width">
+                <h4 class="subsection-title">ADMIN PANELS</h4>
+                <div class="selection-items">
+                  <!-- Cockpit Panel -->
+                  <div
+                    class="selection-item"
+                    data-tooltip="Main control panel for Rebrands"
+                  >
+                    <input
+                      type="checkbox"
+                      id="cockpitPanel"
+                      class="module-checkbox"
+                      data-type="panel"
+                      data-name="cockpitpanel"
+                      data-source="cockpitpanel"
+                    />
+                    <span class="module-icon panel-icon">
+                      <img
+                        src="src/icons/rebrands.png"
+                        alt="Cockpit Panel"
+                        class="icon-image"
+                      />
+                    </span>
+                    <label for="cockpitPanel" class="module-name"
+                      >Cockpit Panel</label
+                    >
+                  </div>
+                </div>
               </div>
 
-              <!-- Branding Panel -->
-              <div
-                class="selection-item"
-                data-tooltip="Customization and branding assets"
-              >
-                <input
-                  type="checkbox"
-                  id="brandingPanel"
-                  class="module-checkbox"
-                  data-type="panel"
-                  data-name="branding"
-                  data-source="branding"
-                />
-                <span class="module-icon panel-icon">
-                  <img
-                    src="src/icons/branding.png"
-                    alt="Branding Assets"
-                    class="icon-image"
-                  />
-                </span>
-                <label for="brandingPanel" class="module-name">Branding</label>
+              <!-- PANEL BRANDING Subsection -->
+              <div class="module-subsection half-width">
+                <h4 class="subsection-title">PANEL BRANDING</h4>
+                <div class="selection-items">
+                  <!-- Branding Panel -->
+                  <div
+                    class="selection-item"
+                    data-tooltip="Customization and branding assets"
+                  >
+                    <input
+                      type="checkbox"
+                      id="brandingPanel"
+                      class="module-checkbox"
+                      data-type="panel"
+                      data-name="branding"
+                      data-source="branding"
+                    />
+                    <span class="module-icon panel-icon">
+                      <img
+                        src="src/icons/branding.png"
+                        alt="Branding Assets"
+                        class="icon-image"
+                      />
+                    </span>
+                    <label for="brandingPanel" class="module-name"
+                      >Branding</label
+                    >
+                  </div>
+
+                  <!-- Support Panel -->
+                  <div
+                    class="selection-item"
+                    data-tooltip="Customer support interface"
+                  >
+                    <input
+                      type="checkbox"
+                      id="supportPanel"
+                      class="module-checkbox"
+                      data-type="panel"
+                      data-name="support"
+                      data-source="support"
+                    />
+                    <span class="module-icon panel-icon">
+                      <img
+                        src="src/icons/telegram.png"
+                        alt="Support Panel"
+                        class="icon-image"
+                      />
+                    </span>
+                    <label for="supportPanel" class="module-name"
+                      >Support</label
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Second row of panels: Proxy + Backdrops -->
+            <div class="subsections-row">
+              <!-- PROXY CONFIGURATION Subsection -->
+              <div class="module-subsection half-width">
+                <h4 class="subsection-title">PROXY CONFIGURATION</h4>
+                <div class="selection-items">
+                  <!-- MultiProxy Panel -->
+                  <div
+                    class="selection-item"
+                    data-tooltip="Multi-proxy configuration panel"
+                  >
+                    <input
+                      type="checkbox"
+                      id="multiProxyPanel"
+                      class="module-checkbox"
+                      data-type="panel"
+                      data-name="multiproxy"
+                      data-source="multiproxy"
+                    />
+                    <span class="module-icon panel-icon">
+                      <img
+                        src="src/icons/multi.png"
+                        alt="MultiProxy Panel"
+                        class="icon-image"
+                      />
+                    </span>
+                    <label for="multiProxyPanel" class="module-name"
+                      >MultiProxy</label
+                    >
+                  </div>
+                </div>
               </div>
 
-              <!-- Support Panel -->
-              <div
-                class="selection-item"
-                data-tooltip="Customer support interface"
-              >
-                <input
-                  type="checkbox"
-                  id="supportPanel"
-                  class="module-checkbox"
-                  data-type="panel"
-                  data-name="support"
-                  data-source="support"
-                />
-                <span class="module-icon panel-icon">
-                  <img
-                    src="src/icons/telegram.png"
-                    alt="Support Panel"
-                    class="icon-image"
-                  />
-                </span>
-                <label for="supportPanel" class="module-name">Support</label>
-              </div>
-
-              <!-- MultiProxy Panel -->
-              <div
-                class="selection-item"
-                data-tooltip="Multi-proxy configuration panel"
-              >
-                <input
-                  type="checkbox"
-                  id="multiProxyPanel"
-                  class="module-checkbox"
-                  data-type="panel"
-                  data-name="multiproxy"
-                  data-source="multiproxy"
-                />
-                <span class="module-icon panel-icon">
-                  <img
-                    src="src/icons/multi.png"
-                    alt="MultiProxy Panel"
-                    class="icon-image"
-                  />
-                </span>
-                <label for="multiProxyPanel" class="module-name"
-                  >MultiProxy</label
-                >
-              </div>
-
-              <!-- WebViews Panel -->
-              <div
-                class="selection-item"
-                data-tooltip="Web-based Android Views panel"
-              >
-                <input
-                  type="checkbox"
-                  id="webviewsPanel"
-                  class="module-checkbox"
-                  data-type="panel"
-                  data-name="webviews"
-                  data-source="webviews"
-                />
-                <span class="module-icon panel-icon">
-                  <img
-                    src="src/icons/android.png"
-                    alt="WebViews Panel"
-                    class="icon-image"
-                  />
-                </span>
-                <label for="webviewsPanel" class="module-name">WebViews</label>
+              <!-- BACKDROPS AND SPORTGUIDES Subsection -->
+              <div class="module-subsection half-width">
+                <h4 class="subsection-title">BACKDROPS AND SPORTGUIDES</h4>
+                <div class="selection-items">
+                  <!-- WebViews Panel -->
+                  <div
+                    class="selection-item"
+                    data-tooltip="Web-based Android Views panel"
+                  >
+                    <input
+                      type="checkbox"
+                      id="webviewsPanel"
+                      class="module-checkbox"
+                      data-type="panel"
+                      data-name="webviews"
+                      data-source="webviews"
+                    />
+                    <span class="module-icon panel-icon">
+                      <img
+                        src="src/icons/android.png"
+                        alt="WebViews Panel"
+                        class="icon-image"
+                      />
+                    </span>
+                    <label for="webviewsPanel" class="module-name"
+                      >WebViews</label
+                    >
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -621,10 +656,6 @@
                 </div>
               </div>
             </div>
-
-            <div class="selection-summary">
-              <div id="selectedCount">0 items selected</div>
-            </div>
           </div>
         </div>
       </div>
@@ -875,12 +906,12 @@
           <div class="form-actions">
             <button
               id="doneTransferBtn"
-              class="btn btn-primary"
+              class="action-button"
               style="display: none"
             >
               Done
             </button>
-            <button id="cancelTransferBtn" class="btn btn-secondary">
+            <button id="cancelTransferBtn" class="action-button secondary">
               Cancel
             </button>
           </div>
