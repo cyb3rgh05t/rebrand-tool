@@ -277,11 +277,384 @@ export function addOutputLog(output) {
   addTransferLog(output, "info", "output");
 }
 
+function attachExternalLinkHandler(button, url) {
+  if (!button) return;
+
+  button.addEventListener("click", function (e) {
+    e.preventDefault();
+    log.info(`Opening domain in external browser: ${url}`);
+
+    // Try multiple methods to ensure opening in external browser
+
+    // Method 1: Use shell.openExternal if available
+    if (
+      window.streamNetAPI &&
+      typeof window.streamNetAPI.openExternalLink === "function"
+    ) {
+      // Add flag to force external browser
+      try {
+        window.streamNetAPI.openExternalLink(url, true); // Pass true to force external browser
+        addTransferLog(`Opening domain in external browser: ${url}`, "info");
+        return;
+      } catch (err) {
+        console.error("Error using primary method:", err);
+      }
+    }
+
+    // Method 2: Try direct electron shell access if available
+    try {
+      if (
+        window.electron &&
+        window.electron.shell &&
+        typeof window.electron.shell.openExternal === "function"
+      ) {
+        window.electron.shell.openExternal(url);
+        addTransferLog(
+          `Opening domain with shell.openExternal: ${url}`,
+          "info"
+        );
+        return;
+      }
+    } catch (err) {
+      console.error("Error with direct shell access:", err);
+    }
+
+    // Method 3: Create a special URL with intent to open externally
+    try {
+      // Add a special query parameter that might be intercepted by preload script
+      const externalUrl = `${url}?openExternal=true`;
+      const newWindow = window.open(externalUrl, "_system");
+      if (newWindow) {
+        addTransferLog(`Opening domain with _system target: ${url}`, "info");
+        return;
+      }
+    } catch (err) {
+      console.error("Error with system target:", err);
+    }
+
+    // Method 4: Last resort, try to trigger native browser behavior
+    try {
+      // Create an invisible anchor with special attributes to hint external opening
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      // Add a special attribute that might be detected by preload script
+      a.setAttribute("data-external", "true");
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      addTransferLog(`Opening domain with specialized anchor: ${url}`, "info");
+    } catch (err) {
+      console.error("Error with specialized anchor:", err);
+      addTransferLog(`Failed to open domain: ${err.message}`, "error");
+    }
+  });
+}
+
+/**
+ * Add a domain link section to the transfer summary
+ * @param {Object} domainInfo Domain information
+ */
+function addDomainLinkSection(domainInfo) {
+  const transferSummary = document.getElementById("transferSummary");
+  if (!transferSummary) return;
+
+  // Create domain link section if it doesn't exist
+  let domainLinkSection = document.getElementById("transferDomainLink");
+  if (!domainLinkSection) {
+    domainLinkSection = document.createElement("div");
+    domainLinkSection.id = "transferDomainLink";
+    domainLinkSection.className = "domain-link-section";
+    transferSummary.appendChild(domainLinkSection);
+  }
+
+  // Build the domain URL - improved logic
+  let fullDomain;
+
+  // First try using the subdomain with root domain if available
+  if (domainInfo.subdomain && domainInfo.rootDomain) {
+    fullDomain = `${domainInfo.subdomain}.${domainInfo.rootDomain}`;
+  }
+  // Fall back to using the selected domain directly
+  else if (domainInfo.domain) {
+    fullDomain = domainInfo.domain;
+  }
+  // Last resort, use just the root domain
+  else if (domainInfo.rootDomain) {
+    fullDomain = domainInfo.rootDomain;
+  }
+  // If nothing else is available
+  else {
+    fullDomain = "your-domain";
+  }
+
+  const domainUrl = `http://${fullDomain}`;
+
+  // Create content without any event handlers initially
+  domainLinkSection.innerHTML = `
+      <div class="domain-link-header">Your domain is ready:</div>
+      <div class="domain-link-container">
+        <button class="domain-link-button" id="openDomainBtn">
+          <span class="domain-link-icon">🌐</span>
+          <span class="domain-link-text">Open ${fullDomain}</span>
+        </button>
+      </div>
+      <div class="domain-link-info">
+        Click the button above to open your domain in your default web browser.
+      </div>
+    `;
+
+  // Here's the key fix: delay attaching the event handler to ensure the DOM is ready
+  setTimeout(() => {
+    const openButton = document.getElementById("openDomainBtn");
+    if (openButton) {
+      openButton.onclick = function () {
+        // Use window.open first as the most reliable method
+        window.open(domainUrl, "_blank");
+        addTransferLog(`Opening domain in browser: ${domainUrl}`, "info");
+      };
+    }
+  }, 100);
+
+  // IMPROVED DISPLAY OF TRANSFERRED ITEMS
+  if (domainInfo.transferredItems && domainInfo.transferredItems.length > 0) {
+    // Icon mapping for modules (reusing the mapping from domain-analyzer.js)
+    const iconMap = {
+      // Panels
+      cockpitpanel: "rebrands",
+      branding: "branding",
+      support: "telegram",
+      multiproxy: "multi",
+      webviews: "android",
+
+      // OTT Applications
+      xciptv: "xciptv",
+      tivimate: "tivimate",
+      smarterspro: "smarters",
+      ibo: "ibosol",
+      nextv: "nextv",
+      neutro: "neutro",
+      neu: "pneu",
+      easy: "peasy",
+      sparkle: "sparkle",
+      "1stream": "1stream",
+      "9xtream": "9xtream",
+
+      // VOD Applications
+      flixvision: "flixvision",
+      smarttube: "smarttube",
+      stremio: "stremio",
+
+      // VPN Applications
+      orvpn: "orvpn",
+      ipvanish: "ipvanish",
+      pia: "pia",
+
+      // STORE Applications
+      downloader: "downloader",
+      sh9store: "sh9",
+    };
+
+    // Helper function to get icon HTML
+    const getIconHtml = (item) => {
+      // Normalize the name to remove spaces, be case insensitive, and remove "Panel" or "API" suffixes
+      let normalizedName = item.name.toLowerCase().replace(/\s+/g, "");
+      normalizedName = normalizedName.replace(/panel$|api$/i, "");
+
+      // Check for special case "cockpitpanel"
+      if (normalizedName === "cockpit") normalizedName = "cockpitpanel";
+
+      // Get icon name from map or use default
+      const iconName = iconMap[normalizedName] || "module";
+      const iconPath = `src/icons/${iconName}.png`;
+
+      return `<img src="${iconPath}" alt="${item.name}" class="item-icon" onerror="this.onerror=null; this.src='src/icons/module.png';">`;
+    };
+
+    // Categorize items
+    const cockpitPanel = [];
+    const panelModules = [];
+    const apiModules = [];
+    const otherItems = [];
+
+    domainInfo.transferredItems.forEach((item) => {
+      const itemName = item.name ? item.name.toLowerCase() : "";
+      const itemPath = item.path ? item.path.toLowerCase() : "";
+
+      if (
+        itemName.includes("cockpitpanel") ||
+        itemPath.includes("cockpitpanel")
+      ) {
+        cockpitPanel.push(item);
+      } else if (itemName.includes("panel") || itemPath.includes("panel/")) {
+        panelModules.push(item);
+      } else if (itemName.includes("api") || itemPath.includes("api/")) {
+        apiModules.push(item);
+      } else {
+        otherItems.push(item);
+      }
+    });
+
+    // Create the transferred items HTML
+    let itemsHtml = `
+        <div class="transferred-items-header">Transferred Items:</div>
+        <div class="transferred-items-content">
+      `;
+
+    // Main Panel section
+    if (cockpitPanel.length > 0) {
+      itemsHtml += `
+          <div class="transfer-category">
+            <div class="category-title">PANEL:</div>
+            <div class="item-list">
+        `;
+
+      cockpitPanel.forEach((item) => {
+        const displayName = "Cockpit Panel";
+        itemsHtml += `
+            <div class="transfer-item">
+              ${getIconHtml(item)}
+              <span class="item-name">${displayName}</span>
+            </div>
+          `;
+      });
+
+      itemsHtml += `
+            </div>
+          </div>
+        `;
+    }
+
+    // Panel Modules section
+    if (panelModules.length > 0) {
+      itemsHtml += `
+          <div class="transfer-category">
+            <div class="category-title">PANEL MODULES:</div>
+            <div class="item-list">
+        `;
+
+      panelModules.forEach((item) => {
+        // Clean up the display name
+        let displayName = item.name || item.path.split("/").pop() || "Unknown";
+        displayName = displayName.replace(/panel/i, "").trim();
+        // Capitalize first letter
+        displayName =
+          displayName.charAt(0).toUpperCase() + displayName.slice(1);
+
+        itemsHtml += `
+            <div class="transfer-item">
+              ${getIconHtml(item)}
+              <span class="item-name">${displayName}</span>
+            </div>
+          `;
+      });
+
+      itemsHtml += `
+            </div>
+          </div>
+        `;
+    }
+
+    // API Modules section
+    if (apiModules.length > 0) {
+      itemsHtml += `
+          <div class="transfer-category">
+            <div class="category-title">API MODULES:</div>
+            <div class="item-list">
+        `;
+
+      apiModules.forEach((item) => {
+        // Clean up the display name
+        let displayName = item.name || item.path.split("/").pop() || "Unknown";
+        displayName = displayName.replace(/api/i, "").trim();
+        // Capitalize first letter
+        displayName =
+          displayName.charAt(0).toUpperCase() + displayName.slice(1);
+
+        itemsHtml += `
+            <div class="transfer-item">
+              ${getIconHtml(item)}
+              <span class="item-name">${displayName}</span>
+            </div>
+          `;
+      });
+
+      itemsHtml += `
+            </div>
+          </div>
+        `;
+    }
+
+    // Other items (if any)
+    if (otherItems.length > 0) {
+      itemsHtml += `
+          <div class="transfer-category">
+            <div class="category-title">OTHER:</div>
+            <div class="item-list">
+        `;
+
+      otherItems.forEach((item) => {
+        const displayName = item.name || item.path || "Unknown";
+
+        itemsHtml += `
+            <div class="transfer-item">
+              ${getIconHtml(item)}
+              <span class="item-name">${displayName}</span>
+            </div>
+          `;
+      });
+
+      itemsHtml += `
+            </div>
+          </div>
+        `;
+    }
+
+    itemsHtml += `</div>`;
+
+    // Add items section after link
+    const itemsSection = document.createElement("div");
+    itemsSection.className = "transferred-items-section";
+    itemsSection.innerHTML = itemsHtml;
+    domainLinkSection.appendChild(itemsSection);
+  }
+
+  // If DNS records were created, add a section for them with improved styling
+  if (domainInfo.dnsCreated) {
+    const dnsSection = document.createElement("div");
+    dnsSection.className = "dns-created-section";
+
+    // Build domain name for DNS records
+    let dnsFullDomain = fullDomain;
+
+    dnsSection.innerHTML = `
+        <div class="dns-created-header">DNS Records created:</div>
+        <div class="dns-records-container">
+          <div class="dns-info">DNS records for <span class="domain-highlight">${dnsFullDomain}</span> were successfully created.</div>
+          <div class="dns-records-list">
+            <div class="dns-record-item">
+              <span class="dns-record-type">A Records:</span>
+              <span class="dns-record-domain">${dnsFullDomain}</span>
+            </div>
+            <div class="dns-record-item">
+              <span class="dns-record-type">AAAA Records:</span>
+              <span class="dns-record-domain">${dnsFullDomain}</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+    domainLinkSection.appendChild(dnsSection);
+  }
+}
+
 /**
  * Complete the transfer process and update the dialog
  * @param {Object} result Transfer result object
  */
-export function completeTransfer(result) {
+export function completeTransfer(result, domainInfo = null) {
   const transferSummary = document.getElementById("transferSummary");
   const transferSuccessCount = document.getElementById("transferSuccessCount");
   const transferErrorsList = document.getElementById("transferErrorsList");
@@ -370,6 +743,11 @@ export function completeTransfer(result) {
     );
   } else {
     addTransferLog("Transfer failed", "error");
+  }
+
+  // NEW CODE: If successful and we have domain info, show domain link section
+  if (result.success && domainInfo) {
+    addDomainLinkSection(domainInfo);
   }
 
   log.info("Transfer process completed");

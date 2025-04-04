@@ -1006,7 +1006,7 @@
   width: 80px;
   height: 80px;
   margin: 0 auto 16px;
-  background-image: url("/api/placeholder/80/80");
+  background-image: url("../icons/rebrands.png");
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;

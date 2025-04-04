@@ -297,7 +297,38 @@ export async function handleTransfer() {
       error: null,
     };
 
-    transferDialog.completeTransfer(finalResult);
+    if (finalResult.success) {
+      // Get the subdomain from the input field if DNS is enabled
+      const subdomainInput = document.getElementById("subdomainInput");
+      const subdomain =
+        isDnsEnabled && subdomainInput ? subdomainInput.value.trim() : "";
+
+      // Create domain info object with more complete information
+      const domainInfo = {
+        domain: domain, // This is the full domain from the dropdown
+        subdomain: subdomain, // This is the subdomain from the input field
+        rootDomain: window.appState?.rootDomain,
+        transferredItems: [],
+        dnsCreated: isDnsEnabled && dnsSuccess,
+      };
+
+      // Add transferred items if there was a file transfer
+      if (selectedItems && selectedItems.size > 0 && transferSuccess) {
+        // Convert selected items to an array for display
+        domainInfo.transferredItems = Array.from(selectedItems.values()).map(
+          (item) => ({
+            name: item.name || "Item",
+            path: item.path || "",
+          })
+        );
+      }
+
+      // Pass domain info to completeTransfer
+      transferDialog.completeTransfer(finalResult, domainInfo);
+    } else {
+      // Just pass the result if not successful
+      transferDialog.completeTransfer(finalResult);
+    }
 
     // Show final status message in the main UI
     if (hasDnsOnly) {

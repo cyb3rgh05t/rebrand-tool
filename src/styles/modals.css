@@ -361,3 +361,262 @@
     padding: 12px;
   }
 }
+
+/* Domain link section in transfer summary */
+.domain-link-section {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-default);
+}
+
+.domain-link-header {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-light);
+  margin-bottom: var(--spacing-sm);
+}
+
+.domain-link-container {
+  display: flex;
+  margin: var(--spacing-sm) 0;
+}
+
+.domain-link-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--border-radius-md);
+  color: white !important;
+  text-decoration: none !important;
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-default);
+  box-shadow: var(--shadow-sm);
+  border: none;
+  cursor: pointer;
+}
+
+.domain-link-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  text-decoration: none !important;
+  color: white !important;
+}
+
+.domain-link-text {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.domain-link-button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.domain-link-icon {
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.domain-link-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+/* Transferred items list */
+.transferred-items-section {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.transferred-items-header {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-xs);
+  color: var(--primary-light);
+}
+
+.transferred-items-list {
+  list-style: none;
+  padding-left: var(--spacing-sm);
+  margin: var(--spacing-xs) 0;
+}
+
+.transferred-item {
+  font-size: var(--font-size-sm);
+  padding: 3px 0;
+  color: var(--text-secondary);
+}
+
+.transferred-item.more-items {
+  font-style: italic;
+  color: var(--text-tertiary);
+}
+
+/* DNS created section */
+.dns-created-section {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.dns-created-header {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-xs);
+  color: var(--primary-light);
+}
+
+.dns-created-message {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.domain-highlight {
+  color: var(--accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dns-records-list {
+  list-style: none;
+  padding-left: var(--spacing-sm);
+  margin: var(--spacing-xs) 0;
+  font-size: var(--font-size-sm);
+}
+
+.dns-records-list li {
+  color: var(--text-secondary);
+  padding: 3px 0;
+}
+
+.dns-records-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+.transferred-items-header {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-light);
+  margin-bottom: var(--spacing-sm);
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--spacing-xs);
+}
+
+.transferred-items-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.transfer-category {
+  margin-bottom: var(--spacing-sm);
+}
+
+.category-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--accent);
+  margin-bottom: var(--spacing-xs);
+  text-transform: uppercase;
+}
+
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding-left: var(--spacing-sm);
+}
+
+.transfer-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+}
+
+.item-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.item-name {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+}
+
+/* Improved styling for DNS records */
+.dns-created-header {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-light);
+  margin-bottom: var(--spacing-sm);
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--spacing-xs);
+}
+
+.dns-records-container {
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.dns-info {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.domain-highlight {
+  color: var(--accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dns-records-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding-left: var(--spacing-sm);
+}
+
+.dns-record-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xs) 0;
+}
+
+.dns-record-type {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  min-width: 120px;
+}
+
+.dns-record-domain {
+  font-size: var(--font-size-md);
+  color: var(--text-tertiary);
+}
+
+/* Styling adjustments for transfer summary */
+.transfer-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.domain-link-section,
+.transferred-items-section,
+.dns-created-section {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-subtle);
+}

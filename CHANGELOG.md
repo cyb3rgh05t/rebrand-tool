@@ -2,6 +2,19 @@
 
 All notable changes to Rebrands Panel Tool will be documented in this file.
 
+## [2.5.1] - 2025-04-04
+
+### Added
+
+- Cockpit Base Panel 2.5.1
+- XCIPTV Module 2.5.1
+- Smarters Pro Module 2.5.1
+- IBO Solutions Module 2.5.1
+- ORVPN Module 2.5.1
+- TiviMate Module 2.5.1
+- Sparkle TV Module 2.5.1
+- Neutro Player Module 2.5.1
+
 ## [2.5.0] - 2025-04-02
 
 ### Added
