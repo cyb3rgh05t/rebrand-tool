@@ -52,6 +52,11 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
     shell.openExternal(url);
   },
 
+  // Dedicated method for opening domain URLs in external browser
+  openDomainUrl: (url) => {
+    return ipcRenderer.invoke("open-domain-url", url);
+  },
+
   // New method: Show an item in its folder with proper highlighting
   showItemInFolder: (filePath) => {
     return ipcRenderer.invoke("show-item-in-folder", filePath);

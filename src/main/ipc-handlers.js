@@ -647,6 +647,39 @@ function registerIpcHandlers() {
     }
   });
 
+  // Special handler for opening domain URLs
+  ipcMain.handle("open-domain-url", async (event, url) => {
+    logger.debug(`IPC: open-domain-url called for: ${url}`);
+    try {
+      if (!url) {
+        throw new Error("No URL provided");
+      }
+
+      // Ensure URL has proper protocol
+      let formattedUrl = url;
+      if (
+        !formattedUrl.startsWith("http://") &&
+        !formattedUrl.startsWith("https://")
+      ) {
+        formattedUrl = "http://" + formattedUrl;
+        logger.debug(`Added http:// prefix to URL: ${formattedUrl}`);
+      }
+
+      logger.info(`Opening URL in external browser: ${formattedUrl}`);
+
+      // Using Electron's shell.openExternal with force external option
+      await shell.openExternal(formattedUrl, {
+        activate: true,
+        workingDirectory: process.cwd(),
+      });
+
+      return { success: true, message: `URL opened: ${formattedUrl}` };
+    } catch (error) {
+      logger.error(`Error opening URL: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
   // Add these handlers
   ipcMain.handle("open-github-repo", async (event) => {
     logger.debug("IPC: open-github-repo called");

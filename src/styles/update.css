@@ -1,3 +1,7 @@
+/**
+ * Styles for the update dialog
+ */
+
 .update-dialog-backdrop {
   position: fixed;
   top: 0;
@@ -19,20 +23,20 @@
 }
 
 .update-dialog {
-  background-color: var(--bg-surface, #2d2d2d);
-  color: var(--text-primary, #ffffff);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
   width: 550px;
   max-width: 90vw;
   max-height: 85vh;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transform: translateY(20px);
   opacity: 0;
   transition: transform 0.3s ease, opacity 0.3s ease;
-  border: 1px solid var(--border-color, #444);
+  border: 1px solid var(--border-default);
 }
 
 .update-dialog-backdrop.visible .update-dialog {
@@ -44,12 +48,12 @@
   display: flex;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid var(--border-subtle, #333);
+  border-bottom: 1px solid var(--border-subtle);
   position: relative;
 }
 
 .update-dialog-header .icon {
-  color: var(--primary, #3498db);
+  color: var(--primary);
   margin-right: 12px;
 }
 
@@ -58,7 +62,7 @@
   margin: 0;
   font-size: 1.3rem;
   font-weight: 600;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
 }
 
 .update-dialog-close {
@@ -69,14 +73,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary, #999);
+  color: var(--text-secondary);
   border-radius: 50%;
   transition: background-color 0.2s ease, color 0.2s ease;
+  width: 32px;
+  height: 32px;
 }
 
 .update-dialog-close:hover {
-  background-color: var(--bg-hover, #444);
-  color: var(--text-primary, #fff);
+  background-color: var(--bg-surface-hover);
+  color: var(--text-primary);
+  transform: rotate(90deg);
 }
 
 .update-dialog-content {
@@ -92,15 +99,15 @@
 
 .update-dialog-message .version {
   font-weight: 600;
-  color: var(--primary, #3498db);
+  color: var(--primary);
 }
 
 .update-dialog-info {
-  background-color: var(--bg-surface-variant, #333);
-  border-radius: 8px;
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-md);
   padding: 15px;
   margin-bottom: 20px;
-  border: 1px solid var(--border-subtle, #333);
+  border: 1px solid var(--border-subtle);
 }
 
 .update-dialog-version-row {
@@ -114,7 +121,7 @@
 }
 
 .update-dialog-version-label {
-  color: var(--text-secondary, #aaa);
+  color: var(--text-secondary);
 }
 
 .update-dialog-version-value {
@@ -122,7 +129,7 @@
 }
 
 .update-dialog-version-value.latest {
-  color: var(--success, #4caf50);
+  color: var(--success);
   font-weight: 600;
 }
 
@@ -134,14 +141,14 @@
 }
 
 .update-dialog-notes {
-  background-color: var(--bg-surface-variant, #333);
-  border-radius: 8px;
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-md);
   padding: 15px;
   font-size: 0.95rem;
   max-height: 200px;
   overflow-y: auto;
   margin-bottom: 20px;
-  border: 1px solid var(--border-subtle, #333);
+  border: 1px solid var(--border-subtle);
 }
 
 .update-dialog-notes p {
@@ -154,17 +161,18 @@
 }
 
 .update-dialog-notes a {
-  color: var(--primary, #3498db);
+  color: var(--primary);
   text-decoration: none;
 }
 
 .update-dialog-notes a:hover {
   text-decoration: underline;
+  color: var(--accent);
 }
 
 .update-dialog-notes .release-version {
   font-weight: 600;
-  color: var(--text-accent, #3498db);
+  color: var(--primary-light);
   font-size: 1.05em;
   margin-bottom: 12px;
 }
@@ -180,12 +188,40 @@
   align-items: center;
   justify-content: center;
   padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-medium);
   font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-default);
   border: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Add shimmer effect similar to the main buttons */
+.update-dialog-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.update-dialog-button:hover::before {
+  left: 100%;
+}
+
+.update-dialog-button:disabled::before {
+  display: none;
 }
 
 .update-dialog-button .icon {
@@ -193,28 +229,44 @@
 }
 
 .update-dialog-button-secondary {
-  background-color: var(--bg-button-secondary, #444);
-  color: var(--text-primary, #fff);
-  border: 1px solid var(--border-color, #555);
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
 }
 
 .update-dialog-button-secondary:hover {
-  background-color: var(--bg-button-secondary-hover, #555);
+  background-color: var(--bg-surface-highlight);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.update-dialog-button-secondary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
 .update-dialog-button-primary {
-  background-color: var(--primary, #3498db);
-  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--text-on-primary);
+  font-weight: var(--font-weight-semibold);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .update-dialog-button-primary:hover {
-  background-color: var(--primary-hover, #2980b9);
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.update-dialog-button-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
 .update-dialog-checkbox {
   display: flex;
   align-items: center;
-  color: var(--text-secondary, #aaa);
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -226,4 +278,99 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+}
+
+/* Theme-specific overrides */
+.theme-light .update-dialog-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.theme-light .update-dialog {
+  background-color: var(--bg-surface);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.theme-light .update-dialog-button-secondary {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .update-dialog-button-secondary:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .update-dialog-notes,
+.theme-light .update-dialog-info {
+  background-color: white;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Nord Theme */
+.theme-nord .update-dialog-backdrop {
+  background-color: rgba(46, 52, 64, 0.8);
+}
+
+.theme-nord .update-dialog-header {
+  background: linear-gradient(90deg, #3b4252, #434c5e);
+}
+
+.theme-nord .update-dialog-button-primary {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.theme-nord .update-dialog-button-primary:hover {
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+}
+
+/* Dracula Theme */
+.theme-dracula .update-dialog-backdrop {
+  background-color: rgba(40, 42, 54, 0.8);
+}
+
+.theme-dracula .update-dialog-header {
+  background: linear-gradient(90deg, #282a36, #44475a);
+}
+
+.theme-dracula .update-dialog-button-primary {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.theme-dracula .update-dialog-button-primary:hover {
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+}
+
+/* One Dark Theme */
+.theme-onedark .update-dialog-backdrop {
+  background-color: rgba(40, 44, 52, 0.8);
+}
+
+.theme-onedark .update-dialog-header {
+  background: linear-gradient(90deg, #282c34, #21252b);
+}
+
+/* Hot Pink Theme */
+.theme-hotpink .update-dialog-backdrop {
+  background-color: rgba(32, 76, 128, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.theme-hotpink .update-dialog-content::before {
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .update-dialog {
+    width: 95%;
+    max-width: 95vw;
+  }
+
+  .update-dialog-actions {
+    flex-direction: column-reverse;
+  }
+
+  .update-dialog-button {
+    width: 100%;
+  }
 }

@@ -23,19 +23,19 @@
 }
 
 .download-progress-dialog {
-  background-color: var(--bg-surface, #2d2d2d);
-  color: var(--text-primary, #ffffff);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
   width: 450px;
   max-width: 90vw;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transform: translateY(20px);
   opacity: 0;
   transition: transform 0.3s ease, opacity 0.3s ease;
-  border: 1px solid var(--border-color, #444);
+  border: 1px solid var(--border-default);
 }
 
 .download-progress-backdrop.visible .download-progress-dialog {
@@ -47,11 +47,11 @@
   display: flex;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--border-subtle, #333);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .download-progress-header .icon {
-  color: var(--primary, #3498db);
+  color: var(--primary);
   margin-right: 12px;
 }
 
@@ -60,7 +60,7 @@
   margin: 0;
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
 }
 
 .download-progress-content {
@@ -79,25 +79,25 @@
 
 .download-progress-info {
   margin-top: 5px;
-  color: var(--text-secondary, #aaa);
+  color: var(--text-secondary);
   font-size: 0.9rem;
   display: flex;
   justify-content: space-between;
 }
 
 .download-progress-bar-container {
-  background-color: var(--bg-surface-variant, #333);
+  background-color: var(--bg-surface-variant);
   height: 10px;
   border-radius: 5px;
   overflow: hidden;
   margin: 15px 0;
-  border: 1px solid var(--border-subtle, #444);
+  border: 1px solid var(--border-subtle);
 }
 
 .download-progress-bar {
   height: 100%;
   width: 0;
-  background-color: var(--primary, #3498db);
+  background-color: var(--primary);
   transition: width 0.3s ease;
 }
 
@@ -113,31 +113,77 @@
   align-items: center;
   justify-content: center;
   padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-medium);
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-default);
   border: none;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
 }
 
+/* Add shimmer effect similar to the main buttons */
+.download-progress-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.download-progress-button:hover::before {
+  left: 100%;
+}
+
+.download-progress-button:disabled::before {
+  display: none;
+}
+
+/* Secondary button */
 .download-progress-button.secondary {
-  background-color: var(--bg-button-secondary, #444);
-  color: var(--text-primary, #fff);
-  border: 1px solid var(--border-color, #555);
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
 }
 
 .download-progress-button.secondary:hover {
-  background-color: var(--bg-button-secondary-hover, #555);
+  background-color: var(--bg-surface-highlight);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
+.download-progress-button.secondary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Primary button */
 .download-progress-button.primary {
-  background-color: var(--primary, #3498db);
-  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--text-on-primary);
+  font-weight: var(--font-weight-semibold);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .download-progress-button.primary:hover {
-  background-color: var(--primary-hover, #2980b9);
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.download-progress-button.primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
 .download-progress-button .icon {
@@ -146,5 +192,60 @@
 
 /* When download is complete */
 .download-progress-complete .download-progress-bar {
-  background-color: var(--success, #4caf50);
+  background-color: var(--success);
+}
+
+/* Theme-specific overrides */
+.theme-light .download-progress-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.theme-light .download-progress-dialog {
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-subtle);
+}
+
+.theme-light .download-progress-button.secondary {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .download-progress-button.secondary:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Nord Theme */
+.theme-nord .download-progress-backdrop {
+  background-color: rgba(46, 52, 64, 0.8);
+}
+
+.theme-nord .download-progress-button.primary {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.theme-nord .download-progress-button.primary:hover {
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+}
+
+/* Dracula Theme */
+.theme-dracula .download-progress-backdrop {
+  background-color: rgba(40, 42, 54, 0.8);
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .download-progress-dialog {
+    width: 90%;
+    max-width: 90vw;
+  }
+
+  .download-progress-actions {
+    flex-direction: column-reverse;
+  }
+
+  .download-progress-button {
+    width: 100%;
+  }
 }

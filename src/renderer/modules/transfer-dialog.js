@@ -406,15 +406,63 @@ function addDomainLinkSection(domainInfo) {
         </div>
       `;
 
-  // Here's the key fix: delay attaching the event handler to ensure the DOM is ready
   setTimeout(() => {
     const openButton = document.getElementById("openDomainBtn");
     if (openButton) {
-      openButton.onclick = function () {
-        // Use window.open first as the most reliable method
-        window.open(domainUrl, "_blank");
-        addTransferLog(`Opening domain in browser: ${domainUrl}`, "info");
-      };
+      // Replace the button to clear any existing listeners
+      const newButton = openButton.cloneNode(true);
+      openButton.parentNode.replaceChild(newButton, openButton);
+
+      // Add the click handler to the new button
+      newButton.addEventListener("click", async function (e) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent event bubbling
+
+        try {
+          log.info(`Attempting to open domain: ${domainUrl}`);
+          addTransferLog(`Opening domain in browser: ${domainUrl}`, "info");
+
+          // Use our dedicated domain URL handler
+          if (window.streamNetAPI && window.streamNetAPI.openDomainUrl) {
+            const result = await window.streamNetAPI.openDomainUrl(domainUrl);
+
+            if (result && result.success) {
+              log.info(`Successfully opened domain: ${domainUrl}`);
+            } else if (result && result.error) {
+              log.error(`Error from openDomainUrl: ${result.error}`);
+              // Try fallback method
+              window.streamNetAPI.openExternalLink(domainUrl);
+            }
+          }
+          // First fallback - use regular openExternalLink
+          else if (
+            window.streamNetAPI &&
+            window.streamNetAPI.openExternalLink
+          ) {
+            log.debug("Using openExternalLink as fallback");
+            window.streamNetAPI.openExternalLink(domainUrl);
+          }
+          // Last resort fallback
+          else {
+            log.warn("API methods not available, using window.open fallback");
+            window.open(domainUrl, "_system");
+          }
+        } catch (error) {
+          log.error(`Error handling domain link click: ${error.message}`);
+          // Last resort fallback
+          try {
+            window.open(domainUrl, "_blank");
+          } catch (e) {
+            log.error(`Final fallback also failed: ${e.message}`);
+          }
+        }
+      });
+
+      log.debug(
+        `Attached click handler to domain button for URL: ${domainUrl}`
+      );
+    } else {
+      log.error("Open domain button not found in DOM");
     }
   }, 100);
 
