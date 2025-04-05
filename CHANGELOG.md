@@ -2,6 +2,35 @@
 
 All notable changes to Rebrands Panel Tool will be documented in this file.
 
+## [2.5.2] - 2025-04-05
+
+### Added
+
+- Cockpit Base Panel 2.5.1
+- XCIPTV Module 2.5.1
+- Smarters Pro Module 2.5.1
+- IBO Solutions Module 2.5.1
+- ORVPN Module 2.5.1
+- TiviMate Module 2.5.1
+- Sparkle TV Module 2.5.1
+- Neutro Player Module 2.5.1
+- Module version display: Added version numbers as subtitles to all modules and panels in selection panel and transfer dialog
+- Enhanced CSS for version display that maintains text ellipsis behavior for long module names
+- Dynamic version updates through MutationObserver for dynamically loaded content
+
+### Changed
+
+- Improved module selection UI with more compact version display
+- Enhanced transfer dialog to show version information for transferred modules
+- Updated selected modules preview to include version information
+- Refactored module naming system for better maintenance
+
+### Fixed
+
+- Fixed text overflow issues in module selection panels
+- Addressed padding inconsistencies in various module displays
+- Corrected layout issues in transfer dialog item display
+
 ## [2.5.1] - 2025-04-04
 
 ### Added

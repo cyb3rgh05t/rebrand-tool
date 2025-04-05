@@ -439,7 +439,7 @@
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-sm);
   border-radius: var(--border-radius-md);
-  background-color: var(--bg-surface-dark);
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   transition: background-color var(--transition-default);
 }
@@ -455,29 +455,28 @@
 
 /* Progress bar container */
 .progress-bar-container {
-  width: 100%;
+  background-color: var(--bg-surface-variant, #333);
   height: 10px;
-  background-color: var(--bg-surface-dark);
-  border-radius: var(--border-radius-full);
+  border-radius: 5px;
   overflow: hidden;
-  box-shadow: var(--shadow-inner);
-  border: 1px solid var(--border-subtle);
+  margin: 15px 0;
+  border: 1px solid var(--border-subtle, #444);
 }
 
 /* Progress bar itself */
 .progress-bar {
   height: 100%;
   width: 0;
-  background-color: var(--primary);
-  transition: width 0.3s ease, background-color 0.3s ease;
+  background-color: var(--primary, #3498db);
+  transition: width 0.3s ease;
 }
 
 .progress-bar.progress-success {
-  background-color: var(--success);
+  background-color: var(--primary);
 }
 
 .progress-bar.progress-warning {
-  background-color: var(--warning);
+  background-color: var(--primary);
 }
 
 .progress-bar.progress-error {
@@ -485,7 +484,7 @@
 }
 
 .progress-bar.progress-info {
-  background-color: var(--info);
+  background-color: var(--primary);
 }
 
 /* ==========================================================================
@@ -629,7 +628,9 @@
   padding: 24px;
 }
 
-.close-modal {
+.dialog-close,
+.close-modal,
+.update-dialog-close {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -644,9 +645,12 @@
   cursor: pointer;
 }
 
-.close-modal:hover {
+.dialog-close:hover,
+.close-modal:hover,
+.update-dialog-close:hover {
   background-color: var(--bg-surface-highlight, rgba(255, 255, 255, 0.1));
   color: var(--text-primary, #f8fafc);
+  transform: rotate(90deg);
 }
 
 /* Modal animations */

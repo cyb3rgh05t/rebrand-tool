@@ -46,10 +46,20 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
   // Utility functions
   generatePassword: (length) => ipcRenderer.invoke("generate-password", length),
 
-  // External links
+  // External links and file operations
   openExternalLink: (url) => {
     // Use Electron's shell module to safely open external URLs
     shell.openExternal(url);
+  },
+
+  // New method: Show an item in its folder with proper highlighting
+  showItemInFolder: (filePath) => {
+    return ipcRenderer.invoke("show-item-in-folder", filePath);
+  },
+
+  // New method: Open a path (file or folder) directly
+  openPath: (path) => {
+    return ipcRenderer.invoke("open-path", path);
   },
 
   // Add these to the streamNetAPI object in contextBridge.exposeInMainWorld

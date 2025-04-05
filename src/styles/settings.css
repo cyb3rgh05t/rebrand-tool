@@ -1272,11 +1272,6 @@
   color: var(--text-tertiary, #94a3b8);
 }
 
-/* Settings form field spacing */
-.settings-form-field {
-  margin-bottom: 16px;
-}
-
 /* Settings card content */
 .settings-card {
   padding: 24px;

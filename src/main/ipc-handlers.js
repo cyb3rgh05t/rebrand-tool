@@ -579,6 +579,74 @@ function registerIpcHandlers() {
     }
   });
 
+  // Add this to src/main/ipc-handlers.js in the registerIpcHandlers function
+
+  // Shell operations for opening files/folders
+  ipcMain.handle("show-item-in-folder", async (event, filePath) => {
+    logger.debug(`IPC: show-item-in-folder called for path: ${filePath}`);
+    try {
+      if (!filePath) {
+        throw new Error("No file path provided");
+      }
+
+      // Normalize path for the platform
+      const normalizedPath = path.normalize(filePath);
+      logger.debug(`Showing item in folder: ${normalizedPath}`);
+
+      // Verify the file exists before attempting to show it
+      if (!fs.existsSync(normalizedPath)) {
+        logger.warn(`File does not exist: ${normalizedPath}`);
+        // If file doesn't exist, try to open the directory instead
+        const dirPath = path.dirname(normalizedPath);
+        if (fs.existsSync(dirPath)) {
+          logger.debug(`Opening directory instead: ${dirPath}`);
+          shell.openPath(dirPath);
+          return { success: true, message: "Opened parent directory" };
+        } else {
+          throw new Error(
+            `Neither file nor directory exists: ${normalizedPath}`
+          );
+        }
+      }
+
+      // Show the item in folder
+      shell.showItemInFolder(normalizedPath);
+      return { success: true };
+    } catch (error) {
+      logger.error(`Error showing item in folder: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("open-path", async (event, pathToOpen) => {
+    logger.debug(`IPC: open-path called for: ${pathToOpen}`);
+    try {
+      if (!pathToOpen) {
+        throw new Error("No path provided");
+      }
+
+      // Normalize the path for the platform
+      const normalizedPath = path.normalize(pathToOpen);
+
+      // Check if it exists
+      if (!fs.existsSync(normalizedPath)) {
+        throw new Error(`Path does not exist: ${normalizedPath}`);
+      }
+
+      // Open the path using shell.openPath
+      const result = await shell.openPath(normalizedPath);
+
+      if (result !== "") {
+        throw new Error(`Failed to open path: ${result}`);
+      }
+
+      return { success: true };
+    } catch (error) {
+      logger.error(`Error opening path: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
   // Add these handlers
   ipcMain.handle("open-github-repo", async (event) => {
     logger.debug("IPC: open-github-repo called");

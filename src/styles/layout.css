@@ -409,6 +409,18 @@
   height: var(--form-control-height);
 }
 
+#domainSelect {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+}
+
+#domainSelect:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
 /* DNS form */
 .dns-header {
   display: flex;

@@ -881,32 +881,155 @@ function completeDownloadProgress(filePath) {
       `;
     }
 
-    // Show the open folder button
-    if (openFolderButton) {
+    // Store the file path as a data attribute on the button
+    // This avoids closure issues and allows us to debug the exact path later
+    if (openFolderButton && filePath) {
+      // Show the button
       openFolderButton.style.display = "flex";
 
-      // Set up click handler to open the folder containing the file
-      openFolderButton.onclick = () => {
-        try {
-          if (window.streamNetAPI && window.streamNetAPI.openExternalLink) {
-            // Extract directory from filePath - need to handle both Windows and Unix paths
-            const lastSlashIndex = Math.max(
-              filePath.lastIndexOf("\\"),
-              filePath.lastIndexOf("/")
-            );
-            const dirPath = filePath.substring(0, lastSlashIndex);
+      // Store the file path for logging
+      openFolderButton.setAttribute("data-filepath", filePath);
 
-            // Open the directory
-            window.streamNetAPI.openExternalLink(`file://${dirPath}`);
-          }
-          hideDownloadProgressDialog();
-        } catch (error) {
-          log.error(`Error opening folder: ${error.message}`);
-        }
-      };
+      // Remove any existing event listeners to avoid duplicates
+      openFolderButton.onclick = null;
+
+      // Add a direct click handler
+      openFolderButton.addEventListener("click", handleOpenFolderClick);
     }
   } catch (error) {
     log.error(`Error handling download completion: ${error.message}`);
+  }
+}
+
+/**
+ * Dedicated handler function for opening the folder
+ * This is separate to make debugging easier
+ */
+function handleOpenFolderClick(e) {
+  try {
+    // Get the file path from the data attribute
+    const filePath = e.currentTarget.getAttribute("data-filepath");
+    log.info(`Open folder clicked for path: ${filePath}`);
+
+    if (!filePath) {
+      log.error("No file path found on button");
+      alert("Could not locate the downloaded file.");
+      return;
+    }
+
+    // Try all available methods to open the folder
+    openDownloadFolder(filePath);
+  } catch (error) {
+    log.error(`Error in open folder click handler: ${error.message}`);
+    alert(`Failed to open folder: ${error.message}`);
+  }
+}
+
+/**
+ * Try multiple approaches to open the folder containing the downloaded file
+ * @param {string} filePath The path to the downloaded file
+ */
+async function openDownloadFolder(filePath) {
+  if (!filePath) {
+    log.error("No file path provided to openDownloadFolder");
+    return;
+  }
+
+  // Log the exact file path for debugging
+  log.debug(`Attempting to open folder for: ${filePath}`);
+
+  // Method 1: Use our IPC method (most reliable)
+  if (window.streamNetAPI && window.streamNetAPI.showItemInFolder) {
+    try {
+      log.debug("Trying showItemInFolder method");
+      const result = await window.streamNetAPI.showItemInFolder(filePath);
+
+      if (result && result.success) {
+        log.info("Successfully opened folder with showItemInFolder");
+        return;
+      } else if (result && result.error) {
+        log.warn(`showItemInFolder failed: ${result.error}`);
+      }
+    } catch (err) {
+      log.warn(`Error using showItemInFolder: ${err.message}`);
+    }
+  }
+
+  // Method 2: Try to open the directory directly
+  if (window.streamNetAPI && window.streamNetAPI.openPath) {
+    try {
+      log.debug("Trying openPath method for directory");
+
+      // Extract the directory path
+      const dirPath = filePath.substring(
+        0,
+        Math.max(filePath.lastIndexOf("\\"), filePath.lastIndexOf("/"))
+      );
+
+      log.debug(`Opening directory: ${dirPath}`);
+      const result = await window.streamNetAPI.openPath(dirPath);
+
+      if (result && result.success) {
+        log.info("Successfully opened folder with openPath");
+        return;
+      } else if (result && result.error) {
+        log.warn(`openPath failed: ${result.error}`);
+      }
+    } catch (err) {
+      log.warn(`Error using openPath: ${err.message}`);
+    }
+  }
+
+  // Method 3: Fall back to opening an external link with file:// protocol
+  if (window.streamNetAPI && window.streamNetAPI.openExternalLink) {
+    try {
+      log.debug("Falling back to openExternalLink method");
+
+      // Extract the directory path
+      const dirPath = filePath.substring(
+        0,
+        Math.max(filePath.lastIndexOf("\\"), filePath.lastIndexOf("/"))
+      );
+
+      // Format the path according to the file:// URL protocol
+      let formattedPath = dirPath.replace(/\\/g, "/");
+      if (!formattedPath.startsWith("file:///")) {
+        // Ensure the path has the correct format
+        formattedPath = `file:///${formattedPath}`;
+      }
+
+      log.debug(`Opening URL: ${formattedPath}`);
+      window.streamNetAPI.openExternalLink(formattedPath);
+      log.info("Opened folder with openExternalLink");
+      return;
+    } catch (err) {
+      log.warn(`Error using openExternalLink: ${err.message}`);
+    }
+  }
+
+  // Method 4: Last resort, use window.open
+  try {
+    log.debug("Attempting last resort with window.open");
+
+    // Extract directory path
+    const dirPath = filePath.substring(
+      0,
+      Math.max(filePath.lastIndexOf("\\"), filePath.lastIndexOf("/"))
+    );
+
+    // Format for file:// protocol
+    let formattedPath = dirPath.replace(/\\/g, "/");
+    if (!formattedPath.startsWith("file:///")) {
+      formattedPath = `file:///${formattedPath}`;
+    }
+
+    window.open(formattedPath);
+    log.info("Opened folder with window.open");
+  } catch (err) {
+    log.error(`All folder opening methods failed: ${err.message}`);
+    alert(
+      "Could not open the download folder. Please locate the file manually."
+    );
   }
 }
 

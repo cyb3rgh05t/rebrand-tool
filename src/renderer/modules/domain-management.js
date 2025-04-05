@@ -17,7 +17,9 @@ import {
 } from "./domain-logging.js";
 
 /**
- * Load domain folders from the server
+ * Modified loadDomainFolders function with domain filtering
+ *
+ * This update adds filtering for specific domains and domains ending with .bak
  */
 export async function loadDomainFolders() {
   const domainSelect = document.getElementById("domainSelect");
@@ -29,6 +31,31 @@ export async function loadDomainFolders() {
     domainSelect.disabled = true;
 
     log.info("Loading domain folders");
+
+    // Define domains to exclude - list of specific domains to filter out
+    const excludedDomains = [
+      "epg.streamnet.live",
+      "app.streamnet.live",
+      "ibo39.streamnet.live",
+      "webviews.streamnet.live",
+      "webview.streamnet.live",
+      "php.streamnet.live",
+    ];
+
+    // Function to check if a domain should be excluded
+    const shouldExcludeDomain = (domain) => {
+      // Check for exact matches in the exclusion list
+      if (excludedDomains.includes(domain)) {
+        return true;
+      }
+
+      // Check for domains ending with .bak
+      if (domain.endsWith(".bak")) {
+        return true;
+      }
+
+      return false;
+    };
 
     // Fetch domains from Virtualmin
     if (window.streamNetAPI && window.streamNetAPI.listVirtualminDomains) {
@@ -48,9 +75,16 @@ export async function loadDomainFolders() {
 
       // Add domains to the select
       if (Array.isArray(response.domains) && response.domains.length > 0) {
-        log.debug(`Found ${response.domains.length} domains`);
+        // Filter out excluded domains before processing
+        const filteredDomains = response.domains.filter(
+          (domain) => !shouldExcludeDomain(domain.name)
+        );
 
-        response.domains.forEach((domain) => {
+        log.debug(
+          `Found ${response.domains.length} domains, ${filteredDomains.length} after filtering`
+        );
+
+        filteredDomains.forEach((domain) => {
           const option = document.createElement("option");
           option.value = domain.name;
           option.textContent = domain.name;
@@ -59,7 +93,7 @@ export async function loadDomainFolders() {
           domainSelect.appendChild(option);
         });
 
-        showStatus("info", `Loaded ${response.domains.length} domains`);
+        showStatus("info", `Loaded ${filteredDomains.length} domains`);
 
         // Set domains loaded flag to avoid redundant calls
         window.appState.domainsLoaded = true;
@@ -95,9 +129,16 @@ export async function loadDomainFolders() {
 
         // Check if domains is an array
         if (Array.isArray(domains)) {
-          log.debug(`Found ${domains.length} domain folders`);
+          // Filter out excluded domains
+          const filteredDomains = domains.filter(
+            (domain) => !shouldExcludeDomain(domain.name)
+          );
 
-          domains.forEach((domain) => {
+          log.debug(
+            `Found ${domains.length} domain folders, ${filteredDomains.length} after filtering`
+          );
+
+          filteredDomains.forEach((domain) => {
             const option = document.createElement("option");
             option.value = domain.name;
             option.textContent = domain.name;

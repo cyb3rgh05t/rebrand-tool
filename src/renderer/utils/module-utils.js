@@ -14,7 +14,7 @@ export function getModuleDisplayName(moduleName) {
     xciptv: "XCIPTV",
     tivimate: "TiviMate",
     smarterspro: "Smarters Pro",
-    ibo: "IBO",
+    ibo: "IBO Solutions",
     neutro: "Neutro",
     neu: "Purple Neu",
     easy: "Purple Easy",

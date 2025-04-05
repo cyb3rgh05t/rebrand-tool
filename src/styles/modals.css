@@ -60,6 +60,30 @@
   line-height: 1.5;
 }
 
+#phpVersionSelect {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+}
+
+#phpVersionSelect:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+#phpModeSelect {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+}
+
+#phpModeSelect:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
 /* Process log console */
 #domainCreationLog.console-log-box {
   height: 180px;
@@ -120,7 +144,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background-color: var(--bg-surface-dark);
+  background-color: var(--bg-secondary);
   border-radius: var(--item-radius);
   border: 1px solid var(--border-subtle);
   flex-wrap: wrap;
@@ -253,7 +277,7 @@
 /* Transfer log styling */
 #transferLog.console-log-box {
   position: relative;
-  background-color: var(--bg-surface-dark);
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--border-radius-md);
   color: var(--text-primary);
@@ -270,7 +294,7 @@
 .transfer-summary {
   margin-top: var(--spacing-md);
   padding: var(--spacing-sm);
-  background-color: var(--bg-surface-dark);
+  background-color: var(--bg-secondary);
   border-radius: var(--border-radius-md);
   border: 1px solid var(--border-subtle);
 }
@@ -366,7 +390,7 @@
 .domain-link-section {
   margin-top: var(--spacing-md);
   padding: var(--spacing-md);
-  background-color: var(--bg-surface-dark);
+  background-color: var(--bg-primary);
   border-radius: var(--border-radius-md);
   border: 1px solid var(--border-subtle);
   transition: all var(--transition-default);
@@ -388,7 +412,7 @@
   display: inline-flex;
   align-items: center;
   padding: 12px 16px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: var(--primary);
   border-radius: var(--border-radius-md);
   color: white !important;
   text-decoration: none !important;
@@ -402,7 +426,7 @@
 .domain-link-button:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  background: var(--secondary);
   text-decoration: none !important;
   color: white !important;
 }

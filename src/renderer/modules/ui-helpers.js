@@ -14,18 +14,34 @@ import { extractSubdomainFromDomain as utilExtractSubdomain } from "../utils/dom
  * @param {Object} [options.link] Optional link to display with the message
  */
 export function showStatus(type, message, target = "main", options = {}) {
-  // Determine which status message element to use
-  const statusMessage = document.getElementById(
-    target === "settings" ? "settingsStatusMessage" : "statusMessage"
+  // Always show in both places regardless of target
+  showStatusInElement("statusMessage", type, message, "main", options);
+  showStatusInElement(
+    "settingsStatusMessage",
+    type,
+    message,
+    "settings",
+    options
   );
 
-  if (!statusMessage) return;
+  log.info(`Status message (${type}): ${message}`);
+}
+
+function showStatusInElement(
+  elementId,
+  type,
+  message,
+  animationType,
+  options = {}
+) {
+  const element = document.getElementById(elementId);
+  if (!element) return;
 
   // Clear previous content
-  statusMessage.innerHTML = "";
+  element.innerHTML = "";
 
   // Reset classes
-  statusMessage.className = `status-message ${type}`;
+  element.className = `status-message ${type}`;
 
   // Create icon
   const icon = document.createElement("span");
@@ -46,54 +62,52 @@ export function showStatus(type, message, target = "main", options = {}) {
   }
 
   // Assemble the message
-  statusMessage.appendChild(icon);
-  statusMessage.appendChild(textContainer);
+  element.appendChild(icon);
+  element.appendChild(textContainer);
 
   // For settings status, use a different animation approach
-  if (target === "settings") {
+  if (animationType === "settings") {
     // Reset animation by removing classes
-    statusMessage.classList.remove("visible");
-    statusMessage.classList.remove("hiding");
+    element.classList.remove("visible");
+    element.classList.remove("hiding");
 
     // Show the message
-    statusMessage.style.display = "flex";
+    element.style.display = "flex";
 
     // Trigger animation in next frame
     requestAnimationFrame(() => {
-      statusMessage.classList.add("visible");
+      element.classList.add("visible");
     });
 
     // Auto-hide after 5 seconds for non-error messages
     if (type !== "error") {
       setTimeout(() => {
-        if (statusMessage) {
+        if (element) {
           // Add hiding animation
-          statusMessage.classList.remove("visible");
-          statusMessage.classList.add("hiding");
+          element.classList.remove("visible");
+          element.classList.add("hiding");
 
           // Hide after animation completes
           setTimeout(() => {
-            statusMessage.style.display = "none";
-            statusMessage.classList.remove("hiding");
+            element.style.display = "none";
+            element.classList.remove("hiding");
           }, 300); // Match animation duration
         }
       }, 5000);
     }
   } else {
     // Original behavior for main status message
-    statusMessage.style.display = "flex";
+    element.style.display = "flex";
 
     // Auto-hide after 5 seconds for non-error messages
     if (type !== "error") {
       setTimeout(() => {
-        if (statusMessage) {
-          statusMessage.style.display = "none";
+        if (element) {
+          element.style.display = "none";
         }
       }, 5000);
     }
   }
-
-  log.info(`Status message (${type}): ${message}`);
 }
 
 /**

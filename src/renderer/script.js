@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Load the update-dialog CSS
-  loadStylesheet("./styles/update-dialog.css");
+  loadStylesheet("./styles/main.css");
 
   log.info("Application initializing");
 
@@ -131,6 +131,56 @@ async function initializeComponents() {
 
   transferDialog.initTransferDialog();
   console.log("Transfer dialog initialized");
+
+  // Initialize module versions after all other components are initialized
+  try {
+    // Import module versions dynamically to avoid circular dependencies
+    const moduleVersionsModule = await import("./modules/module-versions.js");
+    moduleVersionsModule.initModuleVersions();
+
+    // Add version support to app global for debugging
+    window.app.moduleVersions = moduleVersionsModule;
+
+    log.debug("Module versions initialized");
+
+    // Enhance other modules with version display
+    setTimeout(() => {
+      try {
+        // Enhance domain analyzer with versions
+        import("./modules/domain-analyzer.js")
+          .then((analyzer) => {
+            moduleVersionsModule.enhanceDomainAnalyzer(analyzer);
+          })
+          .catch((err) => {
+            log.debug(
+              `Info: Domain analyzer enhancement deferred: ${err.message}`
+            );
+          });
+
+        // Enhance transfer dialog with versions
+        moduleVersionsModule.enhanceTransferDialog(transferDialog);
+
+        // Enhance selected modules preview
+        import("./modules/selected-modules-preview.js")
+          .then((previewModule) => {
+            moduleVersionsModule.enhanceSelectedModulesPreview(previewModule);
+          })
+          .catch((err) => {
+            log.debug(
+              `Info: Modules preview enhancement deferred: ${err.message}`
+            );
+          });
+      } catch (enhanceError) {
+        log.debug(
+          `Module enhancement will proceed on next interaction: ${enhanceError.message}`
+        );
+      }
+    }, 500);
+  } catch (moduleVersionsError) {
+    log.warn(
+      `Module versions initialization deferred: ${moduleVersionsError.message}`
+    );
+  }
 
   log.info("Application initialized");
 }
@@ -835,4 +885,5 @@ window.app = {
   uiHelpers,
   domainLogging,
   settings,
+  moduleVersions,
 };
