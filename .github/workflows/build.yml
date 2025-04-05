@@ -2,15 +2,14 @@ name: Build Electron Apps
 
 on:
   push:
-    branches: [main, dev]
-    tags: ["v*"]
+    tags: ["v*"] # Only trigger on version tags
   workflow_dispatch:
     inputs:
       tag:
         description: "Tag to build (e.g., v1.2.0)"
         required: false
       branch:
-        description: "Branch to build (main or dev)"
+        description: "Branch to build from (main or dev)"
         required: false
         default: "main"
 
@@ -24,7 +23,24 @@ jobs:
         os: [macos-latest, windows-latest]
 
     steps:
+      - name: Determine ref to checkout
+        id: determine-ref
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "Using workflow dispatch with specified tag: ${{ github.event.inputs.tag }}"
+            echo "ref=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.branch }}" ]; then
+            echo "Using workflow dispatch with specified branch: ${{ github.event.inputs.branch }}"
+            echo "ref=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+          else
+            echo "Using pushed tag: ${{ github.ref }}"
+            echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.determine-ref.outputs.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
