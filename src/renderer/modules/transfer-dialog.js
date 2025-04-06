@@ -3,12 +3,108 @@
  * Handles the UI for showing transfer progress and logs
  */
 import { log } from "../utils/logging.js";
-import { getModuleIcon } from "../config/module-config.js";
+import {
+  getModuleIcon,
+  getModuleDisplayName,
+  getModuleVersion,
+  MODULES,
+} from "../config/module-config.js";
 
 // Keep track of whether a transfer is in progress and if it was cancelled
 let transferInProgress = false;
 let transferCancelled = false;
 let autoScroll = true;
+
+/**
+ * Helper function to get exact module name for version and display name lookup
+ * This improved function handles special cases more explicitly
+ */
+function getExactModuleName(itemName, itemPath) {
+  // Normalize inputs
+  const name = (itemName || "").toLowerCase();
+  const path = (itemPath || "").toLowerCase();
+
+  // Log for debugging
+  log.debug(`Finding module name for: name="${name}", path="${path}"`);
+
+  // SPECIAL CASE 1: Cockpit Panel - highest priority match
+  if (
+    name.includes("cockpit") ||
+    path.includes("cockpitpanel") ||
+    path.includes("dashboard.php") ||
+    path === "cockpitpanel"
+  ) {
+    log.debug("Exact match found: cockpitpanel");
+    return "cockpitpanel";
+  }
+
+  // SPECIAL CASE 2: Plex Webview - high priority match
+  if (name.includes("plex") || path.includes("plex")) {
+    log.debug("Exact match found: plexwebview");
+    return "plexwebview";
+  }
+
+  // Other special cases with direct mapping
+  if (name.includes("support") || path.includes("support")) {
+    return "support";
+  }
+
+  if (
+    name.includes("branding") ||
+    path.includes("branding") ||
+    path.includes("assets/branding.php")
+  ) {
+    return "branding";
+  }
+
+  if (
+    name.includes("multiproxy") ||
+    name.includes("multi proxy") ||
+    path.includes("multiproxy") ||
+    path.includes("proxy")
+  ) {
+    return "multiproxy";
+  }
+
+  if (
+    name.includes("webview") ||
+    path.includes("webview") ||
+    path.includes("webviews")
+  ) {
+    return "webviews";
+  }
+
+  // Try to match directly with MODULES keys
+  for (const moduleName in MODULES) {
+    if (name.includes(moduleName) || path.includes(moduleName)) {
+      log.debug(`Found module match: ${moduleName}`);
+      return moduleName;
+    }
+  }
+
+  // Extract from path as last resort
+  if (path) {
+    const pathParts = path.split("/");
+    const lastPart = pathParts[pathParts.length - 1];
+    const cleanName = lastPart
+      .replace(/panel|api/i, "")
+      .trim()
+      .toLowerCase();
+
+    // Check for match with cleaned name
+    for (const moduleName in MODULES) {
+      if (moduleName.includes(cleanName) || cleanName.includes(moduleName)) {
+        log.debug(`Found partial match from path: ${moduleName}`);
+        return moduleName;
+      }
+    }
+
+    return cleanName;
+  }
+
+  // Return original name if no matches found
+  return name;
+}
 
 /**
  * Initialize the transfer dialog
@@ -136,6 +232,12 @@ export function showTransferDialog(title = "File Transfer Progress") {
   if (cancelTransferBtn) {
     cancelTransferBtn.style.display = "inline-block";
     cancelTransferBtn.disabled = false;
+  }
+
+  // Clear any existing domain link section
+  const existingDomainLink = document.getElementById("transferDomainLink");
+  if (existingDomainLink) {
+    existingDomainLink.remove();
   }
 
   // Show the modal
@@ -278,6 +380,9 @@ export function addOutputLog(output) {
   addTransferLog(output, "info", "output");
 }
 
+/**
+ * Set up link handler for opening the domain in a browser
+ */
 function attachExternalLinkHandler(button, url) {
   if (!button) return;
 
@@ -286,13 +391,10 @@ function attachExternalLinkHandler(button, url) {
     log.info(`Opening domain in external browser: ${url}`);
 
     // Try multiple methods to ensure opening in external browser
-
-    // Method 1: Use shell.openExternal if available
     if (
       window.streamNetAPI &&
       typeof window.streamNetAPI.openExternalLink === "function"
     ) {
-      // Add flag to force external browser
       try {
         window.streamNetAPI.openExternalLink(url, true); // Pass true to force external browser
         addTransferLog(`Opening domain in external browser: ${url}`, "info");
@@ -302,7 +404,7 @@ function attachExternalLinkHandler(button, url) {
       }
     }
 
-    // Method 2: Try direct electron shell access if available
+    // Fallback methods
     try {
       if (
         window.electron &&
@@ -320,35 +422,12 @@ function attachExternalLinkHandler(button, url) {
       console.error("Error with direct shell access:", err);
     }
 
-    // Method 3: Create a special URL with intent to open externally
+    // Last resort, try to trigger native browser behavior
     try {
-      // Add a special query parameter that might be intercepted by preload script
-      const externalUrl = `${url}?openExternal=true`;
-      const newWindow = window.open(externalUrl, "_system");
-      if (newWindow) {
-        addTransferLog(`Opening domain with _system target: ${url}`, "info");
-        return;
-      }
+      window.open(url, "_blank");
+      addTransferLog(`Opening domain with window.open: ${url}`, "info");
     } catch (err) {
-      console.error("Error with system target:", err);
-    }
-
-    // Method 4: Last resort, try to trigger native browser behavior
-    try {
-      // Create an invisible anchor with special attributes to hint external opening
-      const a = document.createElement("a");
-      a.href = url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      // Add a special attribute that might be detected by preload script
-      a.setAttribute("data-external", "true");
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      addTransferLog(`Opening domain with specialized anchor: ${url}`, "info");
-    } catch (err) {
-      console.error("Error with specialized anchor:", err);
+      console.error("Error with window.open:", err);
       addTransferLog(`Failed to open domain: ${err.message}`, "error");
     }
   });
@@ -470,15 +549,9 @@ function addDomainLinkSection(domainInfo) {
   // IMPROVED DISPLAY OF TRANSFERRED ITEMS WITH ORGANIZED SECTIONS
   if (domainInfo.transferredItems && domainInfo.transferredItems.length > 0) {
     const getIconHtml = (item) => {
-      // Normalize the name to remove spaces, be case insensitive, and remove "Panel" or "API" suffixes
-      let normalizedName = item.name.toLowerCase().replace(/\s+/g, "");
-      normalizedName = normalizedName.replace(/panel$|api$/i, "");
-
-      // Check for special case "cockpitpanel"
-      if (normalizedName === "cockpit") normalizedName = "cockpitpanel";
-
-      // Get icon name from central configuration
-      const iconName = getModuleIcon(normalizedName);
+      // Get module name for icon lookup
+      const moduleName = getExactModuleName(item.name || "", item.path || "");
+      const iconName = getModuleIcon(moduleName);
       const iconPath = `src/icons/${iconName}.png`;
 
       return `<img src="${iconPath}" alt="${item.name}" class="item-icon" onerror="this.onerror=null; this.src='src/icons/module.png';">`;
@@ -498,8 +571,10 @@ function addDomainLinkSection(domainInfo) {
       // Main Panel (Cockpit Panel)
       if (
         itemName.includes("cockpitpanel") ||
+        itemName.includes("cockpit panel") ||
         itemPath.includes("cockpitpanel") ||
-        itemPath.includes("dashboard.php")
+        itemPath.includes("dashboard.php") ||
+        item.isCockpitPanel
       ) {
         cockpitPanel.push(item);
       }
@@ -542,11 +617,24 @@ function addDomainLinkSection(domainInfo) {
           `;
 
       cockpitPanel.forEach((item) => {
-        const displayName = "Cockpit Panel";
+        const moduleName = "cockpitpanel"; // Force this exact name for Cockpit Panel for consistency
+        const displayName = getModuleDisplayName(moduleName);
+
+        // Get version directly from MODULES first, then fall back to getModuleVersion
+        let version;
+        if (MODULES[moduleName]?.version) {
+          version = MODULES[moduleName].version;
+        } else {
+          version = getModuleVersion(moduleName);
+        }
+
         itemsHtml += `
               <div class="transfer-item">
-                ${getIconHtml(item)}
-                <span class="item-name">${displayName}</span>
+                ${getIconHtml({ name: "cockpitpanel", path: "cockpitpanel" })}
+                <span class="item-name">
+                  ${displayName}
+                  <span class="module-version">${version}</span>
+                </span>
               </div>
             `;
       });
@@ -569,23 +657,33 @@ function addDomainLinkSection(domainInfo) {
       const processedModules = new Set();
 
       brandingModules.forEach((item) => {
-        // Extract the module name without suffixes
-        let displayName = item.name || item.path.split("/").pop() || "Unknown";
-        displayName = displayName.replace(/panel|api/i, "").trim();
-        // Capitalize first letter
-        displayName =
-          displayName.charAt(0).toUpperCase() + displayName.slice(1);
+        // Get exact module name for correct display name and version
+        const moduleName = getExactModuleName(item.name || "", item.path || "");
 
         // Get a consistent key for deduplication
-        const moduleKey = displayName.toLowerCase();
+        const moduleKey = moduleName.toLowerCase();
 
         if (!processedModules.has(moduleKey)) {
           processedModules.add(moduleKey);
 
+          // Get display name
+          const displayName = getModuleDisplayName(moduleName);
+
+          // Get version directly from MODULES first, then fall back to getModuleVersion
+          let version;
+          if (MODULES[moduleName]?.version) {
+            version = MODULES[moduleName].version;
+          } else {
+            version = getModuleVersion(moduleName);
+          }
+
           itemsHtml += `
                 <div class="transfer-item">
                   ${getIconHtml(item)}
-                  <span class="item-name">${displayName}</span>
+                  <span class="item-name">
+                    ${displayName}
+                    <span class="module-version">${version}</span>
+                  </span>
                 </div>
               `;
         }
@@ -605,18 +703,36 @@ function addDomainLinkSection(domainInfo) {
               <div class="item-list">
           `;
 
+      // For deduplication of panel modules
+      const processedPanelModules = new Set();
+
       otherPanelModules.forEach((item) => {
-        // Clean up the display name
-        let displayName = item.name || item.path.split("/").pop() || "Unknown";
-        displayName = displayName.replace(/panel/i, "").trim();
-        // Capitalize first letter
-        displayName =
-          displayName.charAt(0).toUpperCase() + displayName.slice(1);
+        // Get exact module name for correct display name and version
+        const moduleName = getExactModuleName(item.name || "", item.path || "");
+        const moduleKey = moduleName.toLowerCase();
+
+        // Skip if we've already processed this module
+        if (processedPanelModules.has(moduleKey)) return;
+        processedPanelModules.add(moduleKey);
+
+        // Get display name
+        const displayName = getModuleDisplayName(moduleName);
+
+        // Get version directly from MODULES first, then fall back to getModuleVersion
+        let version;
+        if (MODULES[moduleName]?.version) {
+          version = MODULES[moduleName].version;
+        } else {
+          version = getModuleVersion(moduleName);
+        }
 
         itemsHtml += `
               <div class="transfer-item">
                 ${getIconHtml(item)}
-                <span class="item-name">${displayName}</span>
+                <span class="item-name">
+                  ${displayName}
+                  <span class="module-version">${version}</span>
+                </span>
               </div>
             `;
       });
@@ -635,18 +751,36 @@ function addDomainLinkSection(domainInfo) {
               <div class="item-list">
           `;
 
+      // For deduplication of API modules
+      const processedApiModules = new Set();
+
       apiModules.forEach((item) => {
-        // Clean up the display name
-        let displayName = item.name || item.path.split("/").pop() || "Unknown";
-        displayName = displayName.replace(/api/i, "").trim();
-        // Capitalize first letter
-        displayName =
-          displayName.charAt(0).toUpperCase() + displayName.slice(1);
+        // Get exact module name for correct display name and version
+        const moduleName = getExactModuleName(item.name || "", item.path || "");
+        const moduleKey = moduleName.toLowerCase();
+
+        // Skip if we've already processed this module
+        if (processedApiModules.has(moduleKey)) return;
+        processedApiModules.add(moduleKey);
+
+        // Get display name
+        const displayName = getModuleDisplayName(moduleName);
+
+        // Get version directly from MODULES first, then fall back to getModuleVersion
+        let version;
+        if (MODULES[moduleName]?.version) {
+          version = MODULES[moduleName].version;
+        } else {
+          version = getModuleVersion(moduleName);
+        }
 
         itemsHtml += `
               <div class="transfer-item">
                 ${getIconHtml(item)}
-                <span class="item-name">${displayName}</span>
+                <span class="item-name">
+                  ${displayName}
+                  <span class="module-version">${version}</span>
+                </span>
               </div>
             `;
       });
@@ -665,13 +799,38 @@ function addDomainLinkSection(domainInfo) {
               <div class="item-list">
           `;
 
+      // For deduplication of other items
+      const processedOtherItems = new Set();
+
       otherItems.forEach((item) => {
-        const displayName = item.name || item.path || "Unknown";
+        // Get exact module name for correct display name and version
+        const moduleName = getExactModuleName(item.name || "", item.path || "");
+        const moduleKey = moduleName.toLowerCase();
+
+        // Skip if we've already processed this module
+        if (processedOtherItems.has(moduleKey)) return;
+        processedOtherItems.add(moduleKey);
+
+        // For other items, we might need to fall back to the raw name if no match is found
+        const displayName = MODULES[moduleName]
+          ? getModuleDisplayName(moduleName)
+          : item.name || item.path || "Unknown";
+
+        // Get version directly from MODULES first, then fall back to getModuleVersion
+        let version;
+        if (MODULES[moduleName]?.version) {
+          version = MODULES[moduleName].version;
+        } else {
+          version = getModuleVersion(moduleName);
+        }
 
         itemsHtml += `
               <div class="transfer-item">
                 ${getIconHtml(item)}
-                <span class="item-name">${displayName}</span>
+                <span class="item-name">
+                  ${displayName}
+                  <span class="module-version">${version}</span>
+                </span>
               </div>
             `;
       });
@@ -723,6 +882,7 @@ function addDomainLinkSection(domainInfo) {
 /**
  * Complete the transfer process and update the dialog
  * @param {Object} result Transfer result object
+ * @param {Object} domainInfo Domain info object (optional)
  */
 export function completeTransfer(result, domainInfo = null) {
   const transferSummary = document.getElementById("transferSummary");
@@ -815,7 +975,7 @@ export function completeTransfer(result, domainInfo = null) {
     addTransferLog("Transfer failed", "error");
   }
 
-  // NEW CODE: If successful and we have domain info, show domain link section
+  // Only show domain link section if transfer was successful and we have domain info
   if (result.success && domainInfo) {
     addDomainLinkSection(domainInfo);
   }

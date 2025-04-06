@@ -19,8 +19,8 @@ export const MODULES = {
   cockpitpanel: {
     name: "cockpitpanel",
     displayName: "Cockpit Panel",
-    version: "2.5.5",
-    icon: "rebrands",
+    version: "2.5.1",
+    icon: "rocket",
     paths: {
       sourcePath: "cockpitpanel",
     },
