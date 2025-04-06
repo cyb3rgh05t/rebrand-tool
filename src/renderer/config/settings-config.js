@@ -3,7 +3,7 @@
  * Handles loading, saving and displaying application configuration
  */
 import { log } from "../utils/logging.js";
-import { showStatus } from "./ui-helpers.js";
+import { showStatus } from "../modules/ui-helpers.js";
 
 /**
  * Initialize configuration settings UI

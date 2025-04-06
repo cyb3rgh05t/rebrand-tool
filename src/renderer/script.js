@@ -10,7 +10,7 @@ import * as uiHelpers from "./modules/ui-helpers.js";
 import * as domainLogging from "./modules/domain-logging.js";
 import * as dnsPreview from "./modules/dns-preview.js";
 import * as settings from "./modules/settings.js";
-import * as configSettings from "./modules/config-settings.js";
+import * as configSettings from "./config/settings-config.js";
 import { updateSelectedModulesPreview } from "./modules/selected-modules-preview.js";
 import * as transferDialog from "./modules/transfer-dialog.js";
 

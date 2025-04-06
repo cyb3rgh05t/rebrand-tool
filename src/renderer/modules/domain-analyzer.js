@@ -5,7 +5,10 @@
 import { log } from "../utils/logging.js";
 import { getSelectedDomainPath } from "./domain-management.js";
 import { MODULE_PATHS } from "./module-selection.js";
-import { getModuleDisplayName as utilGetModuleDisplayName } from "../utils/module-utils.js";
+import {
+  getModuleDisplayName,
+  getModuleIcon,
+} from "../config/module-config.js";
 
 // Cache for domain analysis results
 const domainAnalysisCache = new Map();
@@ -303,15 +306,6 @@ function findModuleByDirectory(dirName, type) {
 }
 
 /**
- * Get a friendly display name for a module
- * @param {string} moduleName Module name
- * @returns {string} Display name
- */
-function getModuleDisplayName(moduleName) {
-  return utilGetModuleDisplayName(moduleName);
-}
-
-/**
  * Clear the domain analysis cache
  */
 export function clearDomainAnalysisCache() {
@@ -385,45 +379,9 @@ export function renderDomainAnalysis(analysis) {
     html += '<div class="analysis-status warning">No API installed</div>';
   }
 
-  // Define icon mapping used by both sections
-  const iconMap = {
-    // Panels
-    cockpitpanel: "rebrands",
-    branding: "branding",
-    support: "telegram",
-    multiproxy: "multi",
-    webviews: "android",
-
-    // OTT Applications
-    xciptv: "xciptv",
-    tivimate: "tivimate",
-    smarterspro: "smarters",
-    ibo: "ibosol",
-    neutro: "neutro",
-    neu: "pneu",
-    easy: "peasy",
-    sparkle: "sparkle",
-    "1stream": "1stream",
-    "9xtream": "9xtream",
-
-    // VOD Applications
-    flixvision: "flixvision",
-    smarttube: "smarttube",
-    stremio: "stremio",
-
-    // VPN Applications
-    orvpn: "orvpn",
-    ipvanish: "ipvanish",
-    pia: "pia",
-
-    // STORE Applications
-    downloader: "downloader",
-    sh9store: "sh9",
-  };
-
   // Function to create module HTML
   const createModuleHtml = (moduleName, displayName) => {
-    const iconFileName = iconMap[moduleName] || moduleName;
+    const iconFileName = getModuleIcon(moduleName);
     const iconPath = `src/icons/${iconFileName}.png`;
 
     return `

@@ -3,6 +3,7 @@
  * Handles the UI for showing transfer progress and logs
  */
 import { log } from "../utils/logging.js";
+import { getModuleIcon } from "../config/module-config.js";
 
 // Keep track of whether a transfer is in progress and if it was cancelled
 let transferInProgress = false;
@@ -468,45 +469,6 @@ function addDomainLinkSection(domainInfo) {
 
   // IMPROVED DISPLAY OF TRANSFERRED ITEMS WITH ORGANIZED SECTIONS
   if (domainInfo.transferredItems && domainInfo.transferredItems.length > 0) {
-    // Icon mapping for modules
-    const iconMap = {
-      // Panels
-      cockpitpanel: "rebrands",
-      branding: "branding",
-      support: "telegram",
-      multiproxy: "multi",
-      webviews: "android",
-      plexwebview: "plex",
-
-      // OTT Applications
-      xciptv: "xciptv",
-      tivimate: "tivimate",
-      smarterspro: "smarters",
-      ibo: "ibosol",
-      nextv: "nextv",
-      neutro: "neutro",
-      neu: "pneu",
-      easy: "peasy",
-      sparkle: "sparkle",
-      "1stream": "1stream",
-      "9xtream": "9xtream",
-
-      // VOD Applications
-      flixvision: "flixvision",
-      smarttube: "smarttube",
-      stremio: "stremio",
-
-      // VPN Applications
-      orvpn: "orvpn",
-      ipvanish: "ipvanish",
-      pia: "pia",
-
-      // STORE Applications
-      downloader: "downloader",
-      sh9store: "sh9",
-    };
-
-    // Helper function to get icon HTML
     const getIconHtml = (item) => {
       // Normalize the name to remove spaces, be case insensitive, and remove "Panel" or "API" suffixes
       let normalizedName = item.name.toLowerCase().replace(/\s+/g, "");
@@ -515,8 +477,8 @@ function addDomainLinkSection(domainInfo) {
       // Check for special case "cockpitpanel"
       if (normalizedName === "cockpit") normalizedName = "cockpitpanel";
 
-      // Get icon name from map or use default
-      const iconName = iconMap[normalizedName] || "module";
+      // Get icon name from central configuration
+      const iconName = getModuleIcon(normalizedName);
       const iconPath = `src/icons/${iconName}.png`;
 
       return `<img src="${iconPath}" alt="${item.name}" class="item-icon" onerror="this.onerror=null; this.src='src/icons/module.png';">`;

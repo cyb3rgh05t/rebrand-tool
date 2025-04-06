@@ -1,4 +1,8 @@
-import { getModuleDisplayName as utilGetModuleDisplayName } from "../utils/module-utils.js";
+import {
+  getModuleDisplayName,
+  getModuleIcon,
+  findModuleNameFromDisplayName,
+} from "../config/module-config.js";
 
 /**
  * Update the selected modules preview in the destination panel
@@ -13,44 +17,6 @@ export function updateSelectedModulesPreview(selectedItems) {
   // Clear current preview
   previewContainer.innerHTML = "";
 
-  // Get module icons mapping - same as in domain-analyzer.js
-  const iconMap = {
-    // Panels
-    cockpitpanel: "rebrands",
-    branding: "branding",
-    support: "telegram",
-    multiproxy: "multi",
-    webviews: "android",
-    plexwebview: "plex",
-
-    // OTT Applications
-    xciptv: "xciptv",
-    tivimate: "tivimate",
-    smarterspro: "smarters",
-    ibo: "ibosol",
-    nextv: "nextv",
-    neutro: "neutro",
-    neu: "pneu",
-    easy: "peasy",
-    sparkle: "sparkle",
-    "1stream": "1stream",
-    "9xtream": "9xtream",
-
-    // VOD Applications
-    flixvision: "flixvision",
-    smarttube: "smarttube",
-    stremio: "stremio",
-
-    // VPN Applications
-    orvpn: "orvpn",
-    ipvanish: "ipvanish",
-    pia: "pia",
-
-    // STORE Applications
-    downloader: "downloader",
-    sh9store: "sh9",
-  };
-
   // Return early with empty message if no items selected
   if (selectedItems.size === 0) {
     previewContainer.innerHTML =
@@ -60,7 +26,7 @@ export function updateSelectedModulesPreview(selectedItems) {
 
   // Function to create module HTML
   const createModuleHtml = (moduleName, displayName) => {
-    const iconFileName = iconMap[moduleName] || "module";
+    const iconFileName = getModuleIcon(moduleName);
     const iconPath = `src/icons/${iconFileName}.png`;
 
     return `
@@ -203,15 +169,6 @@ export function updateSelectedModulesPreview(selectedItems) {
 
   // Update the preview container
   previewContainer.innerHTML = html;
-}
-
-/**
- * Helper function to get a friendly display name for a module
- * @param {string} moduleName Module name
- * @returns {string} Display name
- */
-function getModuleDisplayName(moduleName) {
-  return utilGetModuleDisplayName(moduleName);
 }
 
 export default {

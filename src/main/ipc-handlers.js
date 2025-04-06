@@ -279,7 +279,6 @@ function registerIpcHandlers() {
   });
 
   // Transfer items (files/folders)
-  // Transfer items (files/folders)
   ipcMain.handle("transfer-items", async (event, items, targetPath) => {
     logger.debug(
       `IPC: transfer-items called with ${items.length} items to ${targetPath}`
@@ -373,23 +372,30 @@ function registerIpcHandlers() {
               item.path &&
               item.path.includes("plex"))
           ) {
-            // For Plex Webview, copy to the api/webview directory
-            remoteDestPath = `${remoteTargetRoot}/api/webview`;
-            logger.debug(
-              `Special handling for Plex Webview: copying to api/webview directory`
-            );
+            // For Plex Webview, determine the correct destination path
+            if (item.name === "plexwebview API" || item.type === "module-api") {
+              // This is the API component - copy to /public_html/api/webview
+              remoteDestPath = `${remoteTargetRoot}/api/webview`;
+              logger.debug(
+                `Special handling for Plex Webview API: copying to api/webview directory`
+              );
+            } else {
+              // This is the panel component - copy to /public_html/panel/webview
+              remoteDestPath = `${remoteTargetRoot}/panel/webview`;
+              logger.debug(
+                `Special handling for Plex Webview Panel: copying to panel/webview directory`
+              );
+            }
 
             // Create the destination directory if it doesn't exist
             try {
               await connection.execSSHCommand(
                 conn,
                 `mkdir -p "${remoteDestPath}" && chmod 755 "${remoteDestPath}"`,
-                "Creating api/webview directory for Plex"
+                "Creating directory for Plex component"
               );
-            } catch (apiDirErr) {
-              logger.error(
-                `Error creating api/webview directory: ${apiDirErr.message}`
-              );
+            } catch (dirErr) {
+              logger.error(`Error creating directory: ${dirErr.message}`);
               // Continue anyway, the main directory might already exist
             }
           } else {
@@ -488,7 +494,7 @@ function registerIpcHandlers() {
                 // Copy all files from the cockpitpanel directory directly to public_html
                 await connection.execSSHCommand(
                   conn,
-                  `cp -rv "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
+                  `cp -rvf "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
                   "Copying cockpitpanel files to public_html root"
                 );
 
@@ -504,20 +510,24 @@ function registerIpcHandlers() {
                   item.path &&
                   item.path.includes("plex"))
               ) {
-                // Copy all files from the plex directory to api/webview
+                // Copy all files from the plex directory to appropriate destination
+                // Using -f flag to force overwrite existing files
                 await connection.execSSHCommand(
                   conn,
-                  `cp -rv "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
-                  "Copying Plex Webview files to api/webview directory"
+                  `cp -rvf "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
+                  "Copying Plex component files with overwrite"
                 );
 
-                logger.info(`Copied Plex Webview files to ${remoteDestPath}`);
+                logger.info(
+                  `Copied Plex files from ${remoteSrcPath} to ${remoteDestPath} with overwrite`
+                );
               } else {
                 // For normal modules, preserve directory structure
+                // Adding -f flag to force overwrite existing files
                 await connection.execSSHCommand(
                   conn,
-                  `cp -rv "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
-                  "Copying directory contents"
+                  `cp -rvf "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
+                  "Copying directory contents with overwrite"
                 );
               }
 
@@ -545,10 +555,11 @@ function registerIpcHandlers() {
           } else {
             // Handle file transfer
             try {
+              // Using cp -f to force overwrite existing files
               await connection.execSSHCommand(
                 conn,
-                `cp -v "${remoteSrcPath}" "${remoteDestPath}" && chown 1000:1000 "${remoteDestPath}" && chmod 644 "${remoteDestPath}"`,
-                "Copying file"
+                `cp -vf "${remoteSrcPath}" "${remoteDestPath}" && chown 1000:1000 "${remoteDestPath}" && chmod 644 "${remoteDestPath}"`,
+                "Copying file with overwrite"
               );
 
               results.push({

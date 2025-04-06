@@ -1,45 +1,15 @@
 /**
- * Module version management for StreamNet Panels - All versions set to 2.5.0
+ * Module version management for StreamNet Panels
  */
 import { log } from "../utils/logging.js";
+import {
+  getModuleVersions,
+  getModuleVersion as getVersion,
+  findModuleNameFromDisplayName,
+} from "../config/module-config.js";
 
-// Define version information for all modules - all set to 2.5.0
-const MODULE_VERSIONS = {
-  // Panels
-  cockpitpanel: "2.5.1",
-  branding: "1.0.0",
-  support: "1.0.0",
-  multiproxy: "2.5.1",
-  webviews: "2.5.1",
-  plexwebview: "1.0.0",
-
-  // OTT Applications
-  xciptv: "2.5.1",
-  tivimate: "2.5.1",
-  smarterspro: "2.5.1",
-  ibo: "2.5.1",
-  nextv: "2.5.0",
-  neutro: "2.5.1",
-  neu: "2.5.0",
-  easy: "2.5.0",
-  sparkle: "2.5.1",
-  "1stream": "2.5.0",
-  "9xtream": "2.5.0",
-
-  // VOD Applications
-  flixvision: "2.5.1",
-  smarttube: "2.5.0",
-  stremio: "2.5.0",
-
-  // VPN Applications
-  orvpn: "2.5.1",
-  ipvanish: "2.5.0",
-  pia: "2.5.0",
-
-  // STORE Applications
-  downloader: "2.5.0",
-  sh9store: "2.5.0",
-};
+// Get version information for all modules from central config
+const MODULE_VERSIONS = getModuleVersions();
 
 /**
  * Initialize module version display for all elements
@@ -164,7 +134,7 @@ function addVersionsToModuleSelectionItems() {
     if (!moduleName) return;
 
     // Get the version for this module
-    const version = MODULE_VERSIONS[moduleName] || "2.5.0";
+    const version = getVersion(moduleName);
 
     // Create version element
     const versionSpan = document.createElement("span");
@@ -251,7 +221,7 @@ function addVersionsToTransferItems() {
 
     if (moduleName) {
       // Get the version for this module
-      const version = MODULE_VERSIONS[moduleName] || "2.5.0";
+      const version = getVersion(moduleName);
 
       // Create version element
       const versionSpan = document.createElement("span");
@@ -270,52 +240,7 @@ function addVersionsToTransferItems() {
  * @returns {string} The version of the module
  */
 export function getModuleVersion(moduleName) {
-  if (!moduleName) return "2.5.0";
-
-  // Normalize module name by removing API, Panel suffixes and converting to lowercase
-  const normalizedName = moduleName
-    .replace(/\s*(API|Panel)$/i, "")
-    .toLowerCase();
-
-  return MODULE_VERSIONS[normalizedName] || "2.5.0";
-}
-
-/**
- * Find module name from its display name
- * @param {string} displayName - The display name of the module
- * @returns {string|null} The module name or null if not found
- */
-function findModuleNameFromDisplayName(displayName) {
-  // Define mapping of display names to module names
-  const displayNameToModule = {
-    "Cockpit Panel": "cockpitpanel",
-    Branding: "branding",
-    Support: "support",
-    MultiProxy: "multiproxy",
-    WebViews: "webviews",
-    "Plex Webview": "plexwebview",
-    XCIPTV: "xciptv",
-    TiviMate: "tivimate",
-    "Smarters Pro": "smarterspro",
-    IBO: "ibo",
-    NexTV: "nextv",
-    Neutro: "neutro",
-    "Purple Neu": "neu",
-    "Purple Easy": "easy",
-    Sparkle: "sparkle",
-    "1Stream": "1stream",
-    "9Xtream": "9xtream",
-    FlixVision: "flixvision",
-    SmartTube: "smarttube",
-    Stremio: "stremio",
-    ORVPN: "orvpn",
-    IPVanish: "ipvanish",
-    PIA: "pia",
-    Downloader: "downloader",
-    "SH9 Store": "sh9store",
-  };
-
-  return displayNameToModule[displayName] || null;
+  return getVersion(moduleName);
 }
 
 /**
@@ -380,7 +305,7 @@ export function enhanceSelectedModulesPreview(previewModule) {
 
         if (moduleName) {
           // Add version span
-          const version = MODULE_VERSIONS[moduleName] || "2.5.0";
+          const version = getVersion(moduleName);
           const versionSpan = document.createElement("span");
           versionSpan.className = "module-version";
           versionSpan.textContent = version;

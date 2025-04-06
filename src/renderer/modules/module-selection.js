@@ -4,122 +4,13 @@
 import { showStatus, updateTransferButton } from "./ui-helpers.js";
 import { log } from "../utils/logging.js";
 import { updateSelectedModulesPreview } from "./selected-modules-preview.js";
+import { MODULES, getModulePaths } from "../config/module-config.js";
 
 // Selected modules and panels for transfer
 const selectedItems = new Map();
 
-// Module path mappings (could be moved to a configuration file)
-const MODULE_PATHS = {
-  // Panel paths
-  cockpitpanel: {
-    sourcePath: "cockpitpanel",
-  },
-  branding: {
-    api: "assets/img",
-    panel: "includes/db",
-  },
-  support: {
-    api: "api/support",
-    panel: "panel/support",
-  },
-  multiproxy: {
-    api: "api/proxy",
-    panel: "panel/proxy",
-  },
-  webviews: {
-    api: "api/webview",
-    panel: "panel/webview",
-  },
-  plexwebview: {
-    path: "plex", // Source path - will become /home/cockpit/plex
-    api: "plex", // When selected as an API module
-    panel: "api/webview", // When selected as a panel module
-  },
-
-  // OTT Applications
-  xciptv: {
-    api: "api/xciptv",
-    panel: "panel/xciptv",
-  },
-  tivimate: {
-    api: "api/tivimate",
-    panel: "panel/tivimate",
-  },
-  smarterspro: {
-    api: "api/smarterspro",
-    panel: "panel/smarterspro",
-  },
-  ibo: {
-    api: "api/ibosol",
-    panel: "panel/ibosol",
-  },
-  nextv: {
-    api: "api/nextv",
-    panel: "panel/nextv",
-  },
-  neutro: {
-    api: "api/neutro",
-    panel: "panel/neutro",
-  },
-  neu: {
-    api: "api/neu",
-    panel: "panel/neu",
-  },
-  easy: {
-    api: "api/easy",
-    panel: "panel/easy",
-  },
-  sparkle: {
-    api: "api/sparkle",
-    panel: "panel/sparkle",
-  },
-  "1stream": {
-    api: "api/1stream",
-    panel: "panel/1stream",
-  },
-  "9xtream": {
-    api: "api/9xtream",
-    panel: "panel/9xtream",
-  },
-
-  // VOD Applications
-  flixvision: {
-    api: "api/flixvision",
-    panel: "panel/flixvision",
-  },
-  smarttube: {
-    api: "api/smarttube",
-    panel: "panel/smarttube",
-  },
-  stremio: {
-    api: "api/stremio",
-    panel: "panel/stremio",
-  },
-
-  // VPN Applications
-  orvpn: {
-    api: "api/orvpn",
-    panel: "panel/orvpn",
-  },
-  ipvanish: {
-    api: "api/ipvanish",
-    panel: "panel/ipvanish",
-  },
-  pia: {
-    api: "api/pia",
-    panel: "panel/pia",
-  },
-
-  // STORE Applications
-  downloader: {
-    api: "api/downloader",
-    panel: "panel/downloader",
-  },
-  sh9store: {
-    api: "api/s9hstore",
-    panel: "panel/s9hstore",
-  },
-};
+// Module path mappings (imported from centralized config)
+const MODULE_PATHS = getModulePaths();
 
 export { MODULE_PATHS };
 
@@ -251,11 +142,6 @@ export function updateSelectedCount() {
 /**
  * Select all modules
  */
-/**
- * Updated select/unselect handler functions to update the preview
- */
-
-// Update for selectAllModulesHandler
 export function selectAllModulesHandler() {
   log.info("Selecting all modules");
   const moduleCheckboxes = document.querySelectorAll(
@@ -302,6 +188,7 @@ export function selectAllPanelsHandler() {
   // Update the modules preview
   updateSelectedModulesPreview(selectedItems);
 }
+
 /**
  * Unselect all panels
  */
