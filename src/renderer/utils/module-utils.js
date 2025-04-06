@@ -11,6 +11,7 @@ export function getModuleDisplayName(moduleName) {
     support: "Support",
     multiproxy: "MultiProxy",
     webviews: "WebViews",
+    plexwebview: "Plex Webview",
     xciptv: "XCIPTV",
     tivimate: "TiviMate",
     smarterspro: "Smarters Pro",

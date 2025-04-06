@@ -11,6 +11,7 @@ const MODULE_VERSIONS = {
   support: "1.0.0",
   multiproxy: "2.5.1",
   webviews: "2.5.1",
+  plexwebview: "1.0.0",
 
   // OTT Applications
   xciptv: "2.5.1",
@@ -292,6 +293,7 @@ function findModuleNameFromDisplayName(displayName) {
     Support: "support",
     MultiProxy: "multiproxy",
     WebViews: "webviews",
+    "Plex Webview": "plexwebview",
     XCIPTV: "xciptv",
     TiviMate: "tivimate",
     "Smarters Pro": "smarterspro",

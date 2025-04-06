@@ -279,6 +279,7 @@ function registerIpcHandlers() {
   });
 
   // Transfer items (files/folders)
+  // Transfer items (files/folders)
   ipcMain.handle("transfer-items", async (event, items, targetPath) => {
     logger.debug(
       `IPC: transfer-items called with ${items.length} items to ${targetPath}`
@@ -351,7 +352,7 @@ function registerIpcHandlers() {
           // Determine proper destination path based on item type
           let remoteDestPath;
 
-          // Check if this is a cockpitpanel item (look at flag, type, name, and path)
+          // Check if this is a cockpitpanel item (special case 1)
           if (
             item.isCockpitPanel ||
             (item.type === "panel" &&
@@ -363,6 +364,34 @@ function registerIpcHandlers() {
             logger.debug(
               `Special handling for cockpitpanel item: copying directly to public_html root`
             );
+          }
+          // Check if this is the Plex Webview module (special case 2)
+          else if (
+            item.name === "plexwebview API" ||
+            (item.name &&
+              item.name.toLowerCase().includes("plex") &&
+              item.path &&
+              item.path.includes("plex"))
+          ) {
+            // For Plex Webview, copy to the api/webview directory
+            remoteDestPath = `${remoteTargetRoot}/api/webview`;
+            logger.debug(
+              `Special handling for Plex Webview: copying to api/webview directory`
+            );
+
+            // Create the destination directory if it doesn't exist
+            try {
+              await connection.execSSHCommand(
+                conn,
+                `mkdir -p "${remoteDestPath}" && chmod 755 "${remoteDestPath}"`,
+                "Creating api/webview directory for Plex"
+              );
+            } catch (apiDirErr) {
+              logger.error(
+                `Error creating api/webview directory: ${apiDirErr.message}`
+              );
+              // Continue anyway, the main directory might already exist
+            }
           } else {
             // Regular module or panel - preserve the FULL directory structure
             // Don't modify the item.path structure for regular modules and panels
@@ -466,6 +495,23 @@ function registerIpcHandlers() {
                 logger.info(
                   `Copied cockpitpanel directory directly to ${remoteDestPath}`
                 );
+              }
+              // Special handling for Plex Webview
+              else if (
+                item.name === "plexwebview API" ||
+                (item.name &&
+                  item.name.toLowerCase().includes("plex") &&
+                  item.path &&
+                  item.path.includes("plex"))
+              ) {
+                // Copy all files from the plex directory to api/webview
+                await connection.execSSHCommand(
+                  conn,
+                  `cp -rv "${remoteSrcPath}/"* "${remoteDestPath}/" 2>/dev/null || true`,
+                  "Copying Plex Webview files to api/webview directory"
+                );
+
+                logger.info(`Copied Plex Webview files to ${remoteDestPath}`);
               } else {
                 // For normal modules, preserve directory structure
                 await connection.execSSHCommand(
@@ -578,8 +624,6 @@ function registerIpcHandlers() {
       };
     }
   });
-
-  // Add this to src/main/ipc-handlers.js in the registerIpcHandlers function
 
   // Shell operations for opening files/folders
   ipcMain.handle("show-item-in-folder", async (event, filePath) => {

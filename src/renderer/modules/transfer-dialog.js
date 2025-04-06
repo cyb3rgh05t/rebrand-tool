@@ -476,6 +476,7 @@ function addDomainLinkSection(domainInfo) {
       support: "telegram",
       multiproxy: "multi",
       webviews: "android",
+      plexwebview: "plex",
 
       // OTT Applications
       xciptv: "xciptv",

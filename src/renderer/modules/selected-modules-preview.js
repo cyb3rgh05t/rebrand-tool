@@ -21,6 +21,7 @@ export function updateSelectedModulesPreview(selectedItems) {
     support: "telegram",
     multiproxy: "multi",
     webviews: "android",
+    plexwebview: "plex",
 
     // OTT Applications
     xciptv: "xciptv",

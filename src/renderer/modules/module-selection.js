@@ -30,6 +30,11 @@ const MODULE_PATHS = {
     api: "api/webview",
     panel: "panel/webview",
   },
+  plexwebview: {
+    path: "plex", // Source path - will become /home/cockpit/plex
+    api: "plex", // When selected as an API module
+    panel: "api/webview", // When selected as a panel module
+  },
 
   // OTT Applications
   xciptv: {
