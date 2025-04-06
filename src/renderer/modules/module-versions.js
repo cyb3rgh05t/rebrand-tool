@@ -3,9 +3,9 @@
  */
 import { log } from "../utils/logging.js";
 import {
+  MODULES, // Add direct import of MODULES
   getModuleVersions,
   getModuleVersion as getVersion,
-  findModuleNameFromDisplayName,
 } from "../config/module-config.js";
 
 // Get version information for all modules from central config
@@ -116,6 +116,8 @@ function addVersionsToModuleSelectionItems() {
   // Get all module labels
   const moduleLabels = document.querySelectorAll(".module-name");
 
+  console.log("MODULE_VERSIONS:", MODULE_VERSIONS);
+
   moduleLabels.forEach((label) => {
     // Skip if version span already exists
     if (label.querySelector(".module-version")) return;
@@ -133,8 +135,15 @@ function addVersionsToModuleSelectionItems() {
     const moduleName = checkbox.dataset.name;
     if (!moduleName) return;
 
-    // Get the version for this module
-    const version = getVersion(moduleName);
+    // Get the version for this module - try both direct lookup and getter
+    let version;
+    // Try direct MODULES lookup first (most reliable)
+    if (MODULES[moduleName.toLowerCase()]?.version) {
+      version = MODULES[moduleName.toLowerCase()].version;
+    } else {
+      // Fall back to getter function
+      version = getVersion(moduleName);
+    }
 
     // Create version element
     const versionSpan = document.createElement("span");

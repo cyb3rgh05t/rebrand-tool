@@ -19,7 +19,7 @@ export const MODULES = {
   cockpitpanel: {
     name: "cockpitpanel",
     displayName: "Cockpit Panel",
-    version: "2.5.1",
+    version: "2.5.5",
     icon: "rebrands",
     paths: {
       sourcePath: "cockpitpanel",
@@ -339,14 +339,15 @@ export function getModuleDisplayName(moduleName) {
  * @returns {string} Module version or default version
  */
 export function getModuleVersion(moduleName) {
-  if (!moduleName) return "2.5.1";
+  if (!moduleName) return "0.0.0";
 
   // Normalize module name by removing API, Panel suffixes and converting to lowercase
   const normalizedName = moduleName
     .replace(/\s*(API|Panel)$/i, "")
     .toLowerCase();
 
-  return MODULES[normalizedName]?.version || "2.5.1";
+  // Use direct lookup from MODULES object with "0.0.0" as fallback
+  return MODULES[normalizedName]?.version || "0.0.0";
 }
 
 /**
