@@ -74,7 +74,7 @@ function createWindow() {
       preload: path.join(__dirname, "../preload/preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
-      devTools: enableDevTools || process.env.NODE_ENV === "development",
+      devTools: true,
     },
   });
 

@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Load the update-dialog CSS
-  loadStylesheet("./styles/main.css");
+  // loadStylesheet("./styles/main.css");
 
   log.info("Application initializing");
 
@@ -885,5 +885,4 @@ window.app = {
   uiHelpers,
   domainLogging,
   settings,
-  moduleVersions,
 };

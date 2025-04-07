@@ -78,9 +78,11 @@ function addVersionStyles() {
     }
     
     /* Handle transfer dialog items */
+    /* padding-bottom: 16px !important; */
+    /* position: relative !important; */
+
     .transfer-item .item-name {
       padding-bottom: 0 !important;
-      
     }
     
     /* Handle selected items */
