@@ -79,15 +79,8 @@ function addVersionStyles() {
     
     /* Handle transfer dialog items */
     .transfer-item .item-name {
-      padding-bottom: 16px !important;
-      position: relative !important;
-    }
-    
-    .transfer-item .module-version {
-      font-size: 0.65rem;
-      position: absolute;
-      bottom: 0;
-      left: 0;
+      padding-bottom: 0 !important;
+      
     }
     
     /* Handle selected items */

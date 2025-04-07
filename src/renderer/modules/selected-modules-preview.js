@@ -43,11 +43,13 @@ export function updateSelectedModulesPreview(selectedItems) {
   // Create sets to track unique modules
   const mainPanelSet = new Set(); // Cockpit panel
   const brandingSet = new Set(); // Support, Branding
+  const webviewsSet = new Set(); // NEW: WebViews (Regular and Plex)
   const regularModulesSet = new Set(); // All other modules
 
   // Arrays to hold the actual items for rendering
   const mainPanel = [];
   const brandingModules = [];
+  const webviewModules = []; // NEW: Array for WebView modules
   const regularModules = [];
 
   // Process all selected items
@@ -81,6 +83,29 @@ export function updateSelectedModulesPreview(selectedItems) {
         brandingModules.push(item);
       }
     }
+    // NEW: Check for WebView modules (both regular and Plex)
+    else if (
+      moduleName === "webviews" ||
+      moduleName.includes("webview") ||
+      moduleName === "plexwebview" ||
+      moduleName.includes("plex") ||
+      modulePath.includes("webview")
+    ) {
+      // Determine if this is Plex WebView or regular WebView
+      let webviewType = moduleName.includes("plex")
+        ? "plexwebview"
+        : "webviews";
+
+      if (!webviewsSet.has(webviewType)) {
+        webviewsSet.add(webviewType);
+        webviewModules.push({
+          ...item,
+          name: webviewType,
+          displayName:
+            webviewType === "plexwebview" ? "Plex WebView" : "WebViews",
+        });
+      }
+    }
     // All other modules
     else {
       if (!regularModulesSet.has(baseModuleName)) {
@@ -95,7 +120,10 @@ export function updateSelectedModulesPreview(selectedItems) {
 
   // Calculate total logical items - using set sizes to ensure unique counting
   const totalLogicalItems =
-    mainPanelSet.size + brandingSet.size + regularModulesSet.size;
+    mainPanelSet.size +
+    brandingSet.size +
+    webviewsSet.size +
+    regularModulesSet.size;
 
   // Add count status message
   html += `<div class="analysis-status success">Selected ${totalLogicalItems} item${
@@ -129,6 +157,25 @@ export function updateSelectedModulesPreview(selectedItems) {
         .replace(/\s+panel|\s+api/gi, "");
       if (!renderedBrandings.has(moduleName)) {
         renderedBrandings.add(moduleName);
+        html += createModuleHtml(moduleName, getModuleDisplayName(moduleName));
+      }
+    });
+
+    html += "</div>";
+  }
+
+  // NEW: Create WebViews section if applicable
+  if (webviewModules.length > 0) {
+    html += '<h4 class="analysis-title">WebViews:</h4>';
+    html +=
+      '<div class="selected-items-grid installed-modules webviews-section">';
+
+    // Display unique webview modules
+    const renderedWebviews = new Set();
+    webviewModules.forEach((item) => {
+      const moduleName = item.name.toLowerCase();
+      if (!renderedWebviews.has(moduleName)) {
+        renderedWebviews.add(moduleName);
         html += createModuleHtml(moduleName, getModuleDisplayName(moduleName));
       }
     });

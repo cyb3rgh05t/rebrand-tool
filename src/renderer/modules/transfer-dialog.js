@@ -381,59 +381,6 @@ export function addOutputLog(output) {
 }
 
 /**
- * Set up link handler for opening the domain in a browser
- */
-function attachExternalLinkHandler(button, url) {
-  if (!button) return;
-
-  button.addEventListener("click", function (e) {
-    e.preventDefault();
-    log.info(`Opening domain in external browser: ${url}`);
-
-    // Try multiple methods to ensure opening in external browser
-    if (
-      window.streamNetAPI &&
-      typeof window.streamNetAPI.openExternalLink === "function"
-    ) {
-      try {
-        window.streamNetAPI.openExternalLink(url, true); // Pass true to force external browser
-        addTransferLog(`Opening domain in external browser: ${url}`, "info");
-        return;
-      } catch (err) {
-        console.error("Error using primary method:", err);
-      }
-    }
-
-    // Fallback methods
-    try {
-      if (
-        window.electron &&
-        window.electron.shell &&
-        typeof window.electron.shell.openExternal === "function"
-      ) {
-        window.electron.shell.openExternal(url);
-        addTransferLog(
-          `Opening domain with shell.openExternal: ${url}`,
-          "info"
-        );
-        return;
-      }
-    } catch (err) {
-      console.error("Error with direct shell access:", err);
-    }
-
-    // Last resort, try to trigger native browser behavior
-    try {
-      window.open(url, "_blank");
-      addTransferLog(`Opening domain with window.open: ${url}`, "info");
-    } catch (err) {
-      console.error("Error with window.open:", err);
-      addTransferLog(`Failed to open domain: ${err.message}`, "error");
-    }
-  });
-}
-
-/**
  * Add a domain link section to the transfer summary
  * @param {Object} domainInfo Domain information
  */
@@ -546,12 +493,18 @@ function addDomainLinkSection(domainInfo) {
     }
   }, 100);
 
-  // IMPROVED DISPLAY OF TRANSFERRED ITEMS WITH ORGANIZED SECTIONS
+  // DISPLAY OF TRANSFERRED ITEMS WITH ORGANIZED SECTIONS - SIMPLIFIED WITHOUT VERSION INFO
   if (domainInfo.transferredItems && domainInfo.transferredItems.length > 0) {
     const getIconHtml = (item) => {
-      // Get module name for icon lookup
-      const moduleName = getExactModuleName(item.name || "", item.path || "");
-      const iconName = getModuleIcon(moduleName);
+      // Normalize the name to remove spaces, be case insensitive, and remove "Panel" or "API" suffixes
+      let normalizedName = item.name.toLowerCase().replace(/\s+/g, "");
+      normalizedName = normalizedName.replace(/panel$|api$/i, "");
+
+      // Check for special case "cockpitpanel"
+      if (normalizedName === "cockpit") normalizedName = "cockpitpanel";
+
+      // Get icon name from central configuration
+      const iconName = getModuleIcon(normalizedName);
       const iconPath = `src/icons/${iconName}.png`;
 
       return `<img src="${iconPath}" alt="${item.name}" class="item-icon" onerror="this.onerror=null; this.src='src/icons/module.png';">`;
@@ -560,6 +513,7 @@ function addDomainLinkSection(domainInfo) {
     // Categorize items into sections to match the domain analysis structure
     const cockpitPanel = []; // Main Panel section
     const brandingModules = []; // Brandings section (Support and Branding)
+    const webviewModules = []; // WebViews section (NEW)
     const otherPanelModules = []; // Regular panel modules
     const apiModules = []; // API modules
     const otherItems = []; // Anything else
@@ -571,10 +525,8 @@ function addDomainLinkSection(domainInfo) {
       // Main Panel (Cockpit Panel)
       if (
         itemName.includes("cockpitpanel") ||
-        itemName.includes("cockpit panel") ||
         itemPath.includes("cockpitpanel") ||
-        itemPath.includes("dashboard.php") ||
-        item.isCockpitPanel
+        itemPath.includes("dashboard.php")
       ) {
         cockpitPanel.push(item);
       }
@@ -587,6 +539,15 @@ function addDomainLinkSection(domainInfo) {
         itemPath.includes("assets/branding.php")
       ) {
         brandingModules.push(item);
+      }
+      // WebViews section (NEW)
+      else if (
+        itemName.includes("webview") ||
+        itemPath.includes("webview") ||
+        itemName.includes("plexwebview") ||
+        itemPath.includes("plexed.php")
+      ) {
+        webviewModules.push(item);
       }
       // API Modules
       else if (itemName.includes("api") || itemPath.includes("api/")) {
@@ -617,24 +578,11 @@ function addDomainLinkSection(domainInfo) {
           `;
 
       cockpitPanel.forEach((item) => {
-        const moduleName = "cockpitpanel"; // Force this exact name for Cockpit Panel for consistency
-        const displayName = getModuleDisplayName(moduleName);
-
-        // Get version directly from MODULES first, then fall back to getModuleVersion
-        let version;
-        if (MODULES[moduleName]?.version) {
-          version = MODULES[moduleName].version;
-        } else {
-          version = getModuleVersion(moduleName);
-        }
-
+        const displayName = "Cockpit Panel";
         itemsHtml += `
               <div class="transfer-item">
-                ${getIconHtml({ name: "cockpitpanel", path: "cockpitpanel" })}
-                <span class="item-name">
-                  ${displayName}
-                  <span class="module-version">${version}</span>
-                </span>
+                ${getIconHtml(item)}
+                <span class="item-name clean-name">${displayName}</span>
               </div>
             `;
       });
@@ -657,33 +605,71 @@ function addDomainLinkSection(domainInfo) {
       const processedModules = new Set();
 
       brandingModules.forEach((item) => {
-        // Get exact module name for correct display name and version
-        const moduleName = getExactModuleName(item.name || "", item.path || "");
+        // Extract the module name without suffixes
+        let displayName = item.name || item.path.split("/").pop() || "Unknown";
+        displayName = displayName.replace(/panel|api/i, "").trim();
+        // Capitalize first letter
+        displayName =
+          displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
         // Get a consistent key for deduplication
-        const moduleKey = moduleName.toLowerCase();
+        const moduleKey = displayName.toLowerCase();
 
         if (!processedModules.has(moduleKey)) {
           processedModules.add(moduleKey);
 
-          // Get display name
-          const displayName = getModuleDisplayName(moduleName);
+          itemsHtml += `
+                <div class="transfer-item">
+                  ${getIconHtml(item)}
+                  <span class="item-name clean-name">${displayName}</span>
+                </div>
+              `;
+        }
+      });
 
-          // Get version directly from MODULES first, then fall back to getModuleVersion
-          let version;
-          if (MODULES[moduleName]?.version) {
-            version = MODULES[moduleName].version;
-          } else {
-            version = getModuleVersion(moduleName);
-          }
+      itemsHtml += `
+              </div>
+            </div>
+          `;
+    }
+
+    // WebViews section (NEW)
+    if (webviewModules.length > 0) {
+      itemsHtml += `
+            <div class="transfer-category">
+              <div class="category-title">WEBVIEWS:</div>
+              <div class="item-list">
+          `;
+
+      // Use a set to prevent duplicates
+      const processedWebviews = new Set();
+
+      webviewModules.forEach((item) => {
+        // Extract the module name without suffixes
+        let displayName = item.name || item.path.split("/").pop() || "Unknown";
+
+        // Special handling for Plex Webview
+        if (
+          displayName.toLowerCase().includes("plex") ||
+          (item.path && item.path.includes("plexed.php"))
+        ) {
+          displayName = "Plex Webview";
+        }
+        // Standard webview
+        else {
+          displayName = "WebViews";
+        }
+
+        // Get a consistent key for deduplication
+        const moduleKey = displayName.toLowerCase();
+
+        if (!processedWebviews.has(moduleKey)) {
+          processedWebviews.add(moduleKey);
 
           itemsHtml += `
                 <div class="transfer-item">
                   ${getIconHtml(item)}
-                  <span class="item-name">
-                    ${displayName}
-                    <span class="module-version">${version}</span>
-                  </span>
+                  <span class="item-name clean-name">${displayName}</span>
                 </div>
               `;
         }
@@ -703,36 +689,18 @@ function addDomainLinkSection(domainInfo) {
               <div class="item-list">
           `;
 
-      // For deduplication of panel modules
-      const processedPanelModules = new Set();
-
       otherPanelModules.forEach((item) => {
-        // Get exact module name for correct display name and version
-        const moduleName = getExactModuleName(item.name || "", item.path || "");
-        const moduleKey = moduleName.toLowerCase();
-
-        // Skip if we've already processed this module
-        if (processedPanelModules.has(moduleKey)) return;
-        processedPanelModules.add(moduleKey);
-
-        // Get display name
-        const displayName = getModuleDisplayName(moduleName);
-
-        // Get version directly from MODULES first, then fall back to getModuleVersion
-        let version;
-        if (MODULES[moduleName]?.version) {
-          version = MODULES[moduleName].version;
-        } else {
-          version = getModuleVersion(moduleName);
-        }
+        // Clean up the display name
+        let displayName = item.name || item.path.split("/").pop() || "Unknown";
+        displayName = displayName.replace(/panel/i, "").trim();
+        // Capitalize first letter
+        displayName =
+          displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
         itemsHtml += `
               <div class="transfer-item">
                 ${getIconHtml(item)}
-                <span class="item-name">
-                  ${displayName}
-                  <span class="module-version">${version}</span>
-                </span>
+                <span class="item-name clean-name">${displayName}</span>
               </div>
             `;
       });
@@ -751,36 +719,18 @@ function addDomainLinkSection(domainInfo) {
               <div class="item-list">
           `;
 
-      // For deduplication of API modules
-      const processedApiModules = new Set();
-
       apiModules.forEach((item) => {
-        // Get exact module name for correct display name and version
-        const moduleName = getExactModuleName(item.name || "", item.path || "");
-        const moduleKey = moduleName.toLowerCase();
-
-        // Skip if we've already processed this module
-        if (processedApiModules.has(moduleKey)) return;
-        processedApiModules.add(moduleKey);
-
-        // Get display name
-        const displayName = getModuleDisplayName(moduleName);
-
-        // Get version directly from MODULES first, then fall back to getModuleVersion
-        let version;
-        if (MODULES[moduleName]?.version) {
-          version = MODULES[moduleName].version;
-        } else {
-          version = getModuleVersion(moduleName);
-        }
+        // Clean up the display name
+        let displayName = item.name || item.path.split("/").pop() || "Unknown";
+        displayName = displayName.replace(/api/i, "").trim();
+        // Capitalize first letter
+        displayName =
+          displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
         itemsHtml += `
               <div class="transfer-item">
                 ${getIconHtml(item)}
-                <span class="item-name">
-                  ${displayName}
-                  <span class="module-version">${version}</span>
-                </span>
+                <span class="item-name clean-name">${displayName}</span>
               </div>
             `;
       });
@@ -799,38 +749,13 @@ function addDomainLinkSection(domainInfo) {
               <div class="item-list">
           `;
 
-      // For deduplication of other items
-      const processedOtherItems = new Set();
-
       otherItems.forEach((item) => {
-        // Get exact module name for correct display name and version
-        const moduleName = getExactModuleName(item.name || "", item.path || "");
-        const moduleKey = moduleName.toLowerCase();
-
-        // Skip if we've already processed this module
-        if (processedOtherItems.has(moduleKey)) return;
-        processedOtherItems.add(moduleKey);
-
-        // For other items, we might need to fall back to the raw name if no match is found
-        const displayName = MODULES[moduleName]
-          ? getModuleDisplayName(moduleName)
-          : item.name || item.path || "Unknown";
-
-        // Get version directly from MODULES first, then fall back to getModuleVersion
-        let version;
-        if (MODULES[moduleName]?.version) {
-          version = MODULES[moduleName].version;
-        } else {
-          version = getModuleVersion(moduleName);
-        }
+        const displayName = item.name || item.path || "Unknown";
 
         itemsHtml += `
               <div class="transfer-item">
                 ${getIconHtml(item)}
-                <span class="item-name">
-                  ${displayName}
-                  <span class="module-version">${version}</span>
-                </span>
+                <span class="item-name clean-name">${displayName}</span>
               </div>
             `;
       });

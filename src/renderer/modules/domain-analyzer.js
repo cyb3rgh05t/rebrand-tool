@@ -54,7 +54,6 @@ export async function analyzeDomainStructure(domainName) {
         hasPanel: false,
         hasApi: false,
         hasCockpitPanel: false,
-        installedModules: [],
         error: structure?.error || "Failed to scan domain structure",
       };
     }
@@ -68,11 +67,14 @@ export async function analyzeDomainStructure(domainName) {
       hasCockpitPanel: false, // Track cockpitpanel installation
       hasBranding: false, // Track branding installation
       hasSupport: false, // Track support installation
+      hasPlexWebview: false, // Track Plex Webview installation
+      hasRegularWebview: false, // Track regular Webview installation
       panelEmpty: true,
       apiEmpty: true,
       installedModules: [],
       installedApiModules: [],
-      installedPanelModules: [],
+      installedPanelModules: [], // Panel modules excluding webviews
+      webviewModules: [], // New separate array for webview modules
       specialModules: [], // For cockpit panel and support only
     };
 
@@ -126,15 +128,83 @@ export async function analyzeDomainStructure(domainName) {
       }
     }
 
-    // Check for panel and api directories
-    for (const item of structure.items) {
-      if (item.name === "panel" && item.isDirectory) {
-        result.hasPanel = true;
-        result.panelEmpty = item.children && item.children.length === 0;
+    // Check for panel directory and its contents
+    const panelDir = structure.items.find(
+      (item) => item.name === "panel" && item.isDirectory
+    );
 
-        // Process panel modules if not empty
-        if (!result.panelEmpty && item.children) {
-          const panelModules = processPanelModules(item.children);
+    if (panelDir && panelDir.children) {
+      result.hasPanel = true;
+
+      // Check for regular webview directory in panel
+      const webviewDir = panelDir.children.find(
+        (item) => item.name === "webview" && item.isDirectory
+      );
+
+      if (webviewDir) {
+        // First check for plexed.php (Plex Webview indicator)
+        if (webviewDir.children) {
+          const plexedFile = webviewDir.children.find(
+            (item) => item.name === "plexed.php" && !item.isDirectory
+          );
+
+          if (plexedFile) {
+            log.debug(
+              `Found plexed.php in panel/webview - Plex Webview module is installed`
+            );
+            result.hasPlexWebview = true;
+
+            // Add plexwebview to webview modules list
+            const plexWebviewModule = {
+              name: "plexwebview",
+              displayName: "Plex Webview",
+              type: "webview",
+              path: "panel/webview/plexed.php",
+            };
+            result.webviewModules.push(plexWebviewModule);
+            result.installedModules.push(plexWebviewModule);
+          }
+        }
+
+        // Check if webview directory itself contains index.php or other files indicating regular webviews
+        if (webviewDir.children && webviewDir.children.length > 0) {
+          const hasWebviewFiles = webviewDir.children.some(
+            (item) => !item.isDirectory && item.name !== "plexed.php"
+          );
+
+          if (hasWebviewFiles) {
+            log.debug(`Found regular webview files in panel/webview`);
+            result.hasRegularWebview = true;
+
+            // Add regular webview to webview modules list
+            const regularWebviewModule = {
+              name: "webviews",
+              displayName: "WebViews",
+              type: "webview",
+              path: "panel/webview",
+            };
+            result.webviewModules.push(regularWebviewModule);
+            result.installedModules.push(regularWebviewModule);
+          }
+        }
+      }
+
+      // Check for API directory and its contents
+      const apiDir = structure.items.find(
+        (item) => item.name === "api" && item.isDirectory
+      );
+
+      // Process other panel modules (excluding webview)
+      if (panelDir.children.length > 0) {
+        // Filter out webview directory for panel module count
+        const nonWebviewChildren = panelDir.children.filter(
+          (item) => item.name !== "webview"
+        );
+
+        result.panelEmpty = nonWebviewChildren.length === 0;
+
+        if (!result.panelEmpty) {
+          const panelModules = processPanelModules(nonWebviewChildren);
 
           // Check for support module in panel directory
           for (const module of panelModules) {
@@ -142,7 +212,7 @@ export async function analyzeDomainStructure(domainName) {
               result.hasSupport = true;
               result.specialModules.push(module);
             } else {
-              // All other modules including webviews go to regular panel modules
+              // Add non-webview, non-support modules to panel modules
               result.installedPanelModules.push(module);
             }
           }
@@ -150,15 +220,54 @@ export async function analyzeDomainStructure(domainName) {
           // Add all modules to the full list
           result.installedModules.push(...panelModules);
         }
+      } else {
+        result.panelEmpty = true;
+      }
+    }
+
+    // Check for api directory
+    const apiDir = structure.items.find(
+      (item) => item.name === "api" && item.isDirectory
+    );
+
+    if (apiDir) {
+      result.hasApi = true;
+
+      // Check for webview directory in API
+      const apiWebviewDir = apiDir.children?.find(
+        (item) => item.name === "webview" && item.isDirectory
+      );
+
+      // Similar webview detection for API directory if needed
+      if (apiWebviewDir && apiWebviewDir.children?.length > 0) {
+        // We've already detected the webview module through panel directory
+        // But if API has webview directory and panel doesn't, we should count it
+        if (!result.hasRegularWebview && !result.hasPlexWebview) {
+          result.hasRegularWebview = true;
+
+          // Add regular webview to webview modules list if not already added
+          const apiWebviewModule = {
+            name: "webviews",
+            displayName: "WebViews API",
+            type: "webview",
+            path: "api/webview",
+          };
+          result.webviewModules.push(apiWebviewModule);
+          result.installedModules.push(apiWebviewModule);
+        }
       }
 
-      if (item.name === "api" && item.isDirectory) {
-        result.hasApi = true;
-        result.apiEmpty = item.children && item.children.length === 0;
+      // Process API modules excluding webview
+      if (apiDir.children?.length > 0) {
+        // Filter out webview directory for API module count
+        const nonWebviewApiChildren = apiDir.children.filter(
+          (item) => item.name !== "webview"
+        );
 
-        // Process API modules if not empty
-        if (!result.apiEmpty && item.children) {
-          const apiModules = processApiModules(item.children);
+        result.apiEmpty = nonWebviewApiChildren.length === 0;
+
+        if (!result.apiEmpty) {
+          const apiModules = processApiModules(nonWebviewApiChildren);
 
           // Check for support module in API directory
           for (const module of apiModules) {
@@ -166,7 +275,7 @@ export async function analyzeDomainStructure(domainName) {
               result.hasSupport = true;
               result.specialModules.push(module);
             } else {
-              // Only count non-support modules in the API modules count
+              // Only count non-support, non-webview modules in the API modules count
               result.installedApiModules.push(module);
             }
           }
@@ -174,6 +283,8 @@ export async function analyzeDomainStructure(domainName) {
           // Add all API modules to the full list (including support)
           result.installedModules.push(...apiModules);
         }
+      } else {
+        result.apiEmpty = true;
       }
     }
 
@@ -331,7 +442,9 @@ export function renderDomainAnalysis(analysis) {
     !analysis.hasPanel &&
     !analysis.hasApi &&
     !analysis.hasCockpitPanel &&
-    !analysis.hasBranding
+    !analysis.hasBranding &&
+    !analysis.hasPlexWebview &&
+    !analysis.hasRegularWebview
   ) {
     return '<div class="empty-section-message warning">No panel installed on this domain</div>';
   }
@@ -355,7 +468,13 @@ export function renderDomainAnalysis(analysis) {
       '<div class="analysis-status success">Support Module installed</div>';
   }
 
-  // Panel status - WebViews is now included in regular modules count
+  // WebViews status (combining both types)
+  if (analysis.hasPlexWebview || analysis.hasRegularWebview) {
+    const webviewCount = analysis.webviewModules?.length || 0;
+    html += `<div class="analysis-status success">WebViews installed (${webviewCount})</div>`;
+  }
+
+  // Panel status - WebViews is now excluded from regular modules count
   if (analysis.hasPanel) {
     if (analysis.panelEmpty) {
       html +=
@@ -367,7 +486,7 @@ export function renderDomainAnalysis(analysis) {
     html += '<div class="analysis-status warning">No panel installed</div>';
   }
 
-  // API status
+  // API status - WebViews is now excluded from API modules count
   if (analysis.hasApi) {
     if (analysis.apiEmpty) {
       html +=
@@ -423,10 +542,35 @@ export function renderDomainAnalysis(analysis) {
     html += "</div>";
   }
 
-  // Show other installed modules (excluding cockpitpanel, support, and branding)
-  const specialModules = ["cockpitpanel", "support", "branding"];
+  // NEW SECTION: WebViews section
+  if (analysis.webviewModules && analysis.webviewModules.length > 0) {
+    html += '<h4 class="analysis-title">WebViews:</h4>';
+    html += '<div class="installed-modules webviews-section">';
+
+    // Map to track which webview modules we've already rendered to avoid duplicates
+    const renderedWebviews = new Set();
+
+    for (const module of analysis.webviewModules) {
+      // Skip if we've already rendered this module
+      if (renderedWebviews.has(module.name)) continue;
+      renderedWebviews.add(module.name);
+
+      html += createModuleHtml(module.name, module.displayName);
+    }
+
+    html += "</div>";
+  }
+
+  // Show other installed modules (excluding cockpitpanel, support, branding, and webviews)
+  const excludedModules = [
+    "cockpitpanel",
+    "support",
+    "branding",
+    "webviews",
+    "plexwebview",
+  ];
   const regularModules = analysis.installedModules.filter(
-    (module) => !specialModules.includes(module.name)
+    (module) => !excludedModules.includes(module.name)
   );
 
   if (regularModules.length > 0) {

@@ -197,7 +197,8 @@ function registerIpcHandlers() {
     logger.debug("IPC: scan-domain-structure called for", dirPath);
 
     try {
-      return await filesystem.scanDomainStructure(dirPath);
+      // Increase depth to 2 to be able to see panel/webview/plexed.php
+      return await filesystem.scanDomainStructure(dirPath, 2);
     } catch (err) {
       logger.error(`Error scanning domain structure: ${err.message}`);
       return { error: err.message, items: [] };
