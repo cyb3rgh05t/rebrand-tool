@@ -1697,27 +1697,74 @@
           <span class="close-modal" id="closeDebugModalBtn">&times;</span>
         </div>
         <div class="modal-body">
-          <div class="debug-controls">
-            <div class="form-field">
-              <label class="field-label">Log Level</label>
-              <select id="logLevelSelect" class="text-input">
-                <option value="0">Debug</option>
-                <option value="1">Info</option>
-                <option value="2">Warning</option>
-                <option value="3">Error</option>
-              </select>
-            </div>
-            <div class="debug-buttons">
-              <button id="clearLogsBtn" class="btn btn-secondary">
-                Clear Logs
+          <!-- Debug filters and controls -->
+          <div class="debug-filter-container">
+            <div class="debug-filter-row">
+              <div class="debug-filter-group">
+                <label for="logLevelSelect">Log Level:</label>
+                <select id="logLevelSelect" class="text-input">
+                  <option value="0">Debug</option>
+                  <option value="1">Info</option>
+                  <option value="2">Warning</option>
+                  <option value="3">Error</option>
+                </select>
+              </div>
+
+              <div class="debug-filter-group">
+                <label for="logFilterCategory">Filter By:</label>
+                <select id="logFilterCategory" class="text-input">
+                  <option value="all">All Logs</option>
+                  <option value="debug">Debug Only</option>
+                  <option value="info">Info Only</option>
+                  <option value="warn">Warnings Only</option>
+                  <option value="error">Errors Only</option>
+                  <option value="main">Main Process</option>
+                </select>
+              </div>
+
+              <div class="debug-filter-group search-group">
+                <label for="logFilterInput">Search:</label>
+                <input
+                  type="text"
+                  id="logFilterInput"
+                  placeholder="Filter logs..."
+                  class="text-input"
+                />
+              </div>
+
+              <button id="fetchMainLogsBtn" class="button">
+                <span class="icon">📥</span> Load Main Logs
               </button>
-              <button id="downloadLogsBtn" class="btn btn-primary">
-                <span class="btn-icon">↓</span>
-                Download Logs
+            </div>
+
+            <div class="debug-filter-status" id="filterStatus">
+              Showing all logs
+            </div>
+
+            <div class="debug-auto-refresh">
+              <button id="autoRefreshToggle" class="auto-refresh-toggle">
+                Auto-refresh: ON
+              </button>
+              <span id="refreshTimer">10</span>
+            </div>
+          </div>
+
+          <!-- Debug actions -->
+          <div class="debug-controls">
+            <div class="debug-buttons">
+              <button id="clearLogsBtn" class="button secondary">
+                <span class="icon">🗑️</span> Clear Logs
+              </button>
+              <button id="downloadLogsBtn" class="button primary">
+                <span class="icon">💾</span> Download Logs
               </button>
             </div>
           </div>
-          <div id="logOutput" class="log-output"></div>
+
+          <!-- Log output area -->
+          <div id="logOutput" class="log-output">
+            <!-- Log entries will be added here dynamically -->
+          </div>
         </div>
       </div>
     </div>

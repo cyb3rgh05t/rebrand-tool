@@ -426,7 +426,7 @@ async function copyFolderContents(sourcePath, targetPath) {
     // Copy contents directly using cp command with wildcard
     await execSSHCommand(
       conn,
-      `cp -rv "${fullSourcePath}"/* "${fullTargetPath}/" && chown -R 1000:1000 "${fullTargetPath}"`,
+      `cp -rvf "${fullSourcePath}"/* "${fullTargetPath}/" && chown -R 1000:1000 "${fullTargetPath}"`,
       "Copying folder contents"
     );
 

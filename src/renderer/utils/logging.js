@@ -1,5 +1,6 @@
 /**
  * Client-side logging utility for StreamNet Panels
+ * Enhanced with main process log fetching
  */
 
 // Log levels
@@ -18,7 +19,7 @@ let currentLogLevel = LOG_LEVELS.DEBUG;
 let consoleOutput = true;
 
 // Maximum log history
-const MAX_HISTORY = 100;
+const MAX_HISTORY = 1000;
 
 // Log history array
 const logHistory = [];
@@ -39,15 +40,21 @@ function formatMessage(level, ...args) {
 }
 
 /**
- * Add entry to log history
+ * Add entry to log history with metadata
  * @param {string} level Log level
- * @param {string} message Formatted message
+ * @param {Array} args Arguments to log
  */
-function addToHistory(level, message) {
+function addToHistory(level, ...args) {
+  const timestamp = new Date();
+  const message = args
+    .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg))
+    .join(" ");
+
   logHistory.push({
+    timestamp,
     level,
+    category: "renderer",
     message,
-    timestamp: new Date(),
   });
 
   // Trim history if needed
@@ -64,7 +71,7 @@ function debug(...args) {
   if (currentLogLevel > LOG_LEVELS.DEBUG) return;
 
   const message = formatMessage("DEBUG", ...args);
-  addToHistory("DEBUG", message);
+  addToHistory("DEBUG", ...args);
 
   if (consoleOutput) {
     console.log("%c" + message, "color: #888;");
@@ -79,7 +86,7 @@ function info(...args) {
   if (currentLogLevel > LOG_LEVELS.INFO) return;
 
   const message = formatMessage("INFO", ...args);
-  addToHistory("INFO", message);
+  addToHistory("INFO", ...args);
 
   if (consoleOutput) {
     console.log("%c" + message, "color: #2196F3;");
@@ -94,7 +101,7 @@ function warn(...args) {
   if (currentLogLevel > LOG_LEVELS.WARN) return;
 
   const message = formatMessage("WARN", ...args);
-  addToHistory("WARN", message);
+  addToHistory("WARN", ...args);
 
   if (consoleOutput) {
     console.warn("%c" + message, "color: #FFC107; font-weight: bold;");
@@ -109,7 +116,7 @@ function error(...args) {
   if (currentLogLevel > LOG_LEVELS.ERROR) return;
 
   const message = formatMessage("ERROR", ...args);
-  addToHistory("ERROR", message);
+  addToHistory("ERROR", ...args);
 
   if (consoleOutput) {
     console.error("%c" + message, "color: #F44336; font-weight: bold;");
@@ -157,6 +164,26 @@ function getLogLevel() {
   return currentLogLevel;
 }
 
+/**
+ * Fetch logs from the main process
+ * @returns {Promise<Array>} Log history from main process
+ */
+async function fetchMainLogs() {
+  if (!window.streamNetAPI || !window.streamNetAPI.getMainLogs) {
+    console.warn("Main process logs API not available");
+    return [];
+  }
+
+  try {
+    const mainLogs = await window.streamNetAPI.getMainLogs();
+    console.log(`Fetched ${mainLogs.length} logs from main process`);
+    return mainLogs;
+  } catch (error) {
+    console.error(`Error fetching main process logs: ${error.message}`);
+    return [];
+  }
+}
+
 // Initialize a handler for uncaught errors
 window.addEventListener("error", (event) => {
   error("Uncaught error:", event.error?.message || event.message);
@@ -174,6 +201,7 @@ export const log = {
   getLogLevel,
   setConsoleOutput,
   LOG_LEVELS,
+  fetchMainLogs,
 };
 
 // Default export

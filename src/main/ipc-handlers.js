@@ -915,6 +915,34 @@ function registerConfigHandlers() {
       return { success: false, error: error.message };
     }
   });
+
+  registerLoggerHandlers();
+}
+
+/**
+ * Register logging-related IPC handlers
+ */
+function registerLoggerHandlers() {
+  // Get logs from main process
+  ipcMain.handle("get-main-logs", async (event) => {
+    logger.debug("IPC: get-main-logs called");
+    return require("./utils/logger").getGlobalLogHistory();
+  });
+
+  // Set log level for a category
+  ipcMain.handle("set-log-level", async (event, category, level) => {
+    logger.debug(
+      `IPC: set-log-level called for ${category} with level ${level}`
+    );
+    return require("./utils/logger").setCategoryLevel(category, level);
+  });
+
+  // Clear main process logs
+  ipcMain.handle("clear-main-logs", async (event) => {
+    logger.debug("IPC: clear-main-logs called");
+    require("./utils/logger").clearGlobalHistory();
+    return { success: true };
+  });
 }
 
 module.exports = {

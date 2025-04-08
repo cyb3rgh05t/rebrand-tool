@@ -2,6 +2,36 @@
 
 All notable changes to Rebrands Panel Tool will be documented in this file.
 
+## [2.5.3] - 2025-04-07
+
+### Added
+
+- IBO Solutions Module 2.5.2
+- Enhanced logging system that unifies main and renderer process logs
+- Advanced log filtering with source, level, category, and text search capabilities
+- Auto-refresh feature for main process logs
+- Improved log structure with rich metadata
+- Module version display throughout application UI
+- DNS records preview in domain creation form
+- Support for Plex WebView module installation
+
+### Changed
+
+- Improved domain analysis with better categorization of installed modules
+- Enhanced debug console with more intuitive UI and additional functionality
+- Optimized file transfer process with better error handling
+- Refined configuration management system
+- Updated transfer dialog with more detailed status information
+
+### Fixed
+
+- Path handling issues in file transfers for special modules
+- Connection status synchronization between settings and main UI
+- DNS record creation error handling
+- Module selection inconsistencies
+- Cache issues with domain analysis
+- Configuration persistence across app restarts
+
 ## [2.5.2] - 2025-04-05
 
 ### Added

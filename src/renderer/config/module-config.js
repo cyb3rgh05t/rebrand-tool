@@ -111,7 +111,7 @@ export const MODULES = {
   ibo: {
     name: "ibo",
     displayName: "IBO Solutions",
-    version: "2.5.1",
+    version: "2.5.2",
     icon: "ibosol",
     paths: {
       api: "api/ibosol",

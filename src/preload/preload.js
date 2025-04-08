@@ -144,6 +144,12 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
       callback(data);
     });
   },
+
+  // Logging APIs
+  getMainLogs: () => ipcRenderer.invoke("get-main-logs"),
+  setLogLevel: (category, level) =>
+    ipcRenderer.invoke("set-log-level", category, level),
+  clearMainLogs: () => ipcRenderer.invoke("clear-main-logs"),
 });
 
 // Log preload script execution

@@ -1,0 +1,344 @@
+/**
+ * Enhanced Debug Panel Styles for StreamNet Panels
+ */
+
+/* Debug modal */
+#debugModal.modal {
+  z-index: 1000;
+}
+
+.debug-modal-content {
+  width: 85%;
+  max-width: 1200px;
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.debug-modal-content .modal-header {
+  background-color: var(--bg-surface-elevated);
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  padding: 15px 20px;
+}
+
+.debug-modal-content .modal-header h3 {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  color: var(--primary-light);
+}
+
+.debug-modal-content .modal-header h3::before {
+  content: "⚙️";
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+/* Debug modal body */
+.debug-modal-content .modal-body {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+/* Debug filter container */
+.debug-filter-container {
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-subtle);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.debug-filter-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.debug-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.debug-filter-group.search-group {
+  flex-grow: 1;
+  min-width: 200px;
+}
+
+.debug-filter-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.debug-filter-group input,
+.debug-filter-group select {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-sm);
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.debug-filter-group input:focus,
+.debug-filter-group select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  outline: none;
+}
+
+.debug-filter-group input {
+  width: 100%;
+}
+
+/* Debug filter status indicator */
+.debug-filter-status {
+  font-size: 13px;
+  color: var(--text-accent);
+  text-align: right;
+  padding: 4px 8px;
+}
+
+/* Auto-refresh controls */
+.debug-auto-refresh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.auto-refresh-toggle {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auto-refresh-toggle:hover {
+  background-color: var(--bg-surface-highlight);
+}
+
+#refreshTimer {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  min-width: 20px;
+  display: inline-block;
+}
+
+/* Debug controls container */
+.debug-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Control buttons */
+.debug-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.button.primary {
+  background: var(--primary-gradient, var(--primary));
+  color: white;
+}
+
+.button.secondary {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button .icon {
+  font-size: 16px;
+}
+
+.button-icon.spinning {
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Log output area */
+#logOutput.log-output {
+  flex: 1;
+  overflow-y: auto;
+  background-color: var(--bg-surface-dark, #1a1a1a);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-md);
+  padding: 12px;
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: var(--shadow-inner);
+  color: var(--text-primary, #e0e0e0); /* Default text color */
+}
+
+/* Log entry base styling with improved contrast */
+.log-entry {
+  padding: 4px 8px;
+  margin-bottom: 3px;
+  border-radius: 3px;
+  position: relative;
+  border-left: 3px solid transparent;
+  transition: background-color 0.15s ease;
+}
+
+/* Hover effect */
+.log-entry:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Main process log entries */
+.log-entry.main-process {
+  background-color: rgba(40, 44, 52, 0.5);
+  border-left-color: var(--primary-light, #61dafb);
+}
+
+/* DEBUG level styling with gray and subtle background */
+.log-entry.log-level-debug {
+  border-left-color: var(--text-secondary, #6b7280);
+  color: #a0a0a0 !important; /* Light gray for debug messages */
+  background-color: rgba(107, 114, 128, 0.08);
+}
+
+/* INFO level styling with blue */
+.log-entry.log-level-info {
+  border-left-color: var(--info, #3b82f6);
+  color: #60a5fa !important; /* Bright blue for info messages */
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+/* WARN level styling with yellow/orange */
+.log-entry.log-level-warn,
+.log-entry.log-level-warning {
+  border-left-color: var(--warning, #f59e0b);
+  color: #fbbf24 !important; /* Bright yellow for warnings */
+  background-color: rgba(245, 158, 11, 0.08);
+}
+
+/* ERROR level styling with red */
+.log-entry.log-level-error {
+  border-left-color: var(--error, #ef4444);
+  color: #f87171 !important; /* Bright red for errors */
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+/* Add timing info in a different color */
+.log-entry::before {
+  content: attr(data-time);
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+/* Custom styling for the "LOG" level */
+.log-entry.log-level-log {
+  border-left-color: var(--text-primary, #e0e0e0);
+  color: #e0e0e0 !important;
+}
+
+/* Make sure main process logs stand out */
+.log-entry.main-process {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left-width: 4px;
+  font-weight: 500;
+}
+
+/* Special coloring for unfiltered logs */
+.log-entry:nth-child(odd):not(:hover) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Fetch main logs button */
+#fetchMainLogsBtn {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+#fetchMainLogsBtn:hover {
+  background-color: var(--bg-surface-highlight);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .debug-filter-row {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .debug-filter-group {
+    width: 100%;
+  }
+
+  .debug-auto-refresh {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .debug-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
