@@ -10,9 +10,6 @@ import {
   getModuleIcon,
 } from "../config/module-config.js";
 
-// Cache for domain analysis results
-const domainAnalysisCache = new Map();
-
 /**
  * Analyze a domain's structure to check for installed modules
  * @param {string} domainName The selected domain name
@@ -21,13 +18,9 @@ const domainAnalysisCache = new Map();
 export async function analyzeDomainStructure(domainName) {
   if (!domainName) return null;
 
-  log.info(`Analyzing structure for domain: ${domainName}`);
-
-  // Check cache first
-  if (domainAnalysisCache.has(domainName)) {
-    log.debug(`Using cached analysis for ${domainName}`);
-    return domainAnalysisCache.get(domainName);
-  }
+  // Log start time for performance tracking
+  const startTime = performance.now();
+  log.info(`Starting analysis for domain: ${domainName}`);
 
   try {
     const domainPath = getSelectedDomainPath();
@@ -40,9 +33,17 @@ export async function analyzeDomainStructure(domainName) {
     const publicHtmlPath = `${domainPath}/public_html`;
 
     // Check if the API and Panel directories exist
+    // Log the scan start time
+    const scanStartTime = performance.now();
+    log.debug(`Starting domain structure scan for ${publicHtmlPath}`);
+
     const structure = await window.streamNetAPI.scanDomainStructure(
       publicHtmlPath
     );
+
+    // Log the scan completion time
+    const scanDuration = Math.round(performance.now() - scanStartTime);
+    log.debug(`Domain structure scan completed in ${scanDuration}ms`);
 
     if (!structure || structure.error) {
       log.error(
@@ -288,13 +289,18 @@ export async function analyzeDomainStructure(domainName) {
       }
     }
 
-    // Cache the result
-    domainAnalysisCache.set(domainName, result);
-    log.debug(`Domain analysis complete for ${domainName}`);
+    // Log total analysis time
+    const totalTime = Math.round(performance.now() - startTime);
+    log.debug(`Domain analysis complete for ${domainName} in ${totalTime}ms`);
 
     return result;
   } catch (error) {
-    log.error(`Error analyzing domain structure: ${error.message}`);
+    // Log error and total time even on failure
+    const totalTime = Math.round(performance.now() - startTime);
+    log.error(
+      `Error analyzing domain structure: ${error.message} (took ${totalTime}ms)`
+    );
+
     return {
       hasPanel: false,
       hasApi: false,
@@ -414,14 +420,6 @@ function findModuleByDirectory(dirName, type) {
     }
   }
   return null;
-}
-
-/**
- * Clear the domain analysis cache
- */
-export function clearDomainAnalysisCache() {
-  domainAnalysisCache.clear();
-  log.debug("Domain analysis cache cleared");
 }
 
 /**
@@ -598,5 +596,4 @@ export function renderDomainAnalysis(analysis) {
 export default {
   analyzeDomainStructure,
   renderDomainAnalysis,
-  clearDomainAnalysisCache,
 };

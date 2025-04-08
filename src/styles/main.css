@@ -38,6 +38,7 @@
 @import "download.css";
 @import "settings.css";
 @import "debug.css";
+@import "changelog.css";
 
 /* ==========================================================================
    FEATURE-SPECIFIC STYLES
@@ -46,10 +47,10 @@
 @import "modules.css";
 
 /* Domain analysis functionality */
-@import "domain-analysis.css";
+@import "analysis.css";
 
 /* DNS preview functionality */
-@import "dns-preview.css";
+@import "dns.css";
 
 /* Modal dialogs and overlays */
 @import "modals.css";

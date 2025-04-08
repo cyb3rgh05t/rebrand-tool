@@ -56,6 +56,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Initialize all application components
   initializeComponents();
+
+  // Pre-load the changelog dialog module
+  import("./modules/changelog-dialog.js")
+    .then((module) => {
+      // Initialize the dialog without showing it
+      module.initChangelogDialog();
+      log.debug("Changelog dialog pre-loaded");
+    })
+    .catch((err) => {
+      log.warn(`Failed to pre-load changelog dialog: ${err.message}`);
+    });
 });
 
 /**
@@ -475,7 +486,8 @@ function initializeModuleHandlers() {
 }
 
 /**
- * Listen for menu actions from the main process
+ * Enhanced menu action listener to handle "show-no-update" action
+ * This should be added to the existing initializeMenuListeners function in script.js
  */
 function initializeMenuListeners() {
   if (window.streamNetAPI && window.streamNetAPI.onMenuAction) {
@@ -542,6 +554,48 @@ function initializeMenuListeners() {
                 });
             } catch (err) {
               log.error(`Error in update notification handler: ${err.message}`);
+            }
+          }
+          break;
+
+        // NEW: Handle "show-no-update" action
+        case "show-no-update":
+          // Show dialog for no update available
+          if (data && data.currentVersion) {
+            log.info(
+              `Received show-no-update action for version ${data.currentVersion}`
+            );
+            try {
+              // Import dynamically and show dialog
+              import("./modules/no-update-dialog.js")
+                .then((module) => {
+                  try {
+                    module.showNoUpdateDialog(data.currentVersion);
+                  } catch (err) {
+                    log.error(`Error showing no update dialog: ${err.message}`);
+                    // Fallback to alert
+                    alert(
+                      `You're using the latest version (v${data.currentVersion}). No updates available.`
+                    );
+                  }
+                })
+                .catch((err) => {
+                  log.error(
+                    `Error importing no update dialog module: ${err.message}`
+                  );
+                  // Fallback to alert
+                  alert(
+                    `You're using the latest version (v${data.currentVersion}). No updates available.`
+                  );
+                });
+            } catch (err) {
+              log.error(
+                `Error in no update notification handler: ${err.message}`
+              );
+              // Fallback to alert
+              alert(
+                `You're using the latest version (v${data.currentVersion}). No updates available.`
+              );
             }
           }
           break;

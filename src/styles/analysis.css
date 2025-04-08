@@ -1,5 +1,6 @@
 /**
  * Domain analysis styles for StreamNet Panels
+ * Enhanced with better loading animations and performance improvements
  */
 
 /* ==========================================================================
@@ -17,6 +18,7 @@
   max-height: none; /* Ensure no max height restriction */
   box-sizing: border-box;
   width: 100%;
+  transition: opacity 0.3s ease; /* Add transition for opacity changes */
 }
 
 .domain-analysis-section::before {
@@ -30,9 +32,14 @@
   pointer-events: none;
 }
 
+/* Add loading state styling */
+.domain-analysis-section.loading {
+  opacity: 0.7;
+}
+
 /* ==========================================================================
-     DOMAIN ANALYSIS HEADER
-     ========================================================================== */
+       DOMAIN ANALYSIS HEADER
+       ========================================================================== */
 .domain-analysis-header {
   display: flex;
   justify-content: space-between;
@@ -96,9 +103,14 @@
   transform: translateY(1px);
 }
 
+/* Add rotation animation for refresh button when active */
+.refresh-analysis-btn.refreshing::before {
+  animation: spin 1.5s linear infinite;
+}
+
 /* ==========================================================================
-     ANALYSIS STATUS INDICATORS
-     ========================================================================== */
+       ANALYSIS STATUS INDICATORS
+       ========================================================================== */
 .analysis-status {
   padding: 12px 16px;
   margin-bottom: 14px;
@@ -156,8 +168,8 @@
 }
 
 /* ==========================================================================
-     ANALYSIS CONTENT
-     ========================================================================== */
+       ANALYSIS CONTENT
+       ========================================================================== */
 .analysis-title {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
@@ -226,25 +238,18 @@
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Module icon in analysis */
 .installed-module .module-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 5px; /* Less margin */
-  width: 32px; /* Smaller icon size */
-  height: 32px;
+  margin: 0 auto 5px auto; /* Center horizontally with margin auto */
+  width: 40px; /* Slightly bigger for better visibility */
+  height: 40px;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  padding: 4px;
+  padding: 6px; /* Increased padding */
   transition: all var(--transition);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.installed-module:hover .module-icon {
-  transform: scale(1.1);
-  background-color: rgba(79, 70, 229, 0.1);
-  box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
 }
 
 .installed-module .icon-image {
@@ -252,6 +257,14 @@
   height: 28px;
   object-fit: contain;
   transition: all var(--transition);
+  display: block; /* Ensures proper centering */
+  margin: 0 auto; /* Center the image itself */
+}
+
+.installed-module:hover .module-icon {
+  transform: scale(1.1);
+  background-color: rgba(79, 70, 229, 0.1);
+  box-shadow: var(--accent);
 }
 
 .installed-module:hover .icon-image {
@@ -274,27 +287,79 @@
   color: var(--primary-light);
 }
 
-/* Analysis loading state */
-.analysis-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-  color: var(--text-secondary);
-  font-style: italic;
-  position: relative;
+/* ==========================================================================
+       IMPROVED LOADING ANIMATION
+       ========================================================================== */
+/* Define spinner keyframes */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-.analysis-loading::after {
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Enhance the loading state animation */
+.analysis-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--text-secondary);
+  font-style: italic;
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--item-radius);
+  margin: 10px 0;
+  animation: fadeIn 0.5s ease;
+}
+
+/* Replace the existing loading indicator with a more visible spinner */
+.analysis-loading::before {
   content: "";
   display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--primary-light);
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid var(--primary);
   border-radius: 50%;
-  border-top-color: transparent;
-  margin-left: 10px;
-  animation: spin 1.5s linear infinite;
+  margin-right: 12px;
+  animation: spin 1s linear infinite;
+}
+
+/* Add a specific loading spinner class that can be used independently */
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+/* Enhanced refresh animation */
+.domain-analysis-refresh {
+  animation: refresh-fade 0.5s;
+}
+
+@keyframes refresh-fade {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /* Empty domain analysis styling */
@@ -305,6 +370,7 @@
   color: var(--text-secondary);
   background-color: var(--bg-surface-dark);
   transition: all var(--transition);
+  border-radius: var(--item-radius);
 }
 
 .domain-analysis-content .empty-section-message:hover {
@@ -336,8 +402,8 @@
 }
 
 /* ==========================================================================
-     THEME SPECIFIC OVERRIDES
-     ========================================================================== */
+       THEME SPECIFIC OVERRIDES
+       ========================================================================== */
 .theme-light .domain-analysis-section {
   background-color: white;
   box-shadow: var(--shadow-sm);
@@ -357,9 +423,14 @@
   background-color: var(--bg-surface-elevated);
 }
 
+.theme-light .analysis-loading::before {
+  border-color: rgba(0, 0, 0, 0.1);
+  border-top-color: var(--primary);
+}
+
 /* ==========================================================================
-     RESPONSIVE ADJUSTMENTS
-     ========================================================================== */
+       RESPONSIVE ADJUSTMENTS
+       ========================================================================== */
 @media (max-width: 768px) {
   .installed-module {
     width: calc(50% - 5px); /* 2 items per row on tablets */

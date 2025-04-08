@@ -52,6 +52,9 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
     shell.openExternal(url);
   },
 
+  // Get changelog content
+  getChangelog: () => ipcRenderer.invoke("get-changelog"),
+
   // Dedicated method for opening domain URLs in external browser
   openDomainUrl: (url) => {
     return ipcRenderer.invoke("open-domain-url", url);

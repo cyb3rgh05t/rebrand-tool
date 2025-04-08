@@ -197,10 +197,12 @@ export function handleDomainChange() {
     return;
   }
 
-  // Show loading message in the analysis section
+  // Show loading message in the analysis section with animated indicator
   if (domainAnalysisContent) {
-    domainAnalysisContent.innerHTML =
-      '<div class="analysis-loading">Analyzing domain structure</div>';
+    domainAnalysisContent.innerHTML = `
+      <div class="analysis-loading">
+        Analyzing domain structure...
+      </div>`;
   }
 
   // Auto-fill subdomain field based on selected domain if DNS toggle is on
@@ -215,53 +217,56 @@ export function handleDomainChange() {
     }
   }
 
-  // Analyze domain structure if analysis module is available
-  // Show loading message with debugging info
-  if (domainAnalysisContent) {
-    domainAnalysisContent.innerHTML =
-      '<div class="analysis-loading">Attempting to load analyzer...</div>';
-  }
+  // Analyze domain structure
+  // Start performance timer
+  const analysisStartTime = performance.now();
 
-  // Analyze domain structure if analysis module is available
-  import("./domain-analyzer.js")
-    .then(async (analyzer) => {
-      if (domainAnalysisContent) {
-        domainAnalysisContent.innerHTML =
-          '<div class="analysis-loading">Import successful, analyzing domain...</div>';
-      }
+  // Import module and analyze domain with a slight delay to allow UI update
+  setTimeout(() => {
+    import("./domain-analyzer.js")
+      .then(async (analyzer) => {
+        try {
+          // Perform domain analysis - cached version was removed from the analyzer module
+          const analysis = await analyzer.analyzeDomainStructure(
+            selectedDomain
+          );
 
-      try {
-        // Perform domain analysis
-        const analysis = await analyzer.analyzeDomainStructure(selectedDomain);
+          // Calculate and log analysis time
+          const analysisTime = Math.round(
+            performance.now() - analysisStartTime
+          );
+          log.info(`Domain analysis completed in ${analysisTime}ms`);
 
-        // Update UI with analysis results
-        if (domainAnalysisContent) {
-          domainAnalysisContent.innerHTML =
-            analyzer.renderDomainAnalysis(analysis);
+          // Update UI with analysis results
+          if (domainAnalysisContent) {
+            domainAnalysisContent.innerHTML =
+              analyzer.renderDomainAnalysis(analysis);
+          }
+        } catch (error) {
+          // Show error in UI
+          log.error(`Error during domain analysis: ${error.message}`);
+
+          if (domainAnalysisContent) {
+            domainAnalysisContent.innerHTML = `
+              <div class="empty-section-message error">
+                Error analyzing domain: ${error.message}
+              </div>`;
+          }
         }
-      } catch (error) {
-        // Show error in UI instead of console
+      })
+      .catch((err) => {
+        // Show detailed import error in UI
+        log.error(`Failed to load domain analyzer: ${err.message}`);
+
         if (domainAnalysisContent) {
           domainAnalysisContent.innerHTML = `
             <div class="empty-section-message error">
-              Error analyzing domain: ${error.message}<br>
-              <small>Stack: ${error.stack || "No stack available"}</small>
+              Failed to load domain analyzer<br>
+              <small>Error: ${err.message}</small>
             </div>`;
         }
-      }
-    })
-    .catch((err) => {
-      // Show detailed import error in UI
-      if (domainAnalysisContent) {
-        domainAnalysisContent.innerHTML = `
-          <div class="empty-section-message error">
-            Failed to load domain analyzer<br>
-            <small>Error: ${err.message}</small><br>
-            <small>Type: ${err.constructor.name}</small><br>
-            <small>Stack: ${err.stack || "No stack available"}</small>
-          </div>`;
-      }
-    });
+      });
+  }, 10); // Short delay to ensure UI updates
 }
 
 /**

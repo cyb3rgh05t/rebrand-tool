@@ -463,6 +463,9 @@ async function scanDomainStructure(dirPath, depth = 1) {
   const logger = require("./utils/logger").createLogger("filesystem");
   logger.info(`Scanning domain structure at ${dirPath} with depth ${depth}`);
 
+  // Performance tracking
+  const startTime = Date.now();
+
   // For simulation mode, return some dummy data
   if (require("../config/serverConfig").settings.useSimulatedMode) {
     logger.debug(`Using simulated domain structure for ${dirPath}`);
@@ -474,12 +477,33 @@ async function scanDomainStructure(dirPath, depth = 1) {
 
   let connection;
   try {
-    connection = await require("./connection").createSftpConnection();
+    // Log connection attempt
+    logger.debug(
+      `Creating SFTP connection for domain scan at ${Date.now() - startTime}ms`
+    );
+
+    // Get connection with timeout setting
+    const connectionPromise = require("./connection").createSftpConnection();
+
+    // Add a timeout for the connection
+    const connectionWithTimeout = Promise.race([
+      connectionPromise,
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Connection timeout after 10 seconds")),
+          10000
+        )
+      ),
+    ]);
+
+    connection = await connectionWithTimeout;
     const { conn, sftp } = connection;
+
+    logger.debug(`Connection established at ${Date.now() - startTime}ms`);
 
     // First check if the directory exists
     try {
-      const stats = await new Promise((resolve, reject) => {
+      const statPromise = new Promise((resolve, reject) => {
         sftp.stat(dirPath, (err, stats) => {
           if (err) {
             if (err.code === 2) {
@@ -494,11 +518,26 @@ async function scanDomainStructure(dirPath, depth = 1) {
         });
       });
 
+      // Add timeout for stat operation
+      const statWithTimeout = Promise.race([
+        statPromise,
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Stat operation timeout after 5 seconds")),
+            5000
+          )
+        ),
+      ]);
+
+      const stats = await statWithTimeout;
+
       if (!stats.isDirectory()) {
         conn.end();
         logger.error(`Path is not a directory: ${dirPath}`);
         return { error: `Path is not a directory: ${dirPath}`, items: [] };
       }
+
+      logger.debug(`Directory validated at ${Date.now() - startTime}ms`);
     } catch (statErr) {
       conn.end();
       logger.error(`Error checking directory: ${statErr.message}`);
@@ -506,15 +545,37 @@ async function scanDomainStructure(dirPath, depth = 1) {
     }
 
     // Start scanning from the root directory
-    const items = await scanDirectory(sftp, dirPath, depth);
+    logger.debug(`Starting directory scan at ${Date.now() - startTime}ms`);
+    const scanPromise = scanDirectory(sftp, dirPath, depth);
+
+    // Add timeout for scan operation
+    const scanWithTimeout = Promise.race([
+      scanPromise,
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Directory scan timeout after 30 seconds")),
+          30000
+        )
+      ),
+    ]);
+
+    const items = await scanWithTimeout;
+
+    logger.debug(`Directory scan completed at ${Date.now() - startTime}ms`);
 
     // Close connection
     conn.end();
 
-    logger.info(`Domain structure scan complete for ${dirPath}`);
-    return { items };
+    const totalTime = Date.now() - startTime;
+    logger.info(
+      `Domain structure scan complete for ${dirPath} in ${totalTime}ms`
+    );
+    return { items, scanTime: totalTime };
   } catch (err) {
-    logger.error(`Error scanning domain structure: ${err.message}`);
+    const totalTime = Date.now() - startTime;
+    logger.error(
+      `Error scanning domain structure: ${err.message} (took ${totalTime}ms)`
+    );
 
     // Clean up connection
     if (connection && connection.conn) {
@@ -525,8 +586,88 @@ async function scanDomainStructure(dirPath, depth = 1) {
       }
     }
 
-    return { error: err.message, items: [] };
+    return { error: err.message, items: [], scanTime: totalTime };
   }
+}
+
+/**
+ * Recursively scan a directory and its subdirectories with optimizations
+ * @param {Object} sftp SFTP connection
+ * @param {string} dirPath Directory path
+ * @param {number} depthRemaining How many more levels to scan
+ * @returns {Promise<Array>} Directory listing
+ */
+async function scanDirectory(sftp, dirPath, depthRemaining) {
+  const logger = require("./utils/logger").createLogger("filesystem");
+
+  // Wrap the entire function in Promise.race to set a timeout
+  return Promise.race([
+    new Promise((resolve, reject) => {
+      sftp.readdir(dirPath, async (err, list) => {
+        if (err) {
+          logger.error(`Error reading directory ${dirPath}: ${err.message}`);
+          return reject(err);
+        }
+
+        const items = [];
+        const subdirPromises = [];
+
+        for (const item of list) {
+          const itemPath = `${dirPath}/${item.filename}`;
+          const isDirectory = item.attrs.isDirectory();
+
+          const itemInfo = {
+            name: item.filename,
+            path: itemPath,
+            isDirectory,
+            size: item.attrs.size,
+            modifyTime: new Date(item.attrs.mtime * 1000),
+          };
+
+          // If it's a directory and we haven't reached max depth, queue it for scanning
+          if (isDirectory && depthRemaining > 0) {
+            // Create a promise for the subdirectory scan but don't await it yet
+            const scanPromise = (async () => {
+              try {
+                const children = await scanDirectory(
+                  sftp,
+                  itemPath,
+                  depthRemaining - 1
+                );
+                itemInfo.children = children;
+              } catch (subDirErr) {
+                logger.error(
+                  `Error scanning subdirectory ${itemPath}: ${subDirErr.message}`
+                );
+                itemInfo.error = subDirErr.message;
+              }
+            })();
+
+            subdirPromises.push(scanPromise);
+          }
+
+          items.push(itemInfo);
+        }
+
+        // Wait for all subdirectory scans to complete
+        try {
+          await Promise.all(subdirPromises);
+          resolve(items);
+        } catch (error) {
+          logger.error(`Error in subdirectory scanning: ${error.message}`);
+          // Still resolve with what we have, even if some directories failed
+          resolve(items);
+        }
+      });
+    }),
+    // Set a timeout for the entire scan operation
+    new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error(`Directory scan timeout for ${dirPath}`)),
+        15000
+      )
+    ),
+  ]);
 }
 
 /**

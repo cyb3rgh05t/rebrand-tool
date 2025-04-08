@@ -936,7 +936,7 @@ function syncConnectionStatus() {
 }
 
 /**
- * Check for application updates
+ * Check for application updates - Enhanced with "no update available" dialog
  */
 export async function checkForUpdates() {
   const settingsUpdateStatus = document.getElementById("settingsUpdateStatus");
@@ -1023,11 +1023,24 @@ export async function checkForUpdates() {
 
         showStatus("info", `Update available: v${result.version}`);
       } else {
-        // No update available
+        // No update available - update status in settings panel
         settingsUpdateStatus.className =
           "settings-status-message update-not-available";
         settingsUpdateStatus.textContent = `You're using the latest version (v${result.currentVersion})`;
         log.info("No updates available");
+
+        // NEW: Show the "no update available" dialog
+        // Import the dialog functionality dynamically
+        try {
+          const noUpdateDialog = await import("./no-update-dialog.js");
+          noUpdateDialog.showNoUpdateDialog(result.currentVersion);
+        } catch (err) {
+          log.error(`Error showing no update dialog: ${err.message}`);
+          // Fallback to a simple alert
+          alert(
+            `You're using the latest version (v${result.currentVersion}). No updates available.`
+          );
+        }
       }
     } else {
       // API not available
@@ -1055,6 +1068,7 @@ function setupAboutButtons() {
 
   const githubButton = document.getElementById("openGithubLink");
   const issueButton = document.getElementById("openReportIssueLink");
+  const changelogButton = document.getElementById("viewChangelogBtn");
 
   if (githubButton) {
     // Remove any existing listeners to avoid duplicates
@@ -1121,6 +1135,40 @@ function setupAboutButtons() {
     }
   } else {
     log.warn("Issue button not found");
+  }
+
+  // Set up changelog button
+  if (changelogButton) {
+    // Remove any existing listeners to avoid duplicates
+    changelogButton.replaceWith(changelogButton.cloneNode(true));
+
+    // Get the fresh reference after replacement
+    const freshChangelogButton = document.getElementById("viewChangelogBtn");
+
+    if (freshChangelogButton) {
+      freshChangelogButton.addEventListener("click", async function () {
+        log.info("Changelog button clicked");
+        try {
+          // Dynamically import the changelog dialog
+          const changelogModule = await import("./changelog-dialog.js");
+
+          // Show the changelog dialog
+          changelogModule.showChangelogDialog();
+        } catch (err) {
+          log.error(`Error showing changelog: ${err.message}`);
+
+          // Fallback - show a simple alert
+          showStatus(
+            "error",
+            "Failed to load changelog. Please try again.",
+            "settings"
+          );
+        }
+      });
+      log.debug("Changelog button handler attached");
+    }
+  } else {
+    log.warn("Changelog button not found");
   }
 }
 

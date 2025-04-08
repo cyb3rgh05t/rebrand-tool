@@ -1,0 +1,261 @@
+/**
+ * Changelog Dialog Styles for StreamNet Panels
+ * Uses theme variables for full theme compatibility
+ */
+
+/* Dialog positioning and layout */
+.changelog-modal .modal-content {
+  width: 700px;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Add a gradient line at the top of modal - matches other modals */
+.changelog-modal .modal-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  z-index: 1;
+}
+
+/* Header styling */
+.changelog-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(90deg, var(--primary-dark), var(--bg-surface));
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.changelog-modal .modal-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.changelog-modal .modal-header h3::before {
+  content: "📋";
+  margin-right: 12px;
+  font-size: 20px;
+}
+
+/* Content area */
+.changelog-modal .modal-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+}
+
+.changelog-content {
+  height: 100%;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: var(--bg-surface);
+}
+
+.changelog-wrapper {
+  padding: 4px;
+}
+
+/* Version section styling */
+.changelog-version {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.changelog-version h3 {
+  margin: 0;
+  color: var(--primary-light);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.changelog-date {
+  margin-left: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Section headers */
+.changelog-section {
+  color: var(--accent);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Lists and items */
+.changelog-list {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  list-style-type: disc;
+}
+
+.changelog-list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+/* Footer styling */
+.changelog-modal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Loading and error states */
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.error-message {
+  padding: 1rem;
+  color: var(--error);
+  background-color: var(--error-subtle);
+  border-radius: var(--border-radius-md);
+  margin: 1rem;
+}
+
+/* Animation for version numbers */
+.changelog-version h3 {
+  position: relative;
+}
+
+.changelog-version h3::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.changelog-version:hover h3::after {
+  width: 100%;
+}
+
+/* Close button styling - matches other modals */
+.changelog-modal .close-modal {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--bg-surface-hover);
+  color: var(--text-secondary);
+  transition: all var(--transition-default);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.changelog-modal .close-modal:hover {
+  background-color: var(--bg-surface-highlight);
+  color: var(--text-primary);
+  transform: rotate(90deg);
+}
+
+/* Theme-specific overrides */
+/* Light theme adjustments */
+.theme-light .changelog-modal .modal-content {
+  background-color: var(--bg-surface);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.theme-light .changelog-content {
+  background-color: var(--bg-surface);
+}
+
+.theme-light .changelog-version h3 {
+  color: var(--primary);
+}
+
+.theme-light .changelog-section {
+  color: var(--accent);
+}
+
+/* Nord theme adjustments */
+.theme-nord .changelog-modal .modal-header {
+  background: linear-gradient(90deg, #3b4252, #434c5e);
+}
+
+/* Dracula theme adjustments */
+.theme-dracula .changelog-modal .modal-header {
+  background: linear-gradient(90deg, #282a36, #44475a);
+}
+
+/* One Dark theme adjustments */
+.theme-onedark .changelog-modal .modal-header {
+  background: linear-gradient(90deg, #282c34, #21252b);
+}
+
+/* Hot Pink theme adjustments */
+.theme-hotpink .changelog-modal .modal-content::before {
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .changelog-modal .modal-content {
+    width: 95%;
+    max-width: 95vw;
+  }
+
+  .changelog-version {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .changelog-date {
+    margin-left: 0;
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .changelog-modal .modal-header,
+  .changelog-modal .modal-footer {
+    padding: 12px 16px;
+  }
+
+  .changelog-content {
+    padding: 12px;
+  }
+
+  .changelog-version h3 {
+    font-size: 1.3rem;
+  }
+}

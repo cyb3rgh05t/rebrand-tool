@@ -89,7 +89,7 @@ function registerIpcHandlers() {
     }
   });
 
-  // Update checking handler
+  // Updated "check-for-updates"
   ipcMain.handle("check-for-updates", async (event) => {
     logger.debug("IPC: check-for-updates called");
     try {
@@ -97,12 +97,21 @@ function registerIpcHandlers() {
       const updater = require("./updater");
       const result = await updater.checkForUpdates();
 
-      // If an update is available, show a dialog
+      // Get the BrowserWindow that sent the request
+      const win = BrowserWindow.fromWebContents(event.sender);
+
       if (result.updateAvailable) {
-        // Get the BrowserWindow that sent the request
-        const win = BrowserWindow.fromWebContents(event.sender);
+        // If an update is available, show the update dialog
         if (win) {
           updater.showUpdateDialog(result, win);
+        }
+      } else {
+        // If no update is available, send a message to the renderer
+        // to show the "no update available" dialog
+        if (win) {
+          win.webContents.send("menu-action", "show-no-update", {
+            currentVersion: result.currentVersion,
+          });
         }
       }
 
@@ -763,6 +772,37 @@ function registerIpcHandlers() {
 
   // Register config manager handlers
   registerConfigHandlers();
+
+  // Add changelog handler
+  ipcMain.handle("get-changelog", async (event) => {
+    logger.debug("IPC: get-changelog called");
+    try {
+      // Look for CHANGELOG.md in various locations
+      const possiblePaths = [
+        path.join(app.getAppPath(), "CHANGELOG.md"),
+        path.join(process.cwd(), "CHANGELOG.md"),
+        path.join(__dirname, "../../CHANGELOG.md"),
+        path.join(process.resourcesPath || "", "app/CHANGELOG.md"),
+        path.join(process.resourcesPath || "", "app.asar/CHANGELOG.md"),
+      ];
+
+      // Try each path until we find the changelog
+      for (const changelogPath of possiblePaths) {
+        if (fs.existsSync(changelogPath)) {
+          logger.debug(`Found CHANGELOG.md at: ${changelogPath}`);
+          const changelogContent = fs.readFileSync(changelogPath, "utf8");
+          return changelogContent;
+        }
+      }
+
+      // If no changelog file found, return default message
+      logger.warn("CHANGELOG.md not found in any expected location");
+      return "# Changelog\n\nNo changelog file found in the application.";
+    } catch (error) {
+      logger.error(`Error reading changelog: ${error.message}`);
+      return `# Error Reading Changelog\n\n${error.message}`;
+    }
+  });
 
   logger.info("All IPC handlers registered");
 }
