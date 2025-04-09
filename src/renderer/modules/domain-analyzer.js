@@ -8,7 +8,19 @@ import { MODULE_PATHS } from "./module-selection.js";
 import {
   getModuleDisplayName,
   getModuleIcon,
+  getModuleVersion,
 } from "../config/module-config.js";
+
+// Cache for panel_info.json data to avoid repeatedly reading the same files
+const panelInfoCache = new Map();
+
+/**
+ * Clear the domain analysis cache
+ */
+export function clearDomainAnalysisCache() {
+  panelInfoCache.clear();
+  log.debug("Domain analysis cache cleared");
+}
 
 /**
  * Analyze a domain's structure to check for installed modules
@@ -79,54 +91,101 @@ export async function analyzeDomainStructure(domainName) {
       specialModules: [], // For cockpit panel and support only
     };
 
-    // Check for dashboard.php which indicates cockpitpanel is installed
-    const dashboardFile = structure.items.find(
-      (item) => item.name === "dashboard.php" && !item.isDirectory
-    );
-
-    if (dashboardFile) {
-      log.debug(
-        `Found dashboard.php in public_html - cockpitpanel is installed`
+    // Check for cockpit panel (panel_info.json in public_html root)
+    let cockpitVersion = null;
+    try {
+      const cockpitInfoPath = `${publicHtmlPath}/panel_info.json`;
+      const cockpitInfoResult = await window.streamNetAPI.readFileContent(
+        cockpitInfoPath
       );
-      result.hasCockpitPanel = true;
 
-      // Add cockpitpanel to installed modules and special modules
-      const cockpitModule = {
-        name: "cockpitpanel",
-        displayName: "Cockpit Panel",
-        type: "panel",
-        path: "dashboard.php", // Using dashboard.php as the indicator
-      };
-      result.installedModules.push(cockpitModule);
-      result.specialModules.push(cockpitModule);
+      if (cockpitInfoResult.success) {
+        try {
+          const panelInfo = JSON.parse(cockpitInfoResult.content);
+          if (panelInfo.version) {
+            cockpitVersion = panelInfo.version;
+            panelInfoCache.set(cockpitInfoPath, panelInfo);
+            log.debug(
+              `Found cockpit panel version in root panel_info.json: ${cockpitVersion}`
+            );
+
+            // Mark cockpit panel as installed if panel_info.json exists
+            result.hasCockpitPanel = true;
+
+            // Add cockpitpanel to installed modules
+            const cockpitModule = {
+              name: "cockpitpanel",
+              displayName: "Cockpit Panel",
+              type: "panel",
+              path: "panel_info.json",
+              version: cockpitVersion,
+            };
+            result.installedModules.push(cockpitModule);
+            result.specialModules.push(cockpitModule);
+          }
+        } catch (parseErr) {
+          log.warn(
+            `Error parsing cockpit panel_info.json: ${parseErr.message}`
+          );
+        }
+      }
+    } catch (error) {
+      log.debug(
+        `No panel_info.json found in public_html root: ${error?.message}`
+      );
     }
 
-    // Check for branding.php in assets directory
-    const assetsDir = structure.items.find(
-      (item) => item.name === "assets" && item.isDirectory
-    );
-
-    if (assetsDir && assetsDir.children) {
-      const brandingFile = assetsDir.children.find(
-        (item) => item.name === "branding.php" && !item.isDirectory
+    // Check for branding using panel_info.json in assets/img directory
+    try {
+      const brandingInfoPath = `${publicHtmlPath}/assets/img/panel_info.json`;
+      const brandingInfoResult = await window.streamNetAPI.readFileContent(
+        brandingInfoPath
       );
 
-      if (brandingFile) {
-        log.debug(
-          `Found branding.php in assets directory - branding is installed`
-        );
-        result.hasBranding = true;
+      if (brandingInfoResult.success) {
+        try {
+          const panelInfo = JSON.parse(brandingInfoResult.content);
 
-        // Add branding to installed modules and special modules
-        const brandingModule = {
-          name: "branding",
-          displayName: "Branding",
-          type: "panel",
-          path: "assets/branding.php",
-        };
-        result.installedModules.push(brandingModule);
-        result.specialModules.push(brandingModule);
+          // Mark branding as installed since panel_info.json exists
+          result.hasBranding = true;
+          log.debug(
+            `Found panel_info.json in assets/img directory - branding is installed`
+          );
+
+          // Create branding module with version
+          const brandingModule = {
+            name: "branding",
+            displayName: "Branding",
+            type: "panel",
+            path: "assets/img/panel_info.json",
+            version: panelInfo.version,
+          };
+
+          // Add to modules lists
+          result.installedModules.push(brandingModule);
+          result.specialModules.push(brandingModule);
+        } catch (parseErr) {
+          log.warn(
+            `Error parsing branding panel_info.json: ${parseErr.message}`
+          );
+
+          // Still mark branding as installed but without version
+          result.hasBranding = true;
+
+          // Add branding without version
+          const brandingModule = {
+            name: "branding",
+            displayName: "Branding",
+            type: "panel",
+            path: "assets/img/panel_info.json",
+          };
+          result.installedModules.push(brandingModule);
+          result.specialModules.push(brandingModule);
+        }
       }
+    } catch (error) {
+      log.debug(`No panel_info.json found for branding: ${error?.message}`);
+      // Branding not installed
     }
 
     // Check for panel directory and its contents
@@ -137,96 +196,203 @@ export async function analyzeDomainStructure(domainName) {
     if (panelDir && panelDir.children) {
       result.hasPanel = true;
 
-      // Check for regular webview directory in panel
+      // Check for webview directory in panel
       const webviewDir = panelDir.children.find(
         (item) => item.name === "webview" && item.isDirectory
       );
 
       if (webviewDir) {
-        // First check for plexed.php (Plex Webview indicator)
-        if (webviewDir.children) {
-          const plexedFile = webviewDir.children.find(
-            (item) => item.name === "plexed.php" && !item.isDirectory
+        // Check for panel_info.json in the webview directory
+        try {
+          const webviewInfoPath = `${publicHtmlPath}/panel/webview/panel_info.json`;
+          const webviewInfoResult = await window.streamNetAPI.readFileContent(
+            webviewInfoPath
           );
 
-          if (plexedFile) {
-            log.debug(
-              `Found plexed.php in panel/webview - Plex Webview module is installed`
-            );
-            result.hasPlexWebview = true;
+          if (webviewInfoResult.success) {
+            try {
+              const webviewInfo = JSON.parse(webviewInfoResult.content);
+              const webviewVersion = webviewInfo.version;
 
-            // Add plexwebview to webview modules list
-            const plexWebviewModule = {
-              name: "plexwebview",
-              displayName: "Plex Webview",
-              type: "webview",
-              path: "panel/webview/plexed.php",
-            };
-            result.webviewModules.push(plexWebviewModule);
-            result.installedModules.push(plexWebviewModule);
+              // Check for Plex in the nested structure
+              // Look through the pages array, then their option arrays for "inner" values
+              let hasPlexLayout = false;
+
+              if (webviewInfo.pages && Array.isArray(webviewInfo.pages)) {
+                // Look through each page
+                for (const page of webviewInfo.pages) {
+                  // Check if this page has options
+                  if (page.option && Array.isArray(page.option)) {
+                    // Look through each option
+                    for (const option of page.option) {
+                      // Check if this option has an inner value containing "Plex"
+                      if (option.inner && option.inner.includes("Plex")) {
+                        hasPlexLayout = true;
+                        log.debug(
+                          `Detected Plex Webview from nested option: ${option.inner}`
+                        );
+                        break;
+                      }
+                    }
+                    if (hasPlexLayout) break; // Stop checking if we found Plex
+                  }
+                }
+              }
+
+              // If we found Plex in the nested structure, mark it as installed
+              if (hasPlexLayout) {
+                result.hasPlexWebview = true;
+
+                // Add Plex webview module
+                const plexWebviewModule = {
+                  name: "plexwebview",
+                  displayName: "Plex Webview",
+                  type: "webview",
+                  path: "panel/webview",
+                  version: webviewVersion,
+                };
+                result.webviewModules.push(plexWebviewModule);
+                result.installedModules.push(plexWebviewModule);
+              }
+
+              // Regular WebView is always considered installed if panel_info.json exists
+              log.debug(`Detected WebView with version: ${webviewVersion}`);
+              result.hasRegularWebview = true;
+
+              // Add regular webview module
+              const regularWebviewModule = {
+                name: "webviews",
+                displayName: "WebViews",
+                type: "webview",
+                path: "panel/webview",
+                version: webviewVersion,
+              };
+              result.webviewModules.push(regularWebviewModule);
+              result.installedModules.push(regularWebviewModule);
+            } catch (parseErr) {
+              log.warn(
+                `Error parsing webview panel_info.json: ${parseErr.message}`
+              );
+            }
           }
-        }
-
-        // Check if webview directory itself contains index.php or other files indicating regular webviews
-        if (webviewDir.children && webviewDir.children.length > 0) {
-          const hasWebviewFiles = webviewDir.children.some(
-            (item) => !item.isDirectory && item.name !== "plexed.php"
-          );
-
-          if (hasWebviewFiles) {
-            log.debug(`Found regular webview files in panel/webview`);
-            result.hasRegularWebview = true;
-
-            // Add regular webview to webview modules list
-            const regularWebviewModule = {
-              name: "webviews",
-              displayName: "WebViews",
-              type: "webview",
-              path: "panel/webview",
-            };
-            result.webviewModules.push(regularWebviewModule);
-            result.installedModules.push(regularWebviewModule);
-          }
+        } catch (error) {
+          log.debug(`No panel_info.json found for webview: ${error?.message}`);
         }
       }
 
-      // Check for API directory and its contents
-      const apiDir = structure.items.find(
-        (item) => item.name === "api" && item.isDirectory
-      );
-
-      // Process other panel modules (excluding webview)
+      // Process panel modules - EXCLUDING support, webview, and other special modules
       if (panelDir.children.length > 0) {
-        // Filter out webview directory for panel module count
-        const nonWebviewChildren = panelDir.children.filter(
-          (item) => item.name !== "webview"
+        // Filter out webview, support, and other special directories
+        const regularModuleDirs = panelDir.children.filter(
+          (item) =>
+            item.isDirectory &&
+            item.name !== "webview" &&
+            item.name !== "support" &&
+            item.name !== "assets" // Exclude assets directory
         );
 
-        result.panelEmpty = nonWebviewChildren.length === 0;
+        // Check if there are regular modules
+        result.panelEmpty = regularModuleDirs.length === 0;
 
         if (!result.panelEmpty) {
-          const panelModules = processPanelModules(nonWebviewChildren);
+          // Process each regular module folder
+          for (const moduleDir of regularModuleDirs) {
+            // Check for panel_info.json in this module directory
+            try {
+              const moduleInfoPath = `${publicHtmlPath}/panel/${moduleDir.name}/panel_info.json`;
+              const moduleInfoResult =
+                await window.streamNetAPI.readFileContent(moduleInfoPath);
 
-          // Check for support module in panel directory
-          for (const module of panelModules) {
-            if (module.name === "support") {
-              result.hasSupport = true;
-              result.specialModules.push(module);
-            } else {
-              // Add non-webview, non-support modules to panel modules
-              result.installedPanelModules.push(module);
+              if (moduleInfoResult.success) {
+                try {
+                  const moduleInfo = JSON.parse(moduleInfoResult.content);
+                  const moduleName = findModuleByDirectory(
+                    moduleDir.name,
+                    "panel"
+                  );
+
+                  // Create module object
+                  const moduleObj = {
+                    name: moduleName || moduleDir.name,
+                    displayName: getModuleDisplayName(
+                      moduleName || moduleDir.name
+                    ),
+                    type: "panel",
+                    path: `panel/${moduleDir.name}`,
+                    version: moduleInfo.version,
+                  };
+
+                  // Add to panel modules and full modules list
+                  result.installedPanelModules.push(moduleObj);
+                  result.installedModules.push(moduleObj);
+                } catch (parseErr) {
+                  log.warn(
+                    `Error parsing panel_info.json for ${moduleDir.name}: ${parseErr.message}`
+                  );
+                }
+              }
+            } catch (error) {
+              log.debug(
+                `No panel_info.json found for ${moduleDir.name}: ${error?.message}`
+              );
             }
           }
-
-          // Add all modules to the full list
-          result.installedModules.push(...panelModules);
         }
       } else {
         result.panelEmpty = true;
       }
+
+      // Look for support module separately
+      const supportDir = panelDir.children.find(
+        (item) => item.name === "support" && item.isDirectory
+      );
+
+      if (supportDir) {
+        try {
+          const supportInfoPath = `${publicHtmlPath}/panel/support/panel_info.json`;
+          const supportInfoResult = await window.streamNetAPI.readFileContent(
+            supportInfoPath
+          );
+
+          if (supportInfoResult.success) {
+            try {
+              const supportInfo = JSON.parse(supportInfoResult.content);
+
+              // Create support module object
+              const supportModule = {
+                name: "support",
+                displayName: "Support",
+                type: "panel",
+                path: `panel/support`,
+                version: supportInfo.version,
+              };
+
+              // Mark support as installed
+              result.hasSupport = true;
+
+              // Add to special modules and installed modules, but NOT to panel modules
+              result.specialModules.push(supportModule);
+              result.installedModules.push(supportModule);
+
+              log.debug(
+                `Found support module with version: ${supportInfo.version}`
+              );
+            } catch (parseErr) {
+              log.warn(
+                `Error parsing support panel_info.json: ${parseErr.message}`
+              );
+
+              // Still mark support as installed even if can't parse version
+              result.hasSupport = true;
+            }
+          }
+        } catch (error) {
+          log.debug(`No panel_info.json found for support: ${error?.message}`);
+        }
+      }
     }
 
-    // Check for api directory
+    // Check for API directory
     const apiDir = structure.items.find(
       (item) => item.name === "api" && item.isDirectory
     );
@@ -234,59 +400,68 @@ export async function analyzeDomainStructure(domainName) {
     if (apiDir) {
       result.hasApi = true;
 
-      // Check for webview directory in API
-      const apiWebviewDir = apiDir.children?.find(
-        (item) => item.name === "webview" && item.isDirectory
-      );
-
-      // Similar webview detection for API directory if needed
-      if (apiWebviewDir && apiWebviewDir.children?.length > 0) {
-        // We've already detected the webview module through panel directory
-        // But if API has webview directory and panel doesn't, we should count it
-        if (!result.hasRegularWebview && !result.hasPlexWebview) {
-          result.hasRegularWebview = true;
-
-          // Add regular webview to webview modules list if not already added
-          const apiWebviewModule = {
-            name: "webviews",
-            displayName: "WebViews API",
-            type: "webview",
-            path: "api/webview",
-          };
-          result.webviewModules.push(apiWebviewModule);
-          result.installedModules.push(apiWebviewModule);
-        }
-      }
-
-      // Process API modules excluding webview
-      if (apiDir.children?.length > 0) {
-        // Filter out webview directory for API module count
-        const nonWebviewApiChildren = apiDir.children.filter(
-          (item) => item.name !== "webview"
+      // Check if API directory has any subdirectories
+      if (apiDir.children && apiDir.children.length > 0) {
+        // Filter out webview, support, and other special directories
+        const regularApiDirs = apiDir.children.filter(
+          (item) =>
+            item.isDirectory &&
+            item.name !== "webview" &&
+            item.name !== "support"
         );
 
-        result.apiEmpty = nonWebviewApiChildren.length === 0;
+        result.apiEmpty = regularApiDirs.length === 0;
 
+        // Process regular API modules but don't try to read their panel_info.json files
         if (!result.apiEmpty) {
-          const apiModules = processApiModules(nonWebviewApiChildren);
+          for (const moduleDir of regularApiDirs) {
+            const moduleName = findModuleByDirectory(moduleDir.name, "api");
 
-          // Check for support module in API directory
-          for (const module of apiModules) {
-            if (module.name === "support") {
-              result.hasSupport = true;
-              result.specialModules.push(module);
-            } else {
-              // Only count non-support, non-webview modules in the API modules count
-              result.installedApiModules.push(module);
-            }
+            // Create API module object (we don't need versions for API modules)
+            const moduleObj = {
+              name: moduleName || moduleDir.name,
+              displayName: getModuleDisplayName(moduleName || moduleDir.name),
+              type: "api",
+              path: `api/${moduleDir.name}`,
+            };
+
+            // Add to API modules list
+            result.installedApiModules.push(moduleObj);
+
+            // Add to the overall modules list
+            result.installedModules.push(moduleObj);
           }
+        }
 
-          // Add all API modules to the full list (including support)
-          result.installedModules.push(...apiModules);
+        // Check for support in API directory (if not already found in panel)
+        if (!result.hasSupport) {
+          const apiSupportDir = apiDir.children.find(
+            (item) => item.name === "support" && item.isDirectory
+          );
+
+          if (apiSupportDir) {
+            result.hasSupport = true;
+
+            // Create API support module object
+            const apiSupportModule = {
+              name: "support",
+              displayName: "Support API",
+              type: "api",
+              path: `api/support`,
+            };
+
+            // Add to special modules and installed modules
+            result.specialModules.push(apiSupportModule);
+            result.installedModules.push(apiSupportModule);
+
+            log.debug(`Found support module in API directory`);
+          }
         }
       } else {
         result.apiEmpty = true;
       }
+    } else {
+      result.apiEmpty = true;
     }
 
     // Log total analysis time
@@ -309,102 +484,6 @@ export async function analyzeDomainStructure(domainName) {
       error: error.message,
     };
   }
-}
-
-/**
- * Process panel module directories
- * @param {Array} children Directory entries
- * @returns {Array} List of found modules
- */
-function processPanelModules(children) {
-  const modules = [];
-  const panelModules = new Set(
-    Object.keys(MODULE_PATHS)
-      .filter((key) => MODULE_PATHS[key].panel)
-      .map((key) => MODULE_PATHS[key].panel.split("/").pop())
-  );
-
-  for (const child of children) {
-    if (!child.isDirectory) continue;
-
-    // Find matching module from our known modules
-    const moduleName = findModuleByDirectory(child.name, "panel");
-
-    if (moduleName) {
-      modules.push({
-        name: moduleName,
-        displayName: getModuleDisplayName(moduleName),
-        type: "panel",
-        path: child.name,
-      });
-    } else if (panelModules.has(child.name)) {
-      // Direct match with a panel module name
-      const key = Object.keys(MODULE_PATHS).find(
-        (k) =>
-          MODULE_PATHS[k].panel &&
-          MODULE_PATHS[k].panel.split("/").pop() === child.name
-      );
-
-      if (key) {
-        modules.push({
-          name: key,
-          displayName: getModuleDisplayName(key),
-          type: "panel",
-          path: child.name,
-        });
-      }
-    }
-  }
-
-  return modules;
-}
-
-/**
- * Process API module directories
- * @param {Array} children Directory entries
- * @returns {Array} List of found modules
- */
-function processApiModules(children) {
-  const modules = [];
-  const apiModules = new Set(
-    Object.keys(MODULE_PATHS)
-      .filter((key) => MODULE_PATHS[key].api)
-      .map((key) => MODULE_PATHS[key].api.split("/").pop())
-  );
-
-  for (const child of children) {
-    if (!child.isDirectory) continue;
-
-    // Find matching module from our known modules
-    const moduleName = findModuleByDirectory(child.name, "api");
-
-    if (moduleName) {
-      modules.push({
-        name: moduleName,
-        displayName: getModuleDisplayName(moduleName),
-        type: "api",
-        path: child.name,
-      });
-    } else if (apiModules.has(child.name)) {
-      // Direct match with an API module name
-      const key = Object.keys(MODULE_PATHS).find(
-        (k) =>
-          MODULE_PATHS[k].api &&
-          MODULE_PATHS[k].api.split("/").pop() === child.name
-      );
-
-      if (key) {
-        modules.push({
-          name: key,
-          displayName: getModuleDisplayName(key),
-          type: "api",
-          path: child.name,
-        });
-      }
-    }
-  }
-
-  return modules;
 }
 
 /**
@@ -497,17 +576,26 @@ export function renderDomainAnalysis(analysis) {
   }
 
   // Function to create module HTML
-  const createModuleHtml = (moduleName, displayName) => {
+  const createModuleHtml = (moduleName, displayName, version) => {
     const iconFileName = getModuleIcon(moduleName);
     const iconPath = `src/icons/${iconFileName}.png`;
 
+    // Version display without background
     return `
       <div class="installed-module" title="${moduleName} (icon: ${iconFileName}.png)">
         <span class="module-icon">
           <img src="${iconPath}" alt="${displayName}" class="icon-image" 
-               onerror="this.onerror=null; this.src='src/icons/module.png'; console.log('Icon not found: ${iconPath}');">
+               onerror="this.onerror=null; this.src='src/icons/module.png';">
         </span>
         <span class="module-name">${displayName}</span>
+        ${
+          version
+            ? `<div style="position: absolute; bottom: 2px; left: 0; right: 0; color: var(--text-secondary, #aaa); 
+                       font-size: 10px; text-align: center; padding: 3px; margin: 0 2px;">
+             v${version}
+           </div>`
+            : ""
+        }
       </div>
     `;
   };
@@ -516,7 +604,32 @@ export function renderDomainAnalysis(analysis) {
   if (analysis.hasCockpitPanel) {
     html += '<h4 class="analysis-title">Main Panel:</h4>';
     html += '<div class="installed-modules main-panel-section">';
-    html += createModuleHtml("cockpitpanel", "Cockpit Panel");
+
+    // Find the cockpit panel module with version
+    const cockpitModule = analysis.specialModules.find(
+      (m) => m.name === "cockpitpanel"
+    );
+    const cockpitVersion = cockpitModule?.version;
+
+    // Use modified HTML without background for version display
+    html += `
+      <div class="installed-module" title="cockpitpanel">
+        <span class="module-icon">
+          <img src="src/icons/rocket.png" alt="Cockpit Panel" class="icon-image" 
+               onerror="this.onerror=null; this.src='src/icons/module.png';">
+        </span>
+        <span class="module-name">Cockpit Panel</span>
+        ${
+          cockpitVersion
+            ? `<div style="position: absolute; bottom: 2px; left: 0; right: 0; color: var(--text-secondary, #aaa); 
+                      font-size: 10px; text-align: center; padding: 3px; margin: 0 2px;">
+            v${cockpitVersion}
+          </div>`
+            : ""
+        }
+      </div>
+    `;
+
     html += "</div>";
   }
 
@@ -529,12 +642,20 @@ export function renderDomainAnalysis(analysis) {
 
     // Add support module if installed
     if (analysis.hasSupport) {
-      html += createModuleHtml("support", "Support");
+      // Find the support module with version
+      const supportModule = analysis.specialModules.find(
+        (m) => m.name === "support"
+      );
+      html += createModuleHtml("support", "Support", supportModule?.version);
     }
 
     // Add branding module if installed
     if (analysis.hasBranding) {
-      html += createModuleHtml("branding", "Branding");
+      // Find the branding module with version
+      const brandingModule = analysis.specialModules.find(
+        (m) => m.name === "branding"
+      );
+      html += createModuleHtml("branding", "Branding", brandingModule?.version);
     }
 
     html += "</div>";
@@ -553,7 +674,7 @@ export function renderDomainAnalysis(analysis) {
       if (renderedWebviews.has(module.name)) continue;
       renderedWebviews.add(module.name);
 
-      html += createModuleHtml(module.name, module.displayName);
+      html += createModuleHtml(module.name, module.displayName, module.version);
     }
 
     html += "</div>";
@@ -583,7 +704,7 @@ export function renderDomainAnalysis(analysis) {
       if (renderedModules.has(module.name)) continue;
       renderedModules.add(module.name);
 
-      html += createModuleHtml(module.name, module.displayName);
+      html += createModuleHtml(module.name, module.displayName, module.version);
     }
 
     html += "</div>";
@@ -593,7 +714,108 @@ export function renderDomainAnalysis(analysis) {
   return html;
 }
 
+/**
+ * Post-process the domain analysis to add version information directly to DOM
+ * @param {Object} analysis Analysis result
+ */
+export function postProcessDomainAnalysis(analysis) {
+  if (!analysis) return;
+
+  // Wait for the DOM to update
+  setTimeout(() => {
+    try {
+      console.log("Post-processing domain analysis to add versions");
+
+      // Get all installed modules
+      const moduleElements = document.querySelectorAll(".installed-module");
+      if (!moduleElements || moduleElements.length === 0) {
+        console.log("No module elements found in DOM");
+        return;
+      }
+
+      console.log(`Found ${moduleElements.length} module elements in DOM`);
+
+      // Map of all modules with their versions
+      const moduleVersions = new Map();
+
+      // Add special modules
+      if (analysis.specialModules) {
+        analysis.specialModules.forEach((module) => {
+          if (module.version) {
+            moduleVersions.set(module.name, module.version);
+          }
+        });
+      }
+
+      // Add webview modules
+      if (analysis.webviewModules) {
+        analysis.webviewModules.forEach((module) => {
+          if (module.version) {
+            moduleVersions.set(module.name, module.version);
+          }
+        });
+      }
+
+      // Add regular modules
+      if (analysis.installedModules) {
+        analysis.installedModules.forEach((module) => {
+          if (module.version) {
+            moduleVersions.set(module.name, module.version);
+          }
+        });
+      }
+
+      console.log("Module versions map:", moduleVersions);
+
+      // Process each module element
+      moduleElements.forEach((element) => {
+        // Get module name from title attribute
+        const titleAttr = element.getAttribute("title");
+        if (!titleAttr) return;
+
+        // Extract module name from title
+        const moduleNameMatch = titleAttr.match(/^([^(]+)/);
+        if (!moduleNameMatch) return;
+
+        const moduleName = moduleNameMatch[1].trim();
+
+        // Check if we have a version for this module
+        if (moduleVersions.has(moduleName)) {
+          const version = moduleVersions.get(moduleName);
+
+          // Check if version display already exists
+          if (!element.querySelector(".module-version-direct")) {
+            // Create version display element
+            const versionEl = document.createElement("div");
+            versionEl.className = "module-version-direct";
+            versionEl.textContent = `v${version}`;
+            versionEl.style.position = "absolute";
+            versionEl.style.bottom = "2px";
+            versionEl.style.left = "0";
+            versionEl.style.right = "0";
+            versionEl.style.color = "var(--text-secondary, #aaa)";
+            versionEl.style.fontSize = "10px";
+            versionEl.style.textAlign = "center";
+            versionEl.style.padding = "3px";
+            versionEl.style.margin = "0 2px";
+
+            // Add to module element
+            element.style.position = "relative";
+            element.appendChild(versionEl);
+
+            console.log(`Added version ${version} to module ${moduleName}`);
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error in post-processing domain analysis:", error);
+    }
+  }, 100);
+}
+
 export default {
   analyzeDomainStructure,
   renderDomainAnalysis,
+  clearDomainAnalysisCache,
+  postProcessDomainAnalysis,
 };

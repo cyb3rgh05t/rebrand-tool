@@ -804,6 +804,18 @@ function registerIpcHandlers() {
     }
   });
 
+  // Read file content
+  ipcMain.handle("read-file-content", async (event, filePath) => {
+    logger.debug(`IPC: read-file-content called for ${filePath}`);
+    try {
+      const content = await filesystem.readFileContent(filePath);
+      return { success: true, content };
+    } catch (error) {
+      logger.error(`Error reading file content: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  });
+
   logger.info("All IPC handlers registered");
 }
 

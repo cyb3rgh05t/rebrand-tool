@@ -153,6 +153,9 @@ contextBridge.exposeInMainWorld("streamNetAPI", {
   setLogLevel: (category, level) =>
     ipcRenderer.invoke("set-log-level", category, level),
   clearMainLogs: () => ipcRenderer.invoke("clear-main-logs"),
+
+  readFileContent: (filePath) =>
+    ipcRenderer.invoke("read-file-content", filePath),
 });
 
 // Log preload script execution

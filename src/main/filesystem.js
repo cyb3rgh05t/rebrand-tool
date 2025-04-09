@@ -808,6 +808,46 @@ function createSimulatedStructure(dirPath) {
   return structure;
 }
 
+/**
+ * Read the content of a remote file
+ * @param {string} filePath Path to the file
+ * @returns {Promise<string>} File content
+ */
+async function readFileContent(filePath) {
+  logger.debug(`Reading file content: ${filePath}`);
+
+  let connection;
+  try {
+    connection = await require("./connection").createSftpConnection();
+    const { conn, sftp } = connection;
+
+    return new Promise((resolve, reject) => {
+      sftp.readFile(filePath, "utf8", (err, data) => {
+        if (err) {
+          logger.error(`Error reading file ${filePath}: ${err.message}`);
+          conn.end();
+          reject(err);
+          return;
+        }
+
+        logger.debug(`Successfully read file: ${filePath}`);
+        conn.end();
+        resolve(data.toString());
+      });
+    });
+  } catch (err) {
+    logger.error(`Error reading file: ${err.message}`);
+    if (connection && connection.conn) {
+      try {
+        connection.conn.end();
+      } catch (e) {
+        logger.error("Error closing connection:", e.message);
+      }
+    }
+    throw err;
+  }
+}
+
 module.exports = {
   checkRemoteFile,
   createRemoteDirectory,
@@ -817,4 +857,5 @@ module.exports = {
   listDestinationFolders,
   copyFolderContents,
   scanDomainStructure,
+  readFileContent,
 };

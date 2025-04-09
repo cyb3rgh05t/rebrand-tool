@@ -241,6 +241,9 @@ export function handleDomainChange() {
           if (domainAnalysisContent) {
             domainAnalysisContent.innerHTML =
               analyzer.renderDomainAnalysis(analysis);
+
+            // NEW: Post-process the DOM to ensure versions are displayed
+            analyzer.postProcessDomainAnalysis(analysis);
           }
         } catch (error) {
           // Show error in UI

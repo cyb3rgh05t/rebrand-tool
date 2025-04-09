@@ -288,6 +288,39 @@
 }
 
 /* ==========================================================================
+       MODULE VERSION DISPLAY
+       ========================================================================== */
+/* Module Version Display Styles */
+.installed-module .module-version {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--accent, #888);
+  margin-top: 2px;
+  font-weight: normal;
+  line-height: 1;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+/* Position fixes for version display */
+.installed-module {
+  padding-bottom: 20px !important; /* Increase to make room for version */
+  position: relative !important;
+}
+
+/* Fix for dense module layout - ensures version has room */
+.installed-module .module-name {
+  margin-bottom: 12px !important;
+}
+
+/* ==========================================================================
        IMPROVED LOADING ANIMATION
        ========================================================================== */
 /* Define spinner keyframes */
