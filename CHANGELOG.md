@@ -2,6 +2,15 @@
 
 All notable changes to Rebrands Panel Tool will be documented in this file.
 
+## [2.5.4] - 2025-04-09
+
+### Added
+
+- WebViews Module 2.5.2
+- Update Status for Modules in Analysis
+- Live Version from installed Modules
+- Version to selected Items fot Transfer
+
 ## [2.5.3] - 2025-04-07
 
 ### Added

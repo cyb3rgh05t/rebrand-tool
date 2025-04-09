@@ -1,8 +1,6 @@
-import {
-  getModuleDisplayName,
-  getModuleIcon,
-  findModuleNameFromDisplayName,
-} from "../config/module-config.js";
+import { MODULES } from "../config/module-config.js";
+
+import { log } from "../utils/logging.js";
 
 /**
  * Update the selected modules preview in the destination panel
@@ -24,193 +22,157 @@ export function updateSelectedModulesPreview(selectedItems) {
     return;
   }
 
-  // Function to create module HTML
-  const createModuleHtml = (moduleName, displayName) => {
-    const iconFileName = getModuleIcon(moduleName);
-    const iconPath = `src/icons/${iconFileName}.png`;
-
-    return `
-      <div class="selected-item installed-module" title="${moduleName}">
-        <span class="selected-item-icon module-icon">
-          <img src="${iconPath}" alt="${displayName}" class="icon-image" 
-               onerror="this.onerror=null; this.src='src/icons/module.png';">
-        </span>
-        <span class="selected-item-name module-name">${displayName}</span>
-      </div>
-    `;
+  // Mapping to handle module name variations and categorization
+  const MODULE_CATEGORIES = {
+    mainPanel: ["cockpitpanel"],
+    brandings: ["support", "branding"],
+    webviews: ["webviews", "plexwebview"],
+    regularModules: [],
   };
 
-  // Create sets to track unique modules
-  const mainPanelSet = new Set(); // Cockpit panel
-  const brandingSet = new Set(); // Support, Branding
-  const webviewsSet = new Set(); // NEW: WebViews (Regular and Plex)
-  const regularModulesSet = new Set(); // All other modules
+  // Mapping to handle module name variations
+  const MODULE_NAME_MAP = {
+    cockpitpanel: "cockpitpanel",
+    "cockpit panel": "cockpitpanel",
+    support: "support",
+    branding: "branding",
+    webviews: "webviews",
+    webview: "webviews",
+    plexwebview: "plexwebview",
+    "plex webview": "plexwebview",
+  };
 
-  // Arrays to hold the actual items for rendering
-  const mainPanel = [];
-  const brandingModules = [];
-  const webviewModules = []; // NEW: Array for WebView modules
-  const regularModules = [];
+  // Function to resolve module name and version
+  const resolveModule = (name, path) => {
+    // Normalize name
+    const normalizedName = name.toLowerCase().replace(/\s+api|\s+panel/gi, "");
 
-  // Process all selected items
+    // Try direct mapping first
+    if (MODULE_NAME_MAP[normalizedName]) {
+      const moduleName = MODULE_NAME_MAP[normalizedName];
+      const moduleConfig = MODULES[moduleName];
+
+      return {
+        name: moduleName,
+        displayName: moduleConfig?.displayName || name,
+        version: moduleConfig?.version || null,
+        category: findModuleCategory(moduleName),
+        icon: moduleConfig?.icon,
+      };
+    }
+
+    // Fallback for other modules
+    const moduleConfig = MODULES[normalizedName];
+    return {
+      name: normalizedName,
+      displayName: moduleConfig?.displayName || name,
+      version: moduleConfig?.version || null,
+      category: findModuleCategory(normalizedName),
+      icon: moduleConfig?.icon,
+    };
+  };
+
+  // Find module category
+  const findModuleCategory = (moduleName) => {
+    for (const [category, modules] of Object.entries(MODULE_CATEGORIES)) {
+      if (modules.includes(moduleName)) return category;
+    }
+    return "regularModules";
+  };
+
+  // Collect unique modules by category
+  const categorizedModules = {
+    mainPanel: new Map(),
+    brandings: new Map(),
+    webviews: new Map(),
+    regularModules: new Map(),
+  };
+
+  // Process selected items
   selectedItems.forEach((item) => {
-    const moduleName = item.name?.toLowerCase() || "";
-    const modulePath = item.path?.toLowerCase() || "";
+    const moduleName = item.name || "";
+    const modulePath = item.path || "";
 
-    // Extract base module name (remove API/Panel suffixes)
-    let baseModuleName = moduleName.replace(/\s+api|\s+panel/gi, "");
+    const resolvedModule = resolveModule(moduleName, modulePath);
 
-    // Check for cockpitpanel
-    if (
-      item.isCockpitPanel ||
-      moduleName === "cockpitpanel" ||
-      modulePath.includes("cockpitpanel")
-    ) {
-      if (!mainPanelSet.has("cockpitpanel")) {
-        mainPanelSet.add("cockpitpanel");
-        mainPanel.push(item);
-      }
-    }
-    // Check for support or branding modules
-    else if (moduleName === "support" || moduleName.includes("support")) {
-      if (!brandingSet.has("support")) {
-        brandingSet.add("support");
-        brandingModules.push(item);
-      }
-    } else if (moduleName === "branding" || moduleName.includes("branding")) {
-      if (!brandingSet.has("branding")) {
-        brandingSet.add("branding");
-        brandingModules.push(item);
-      }
-    }
-    // NEW: Check for WebView modules (both regular and Plex)
-    else if (
-      moduleName === "webviews" ||
-      moduleName.includes("webview") ||
-      moduleName === "plexwebview" ||
-      moduleName.includes("plex") ||
-      modulePath.includes("webview")
-    ) {
-      // Determine if this is Plex WebView or regular WebView
-      let webviewType = moduleName.includes("plex")
-        ? "plexwebview"
-        : "webviews";
-
-      if (!webviewsSet.has(webviewType)) {
-        webviewsSet.add(webviewType);
-        webviewModules.push({
-          ...item,
-          name: webviewType,
-          displayName:
-            webviewType === "plexwebview" ? "Plex WebView" : "WebViews",
-        });
-      }
-    }
-    // All other modules
-    else {
-      if (!regularModulesSet.has(baseModuleName)) {
-        regularModulesSet.add(baseModuleName);
-        regularModules.push(item);
-      }
+    // Use the resolved name as the key to prevent duplicates
+    if (!categorizedModules[resolvedModule.category].has(resolvedModule.name)) {
+      categorizedModules[resolvedModule.category].set(
+        resolvedModule.name,
+        resolvedModule
+      );
     }
   });
 
-  // Start the domain analysis HTML structure
+  // Start rendering
   let html = '<div class="domain-analysis">';
 
-  // Calculate total logical items - using set sizes to ensure unique counting
-  const totalLogicalItems =
-    mainPanelSet.size +
-    brandingSet.size +
-    webviewsSet.size +
-    regularModulesSet.size;
+  // Total items calculation
+  const totalItems = Object.values(categorizedModules).reduce(
+    (total, category) => total + category.size,
+    0
+  );
 
-  // Add count status message
-  html += `<div class="analysis-status success">Selected ${totalLogicalItems} item${
-    totalLogicalItems !== 1 ? "s" : ""
+  html += `<div class="analysis-status success">Selected ${totalItems} item${
+    totalItems !== 1 ? "s" : ""
   } for transfer</div>`;
 
-  // Create Main Panel section if applicable
-  if (mainPanel.length > 0) {
-    html += '<h4 class="analysis-title">Main Panel:</h4>';
-    html +=
-      '<div class="selected-items-grid installed-modules main-panel-section">';
+  // Render each category
+  const categoryTitles = {
+    mainPanel: "Main Panel",
+    brandings: "Brandings",
+    webviews: "WebViews",
+    regularModules: "Selected Modules",
+  };
 
-    mainPanel.forEach((item) => {
-      html += createModuleHtml("cockpitpanel", "Cockpit Panel");
-    });
+  Object.entries(categorizedModules).forEach(([category, modules]) => {
+    if (modules.size > 0) {
+      html += `<h4 class="analysis-title">${categoryTitles[category]}:</h4>`;
+      html += `<div class="selected-items-grid installed-modules ${category}-section">`;
 
-    html += "</div>";
-  }
-
-  // Create Brandings section if applicable
-  if (brandingModules.length > 0) {
-    html += '<h4 class="analysis-title">Brandings:</h4>';
-    html +=
-      '<div class="selected-items-grid installed-modules brandings-section">';
-
-    // Display unique branding modules
-    const renderedBrandings = new Set();
-    brandingModules.forEach((item) => {
-      const moduleName = item.name
-        .toLowerCase()
-        .replace(/\s+panel|\s+api/gi, "");
-      if (!renderedBrandings.has(moduleName)) {
-        renderedBrandings.add(moduleName);
-        html += createModuleHtml(moduleName, getModuleDisplayName(moduleName));
-      }
-    });
-
-    html += "</div>";
-  }
-
-  // NEW: Create WebViews section if applicable
-  if (webviewModules.length > 0) {
-    html += '<h4 class="analysis-title">WebViews:</h4>';
-    html +=
-      '<div class="selected-items-grid installed-modules webviews-section">';
-
-    // Display unique webview modules
-    const renderedWebviews = new Set();
-    webviewModules.forEach((item) => {
-      const moduleName = item.name.toLowerCase();
-      if (!renderedWebviews.has(moduleName)) {
-        renderedWebviews.add(moduleName);
-        html += createModuleHtml(moduleName, getModuleDisplayName(moduleName));
-      }
-    });
-
-    html += "</div>";
-  }
-
-  // Create Installed Modules section if applicable
-  if (regularModules.length > 0) {
-    html += '<h4 class="analysis-title">Selected Modules:</h4>';
-    html +=
-      '<div class="selected-items-grid installed-modules regular-modules-section">';
-
-    // Group modules by their base name to avoid duplicates (e.g., "xciptv API" and "xciptv Panel")
-    const uniqueModules = new Map();
-
-    regularModules.forEach((item) => {
-      let baseName = item.name;
-      if (baseName.includes(" API")) {
-        baseName = baseName.replace(" API", "");
-      } else if (baseName.includes(" Panel")) {
-        baseName = baseName.replace(" Panel", "");
-      }
-
-      if (!uniqueModules.has(baseName)) {
-        uniqueModules.set(baseName, true);
-        html += createModuleHtml(
-          baseName.toLowerCase(),
-          getModuleDisplayName(baseName)
+      modules.forEach((module) => {
+        // Debug log
+        log.debug(
+          `Rendering module: ${module.name}, Version: ${module.version}`
         );
-      }
-    });
 
-    html += "</div>";
-  }
+        html += `
+          <div class="selected-item installed-module" style="position: relative; padding-bottom: 20px;">
+            <span class="selected-item-icon module-icon">
+              <img src="src/icons/${module.icon}.png" 
+                   alt="${module.displayName}" 
+                   class="icon-image" 
+                   onerror="this.onerror=null; this.src='src/icons/module.png';">
+            </span>
+            <span class="selected-item-name module-name" style="display: block; text-align: center;">
+              ${module.displayName}
+            </span>
+            ${
+              module.version
+                ? `
+              <div style="
+                position: absolute;
+                bottom: 2px;
+                left: 0;
+                right: 0;
+                text-align: center;
+                color: var(--text-secondary, #888);
+                font-size: 10px;
+                padding: 3px; 
+                margin: 0 2px;
+              ">
+                v${module.version}
+              </div>
+            `
+                : ""
+            }
+          </div>
+        `;
+      });
+
+      html += "</div>";
+    }
+  });
 
   html += "</div>";
 
