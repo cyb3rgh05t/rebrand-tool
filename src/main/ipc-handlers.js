@@ -501,6 +501,53 @@ function registerIpcHandlers() {
                   (item.name === "cockpitpanel" ||
                     item.path.includes("cockpitpanel")))
               ) {
+                // First, check if assets/img folder exists in the destination and delete it
+                try {
+                  logger.info(
+                    `Checking for existing assets/img folder in ${remoteDestPath}`
+                  );
+
+                  // Create assets directory if it doesn't exist to prevent errors with the test
+                  await connection.execSSHCommand(
+                    conn,
+                    `mkdir -p "${remoteDestPath}/assets"`,
+                    "Ensuring assets directory exists"
+                  );
+
+                  // Check if the img directory exists in assets
+                  const checkImgDir = await connection.execSSHCommand(
+                    conn,
+                    `if [ -d "${remoteDestPath}/assets/img" ]; then echo "EXISTS"; else echo "NOT_EXISTS"; fi`,
+                    "Checking for assets/img directory"
+                  );
+
+                  if (checkImgDir.trim() === "EXISTS") {
+                    logger.info(
+                      `Found existing assets/img directory, removing it`
+                    );
+
+                    // Remove the existing assets/img directory
+                    await connection.execSSHCommand(
+                      conn,
+                      `rm -rf "${remoteDestPath}/assets/img"`,
+                      "Removing existing assets/img directory"
+                    );
+
+                    logger.info(
+                      `Successfully removed existing assets/img directory`
+                    );
+                  } else {
+                    logger.debug(
+                      `No existing assets/img directory found, proceeding with transfer`
+                    );
+                  }
+                } catch (checkError) {
+                  logger.warn(
+                    `Error checking/removing assets/img directory: ${checkError.message}`
+                  );
+                  // Continue with the transfer despite the error
+                }
+
                 // Copy all files from the cockpitpanel directory directly to public_html
                 await connection.execSSHCommand(
                   conn,
@@ -512,6 +559,7 @@ function registerIpcHandlers() {
                   `Copied cockpitpanel directory directly to ${remoteDestPath}`
                 );
               }
+
               // Special handling for Plex Webview
               else if (
                 item.name === "plexwebview API" ||

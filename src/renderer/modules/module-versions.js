@@ -143,7 +143,7 @@ function addVersionsToModuleSelectionItems() {
     // Create version element
     const versionSpan = document.createElement("span");
     versionSpan.className = "module-version";
-    versionSpan.textContent = version;
+    versionSpan.textContent = `v${version}`;
 
     // Add to label
     label.appendChild(versionSpan);

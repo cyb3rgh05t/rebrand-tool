@@ -28,7 +28,7 @@ export const MODULES = {
   branding: {
     name: "branding",
     displayName: "Branding",
-    version: "1.0.0",
+    version: "1.0.1",
     icon: "branding",
     paths: {
       api: "assets",
@@ -58,7 +58,7 @@ export const MODULES = {
   webviews: {
     name: "webviews",
     displayName: "Webviews",
-    version: "2.5.1",
+    version: "2.5.2",
     icon: "android",
     paths: {
       api: "api/webview",
@@ -68,7 +68,7 @@ export const MODULES = {
   plexwebview: {
     name: "plexwebview",
     displayName: "Plex Webview",
-    version: "1.0.0",
+    version: "2.5.2",
     icon: "plex",
     paths: {
       //path: "plex",
