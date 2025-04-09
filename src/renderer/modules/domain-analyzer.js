@@ -9,6 +9,7 @@ import {
   getModuleDisplayName,
   getModuleIcon,
   getModuleVersion,
+  MODULES,
 } from "../config/module-config.js";
 
 // Cache for panel_info.json data to avoid repeatedly reading the same files
@@ -20,6 +21,66 @@ const panelInfoCache = new Map();
 export function clearDomainAnalysisCache() {
   panelInfoCache.clear();
   log.debug("Domain analysis cache cleared");
+}
+
+/**
+ * Compare semantic versions
+ * @param {string} version1 First version to compare
+ * @param {string} version2 Second version to compare
+ * @returns {number} -1 if version1 < version2, 0 if equal, 1 if version1 > version2
+ */
+function compareVersions(version1, version2) {
+  if (!version1 || !version2) return 0;
+
+  // Handle cases where versions might not be well-formed
+  if (typeof version1 !== "string" || typeof version2 !== "string") {
+    return 0;
+  }
+
+  // Split versions into components and remove any 'v' prefix
+  const v1 = version1.replace(/^v/i, "").split(".").map(Number);
+  const v2 = version2.replace(/^v/i, "").split(".").map(Number);
+
+  // Compare each component
+  for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
+    const num1 = i < v1.length ? v1[i] : 0;
+    const num2 = i < v2.length ? v2[i] : 0;
+
+    if (num1 !== num2) {
+      return num1 < num2 ? -1 : 1;
+    }
+  }
+
+  return 0; // Versions are equal
+}
+
+/**
+ * Check if a module has a newer version available
+ * @param {string} moduleName Module name
+ * @param {string} currentVersion Current installed version
+ * @returns {boolean} True if update is available
+ */
+function hasUpdateAvailable(moduleName, currentVersion) {
+  if (!moduleName || !currentVersion) return false;
+
+  // Get latest version from module config
+  const latestVersion = MODULES[moduleName.toLowerCase()]?.version;
+  if (!latestVersion) return false;
+
+  // Compare versions
+  return compareVersions(currentVersion, latestVersion) < 0;
+}
+
+/**
+ * Get update icon HTML for version display
+ * @returns {string} HTML for update icon
+ */
+function getUpdateIconHTML() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--update-available, #ffbb00)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="update-available-icon" style="margin-left: 2px; vertical-align: middle;">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+    <polyline points="17 8 12 3 7 8"></polyline>
+    <line x1="12" y1="3" x2="12" y2="15"></line>
+  </svg>`;
 }
 
 /**
@@ -119,6 +180,7 @@ export async function analyzeDomainStructure(domainName) {
               type: "panel",
               path: "panel_info.json",
               version: cockpitVersion,
+              hasUpdate: hasUpdateAvailable("cockpitpanel", cockpitVersion),
             };
             result.installedModules.push(cockpitModule);
             result.specialModules.push(cockpitModule);
@@ -159,6 +221,7 @@ export async function analyzeDomainStructure(domainName) {
             type: "panel",
             path: "assets/img/panel_info.json",
             version: panelInfo.version,
+            hasUpdate: hasUpdateAvailable("branding", panelInfo.version),
           };
 
           // Add to modules lists
@@ -250,6 +313,7 @@ export async function analyzeDomainStructure(domainName) {
                   type: "webview",
                   path: "panel/webview",
                   version: webviewVersion,
+                  hasUpdate: hasUpdateAvailable("plexwebview", webviewVersion),
                 };
                 result.webviewModules.push(plexWebviewModule);
                 result.installedModules.push(plexWebviewModule);
@@ -266,6 +330,7 @@ export async function analyzeDomainStructure(domainName) {
                 type: "webview",
                 path: "panel/webview",
                 version: webviewVersion,
+                hasUpdate: hasUpdateAvailable("webviews", webviewVersion),
               };
               result.webviewModules.push(regularWebviewModule);
               result.installedModules.push(regularWebviewModule);
@@ -306,12 +371,32 @@ export async function analyzeDomainStructure(domainName) {
               if (moduleInfoResult.success) {
                 try {
                   const moduleInfo = JSON.parse(moduleInfoResult.content);
-                  const moduleName = findModuleByDirectory(
-                    moduleDir.name,
-                    "panel"
+
+                  // Be more specific with module name detection for similarly named modules
+                  let moduleName;
+
+                  // Handle special case for neu vs neutro to prevent confusion
+                  if (moduleDir.name === "neu") {
+                    moduleName = "neu"; // Force exact match for Purple Neu
+                    log.debug(
+                      `Explicitly identified module 'neu' (Purple Neu)`
+                    );
+                  } else if (moduleDir.name === "neutro") {
+                    moduleName = "neutro"; // Force exact match for Neutro
+                    log.debug(`Explicitly identified module 'neutro' (Neutro)`);
+                  } else {
+                    moduleName = findModuleByDirectory(moduleDir.name, "panel");
+                  }
+
+                  // Log detailed module identification info for debugging
+                  log.debug(
+                    `Module directory '${
+                      moduleDir.name
+                    }' identified as module '${moduleName || moduleDir.name}'`
                   );
 
-                  // Create module object
+                  // Create module object with update status
+                  const version = moduleInfo.version;
                   const moduleObj = {
                     name: moduleName || moduleDir.name,
                     displayName: getModuleDisplayName(
@@ -319,8 +404,16 @@ export async function analyzeDomainStructure(domainName) {
                     ),
                     type: "panel",
                     path: `panel/${moduleDir.name}`,
-                    version: moduleInfo.version,
+                    version: version,
+                    hasUpdate: hasUpdateAvailable(
+                      moduleName || moduleDir.name,
+                      version
+                    ),
                   };
+
+                  log.debug(
+                    `Added version ${version} to module ${moduleObj.name} (update: ${moduleObj.hasUpdate})`
+                  );
 
                   // Add to panel modules and full modules list
                   result.installedPanelModules.push(moduleObj);
@@ -357,6 +450,7 @@ export async function analyzeDomainStructure(domainName) {
           if (supportInfoResult.success) {
             try {
               const supportInfo = JSON.parse(supportInfoResult.content);
+              const supportVersion = supportInfo.version;
 
               // Create support module object
               const supportModule = {
@@ -364,7 +458,8 @@ export async function analyzeDomainStructure(domainName) {
                 displayName: "Support",
                 type: "panel",
                 path: `panel/support`,
-                version: supportInfo.version,
+                version: supportVersion,
+                hasUpdate: hasUpdateAvailable("support", supportVersion),
               };
 
               // Mark support as installed
@@ -493,11 +588,28 @@ export async function analyzeDomainStructure(domainName) {
  * @returns {string|null} Module name or null
  */
 function findModuleByDirectory(dirName, type) {
+  // First attempt an exact match to avoid confusion between similar module names
+  // like "neu" and "neutro"
   for (const [key, paths] of Object.entries(MODULE_PATHS)) {
-    if (paths[type] && paths[type].includes(dirName)) {
+    if (
+      paths[type] &&
+      (paths[type] === dirName || paths[type].endsWith(`/${dirName}`))
+    ) {
       return key;
     }
   }
+
+  // If no exact match, fall back to includes
+  for (const [key, paths] of Object.entries(MODULE_PATHS)) {
+    if (paths[type] && paths[type].includes(dirName)) {
+      // Special case for "neu" vs "neutro" to ensure they don't get confused
+      if (dirName === "neu" && key !== "neu") continue;
+      if (dirName === "neutro" && key !== "neutro") continue;
+
+      return key;
+    }
+  }
+
   return null;
 }
 
@@ -576,26 +688,49 @@ export function renderDomainAnalysis(analysis) {
   }
 
   // Function to create module HTML
-  const createModuleHtml = (moduleName, displayName, version) => {
+  const createModuleHtml = (moduleName, displayName, version, hasUpdate) => {
     const iconFileName = getModuleIcon(moduleName);
     const iconPath = `src/icons/${iconFileName}.png`;
 
-    // Version display without background
+    // Update styling for modules with available updates
+    const updateStyles = hasUpdate
+      ? `style="position: relative; 
+               background: linear-gradient(135deg, 
+                 rgba(255, 187, 0, 0.1), 
+                 rgba(255, 187, 0, 0.05)) !important; 
+               border: 1px solid rgba(255, 187, 0, 0.3) !important;
+               box-shadow: 0 2px 5px rgba(255, 187, 0, 0.1) !important;"`
+      : "";
+
+    // Version display with update icon and background
+    const versionDisplay = version
+      ? `<div style="position: absolute; 
+                     bottom: 2px; 
+                     left: 0; 
+                     right: 0; 
+                     color: var(${
+                       hasUpdate ? "--update-available" : "--text-secondary"
+                     }, ${hasUpdate ? "#ffbb00" : "#aaa"}); 
+                     font-size: 10px; 
+                     text-align: center; 
+                     padding: 3px; 
+                     margin: 0 2px;
+                     background: ${
+                       hasUpdate ? "rgba(255, 187, 0, 0.1)" : "transparent"
+                     };
+                     border-radius: 4px;">
+           v${version}${hasUpdate ? getUpdateIconHTML() : ""}
+         </div>`
+      : "";
+
     return `
-      <div class="installed-module" title="${moduleName} (icon: ${iconFileName}.png)">
+      <div class="installed-module" ${updateStyles} title="${moduleName} (icon: ${iconFileName}.png)">
         <span class="module-icon">
           <img src="${iconPath}" alt="${displayName}" class="icon-image" 
                onerror="this.onerror=null; this.src='src/icons/module.png';">
         </span>
         <span class="module-name">${displayName}</span>
-        ${
-          version
-            ? `<div style="position: absolute; bottom: 2px; left: 0; right: 0; color: var(--text-secondary, #aaa); 
-                       font-size: 10px; text-align: center; padding: 3px; margin: 0 2px;">
-             v${version}
-           </div>`
-            : ""
-        }
+        ${versionDisplay}
       </div>
     `;
   };
@@ -610,8 +745,12 @@ export function renderDomainAnalysis(analysis) {
       (m) => m.name === "cockpitpanel"
     );
     const cockpitVersion = cockpitModule?.version;
+    const hasUpdate = cockpitModule?.hasUpdate;
 
-    // Use modified HTML without background for version display
+    // Generate update icon if needed
+    const updateIcon = hasUpdate ? getUpdateIconHTML() : "";
+
+    // Use modified HTML with update icon for version display
     html += `
       <div class="installed-module" title="cockpitpanel">
         <span class="module-icon">
@@ -623,7 +762,7 @@ export function renderDomainAnalysis(analysis) {
           cockpitVersion
             ? `<div style="position: absolute; bottom: 2px; left: 0; right: 0; color: var(--text-secondary, #aaa); 
                       font-size: 10px; text-align: center; padding: 3px; margin: 0 2px;">
-            v${cockpitVersion}
+            v${cockpitVersion}${updateIcon}
           </div>`
             : ""
         }
@@ -646,7 +785,12 @@ export function renderDomainAnalysis(analysis) {
       const supportModule = analysis.specialModules.find(
         (m) => m.name === "support"
       );
-      html += createModuleHtml("support", "Support", supportModule?.version);
+      html += createModuleHtml(
+        "support",
+        "Support",
+        supportModule?.version,
+        supportModule?.hasUpdate
+      );
     }
 
     // Add branding module if installed
@@ -655,7 +799,12 @@ export function renderDomainAnalysis(analysis) {
       const brandingModule = analysis.specialModules.find(
         (m) => m.name === "branding"
       );
-      html += createModuleHtml("branding", "Branding", brandingModule?.version);
+      html += createModuleHtml(
+        "branding",
+        "Branding",
+        brandingModule?.version,
+        brandingModule?.hasUpdate
+      );
     }
 
     html += "</div>";
@@ -674,7 +823,12 @@ export function renderDomainAnalysis(analysis) {
       if (renderedWebviews.has(module.name)) continue;
       renderedWebviews.add(module.name);
 
-      html += createModuleHtml(module.name, module.displayName, module.version);
+      html += createModuleHtml(
+        module.name,
+        module.displayName,
+        module.version,
+        module.hasUpdate
+      );
     }
 
     html += "</div>";
@@ -696,15 +850,57 @@ export function renderDomainAnalysis(analysis) {
     html += '<h4 class="analysis-title">Installed Modules:</h4>';
     html += '<div class="installed-modules regular-modules-section">';
 
-    // Map to track which modules we've already rendered to avoid duplicates
-    const renderedModules = new Set();
+    // Module name to priority map to handle special cases
+    const modulePriority = {
+      neutro: 1,
+      neu: 2,
+    };
 
+    // Group modules by name to handle duplicates with priority
+    const moduleGroups = new Map();
     for (const module of regularModules) {
-      // Skip if we've already rendered this module
-      if (renderedModules.has(module.name)) continue;
-      renderedModules.add(module.name);
+      // Skip excluded modules
+      if (excludedModules.includes(module.name)) continue;
 
-      html += createModuleHtml(module.name, module.displayName, module.version);
+      if (!moduleGroups.has(module.name)) {
+        moduleGroups.set(module.name, module);
+      } else {
+        // If there's a conflict, use priority or keep the newer version
+        const existingModule = moduleGroups.get(module.name);
+
+        // Check if this is a special case
+        if (
+          modulePriority[module.name] &&
+          modulePriority[existingModule.name]
+        ) {
+          // Use the one with the highest priority
+          if (
+            modulePriority[module.name] < modulePriority[existingModule.name]
+          ) {
+            moduleGroups.set(module.name, module);
+          }
+        } else if (
+          compareVersions(module.version, existingModule.version) > 0
+        ) {
+          // Otherwise keep the module with the newer version
+          moduleGroups.set(module.name, module);
+        }
+      }
+    }
+
+    // Sort modules alphabetically by display name
+    const sortedModules = Array.from(moduleGroups.values()).sort((a, b) =>
+      a.displayName.localeCompare(b.displayName)
+    );
+
+    // Render each module
+    for (const module of sortedModules) {
+      html += createModuleHtml(
+        module.name,
+        module.displayName,
+        module.version,
+        module.hasUpdate
+      );
     }
 
     html += "</div>";
@@ -735,35 +931,28 @@ export function postProcessDomainAnalysis(analysis) {
 
       console.log(`Found ${moduleElements.length} module elements in DOM`);
 
-      // Map of all modules with their versions
+      // Map of all modules with their versions and update status
       const moduleVersions = new Map();
 
-      // Add special modules
-      if (analysis.specialModules) {
-        analysis.specialModules.forEach((module) => {
-          if (module.version) {
-            moduleVersions.set(module.name, module.version);
-          }
-        });
-      }
+      // Add special modules, webview modules, and regular modules to the map
+      const moduleArrays = [
+        analysis.specialModules,
+        analysis.webviewModules,
+        analysis.installedModules,
+      ];
 
-      // Add webview modules
-      if (analysis.webviewModules) {
-        analysis.webviewModules.forEach((module) => {
-          if (module.version) {
-            moduleVersions.set(module.name, module.version);
-          }
-        });
-      }
-
-      // Add regular modules
-      if (analysis.installedModules) {
-        analysis.installedModules.forEach((module) => {
-          if (module.version) {
-            moduleVersions.set(module.name, module.version);
-          }
-        });
-      }
+      moduleArrays.forEach((moduleArray) => {
+        if (moduleArray) {
+          moduleArray.forEach((module) => {
+            if (module.version) {
+              moduleVersions.set(module.name, {
+                version: module.version,
+                hasUpdate: module.hasUpdate,
+              });
+            }
+          });
+        }
+      });
 
       console.log("Module versions map:", moduleVersions);
 
@@ -781,29 +970,57 @@ export function postProcessDomainAnalysis(analysis) {
 
         // Check if we have a version for this module
         if (moduleVersions.has(moduleName)) {
-          const version = moduleVersions.get(moduleName);
+          const moduleInfo = moduleVersions.get(moduleName);
+          const version = moduleInfo.version;
+          const hasUpdate = moduleInfo.hasUpdate;
+
+          // Apply update styles
+          if (hasUpdate) {
+            element.style.background =
+              "linear-gradient(135deg, rgba(255, 187, 0, 0.1), rgba(255, 187, 0, 0.05))";
+            element.style.border = "1px solid rgba(255, 187, 0, 0.3)";
+            element.style.boxShadow = "0 2px 5px rgba(255, 187, 0, 0.1)";
+          }
 
           // Check if version display already exists
-          if (!element.querySelector(".module-version-direct")) {
-            // Create version display element
-            const versionEl = document.createElement("div");
+          let versionEl = element.querySelector(".module-version-direct");
+          if (!versionEl) {
+            versionEl = document.createElement("div");
             versionEl.className = "module-version-direct";
-            versionEl.textContent = `v${version}`;
+
+            // Style the version element
             versionEl.style.position = "absolute";
             versionEl.style.bottom = "2px";
             versionEl.style.left = "0";
             versionEl.style.right = "0";
-            versionEl.style.color = "var(--text-secondary, #aaa)";
+            versionEl.style.color = hasUpdate
+              ? "var(--update-available, #ffbb00)"
+              : "var(--text-secondary, #aaa)";
             versionEl.style.fontSize = "10px";
             versionEl.style.textAlign = "center";
             versionEl.style.padding = "3px";
             versionEl.style.margin = "0 2px";
 
+            // Add background for updates
+            if (hasUpdate) {
+              versionEl.style.background = "rgba(255, 187, 0, 0.1)";
+              versionEl.style.borderRadius = "4px";
+            }
+
+            // Add version with update icon if needed
+            if (hasUpdate) {
+              versionEl.innerHTML = `v${version}${getUpdateIconHTML()}`;
+            } else {
+              versionEl.textContent = `v${version}`;
+            }
+
             // Add to module element
             element.style.position = "relative";
             element.appendChild(versionEl);
 
-            console.log(`Added version ${version} to module ${moduleName}`);
+            console.log(
+              `Added version ${version} to module ${moduleName} (update: ${hasUpdate})`
+            );
           }
         }
       });
