@@ -14,6 +14,7 @@ import * as configSettings from "./config/settings-config.js";
 import { updateSelectedModulesPreview } from "./modules/selected-modules-preview.js";
 import * as transferDialog from "./modules/transfer-dialog.js";
 import { initializeDebugPanel } from "./modules/debug-panel.js";
+import * as transferSuccessDialog from "./modules/transfer-success-dialog.js";
 
 // Global app state to avoid duplicate API calls
 window.appState = {
@@ -143,6 +144,9 @@ async function initializeComponents() {
 
   transferDialog.initTransferDialog();
   console.log("Transfer dialog initialized");
+
+  transferSuccessDialog.initTransferSuccessDialog();
+  console.log("Transfer Success dialog initialized");
 
   // Initialize module versions after all other components are initialized
   try {

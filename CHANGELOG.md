@@ -2,6 +2,40 @@
 
 All notable changes to Rebrands Panel Tool will be documented in this file.
 
+## [2.6.0] - 2025-04-12
+
+### Added
+
+- New Transfer Success Dialog that provides a modern, visually appealing summary after successful module transfers
+- Theme-aware styling that adapts to all application themes (Dark, Light, Nord, Dracula, One Dark, Overseerr, Space Gray, Hotline, Aquamarine, Hot Pink, Maroon, Organizr, and Plex)
+- Improved module categorization in the success dialog:
+
+- Main Panel
+- Branding Modules
+- WebView Modules
+- Proxy Modules
+- OTT Applications
+- VOD Applications
+- VPN Applications
+- Store Applications
+
+- Automatic deduplication of modules to prevent duplicate entries in the success dialog
+- Special handling for Cockpit Panel to ensure proper categorization and version display
+- Responsive design for all screen sizes
+
+### Changed
+
+- Improved transfer completion flow to show only the new success dialog instead of the original transfer dialog
+- Enhanced module recognition system to better identify different module variants
+- Updated domain display with improved styling and DNS status indicator
+
+### Fixed
+
+- Fixed issue with duplicate module entries appearing in transfer summaries
+- Fixed Cockpit Panel not being properly categorized (previously appeared under "Other Modules")
+- Fixed version display for modules showing "0.0.0" when proper version information was available
+- Fixed path-based module detection for special cases like Cockpit Panel and WebViews
+
 ## [2.5.4] - 2025-04-09
 
 ### Added

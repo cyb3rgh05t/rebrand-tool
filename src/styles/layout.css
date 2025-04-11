@@ -29,8 +29,8 @@
 }
 
 /* ==========================================================================
-     HEADER
-     ========================================================================== */
+       HEADER
+       ========================================================================== */
 .header {
   background-color: var(--primary-dark);
   padding: 0 20px;
@@ -101,8 +101,8 @@
 }
 
 /* ==========================================================================
-     MAIN CONTAINER
-     ========================================================================== */
+       MAIN CONTAINER
+       ========================================================================== */
 .container {
   display: flex;
   height: calc(100vh - var(--header-height));
@@ -118,8 +118,8 @@
 }
 
 /* ==========================================================================
-     PANELS
-     ========================================================================== */
+       PANELS
+       ========================================================================== */
 .panel {
   background-color: var(--bg-surface);
   border-radius: var(--panel-radius);
@@ -203,8 +203,8 @@
 }
 
 /* ==========================================================================
-     CONTENT AREAS
-     ========================================================================== */
+       CONTENT AREAS
+       ========================================================================== */
 /* Destination content - scrollable area */
 .destination-content {
   /* Remove individual scrolling from content sections */
@@ -248,8 +248,8 @@
 }
 
 /* ==========================================================================
-     CATEGORY SECTIONS
-     ========================================================================== */
+       CATEGORY SECTIONS
+       ========================================================================== */
 .selection-category {
   margin-bottom: var(--spacing-lg);
 }
@@ -279,8 +279,8 @@
 }
 
 /* ==========================================================================
-     MODULE SUBSECTIONS
-     ========================================================================== */
+       MODULE SUBSECTIONS
+       ========================================================================== */
 .module-subsection {
   margin-bottom: 24px;
   padding: var(--spacing-lg);
@@ -332,16 +332,26 @@
   margin-right: 0 !important;
 }
 
-/* Selection items grid */
+/* Selection items grid - Default */
 .selection-items {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px;
 }
 
+/* Panel Selection - 2 items per row by default */
+.panels-selection .selection-items {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* App Modules Selection - 4 items per row by default */
+.app-modules-selection .selection-items {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 /* ==========================================================================
-     DESTINATION SECTIONS
-     ========================================================================== */
+       DESTINATION SECTIONS
+       ========================================================================== */
 .destination-section {
   margin-bottom: 0; /* No bottom margin as we use gap */
   padding: var(--spacing-lg);
@@ -399,8 +409,8 @@
 }
 
 /* ==========================================================================
-     DOMAIN SELECTION AND DNS FORM
-     ========================================================================== */
+       DOMAIN SELECTION AND DNS FORM
+       ========================================================================== */
 /* Domain selection container */
 .domain-selection-container {
   display: flex;
@@ -473,12 +483,22 @@
 }
 
 /* ==========================================================================
-     RESPONSIVE LAYOUT
-     ========================================================================== */
+       RESPONSIVE LAYOUT
+       ========================================================================== */
 /* Tablet and smaller desktops */
 @media (max-width: 1200px) {
   .selection-items {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  /* Keep panel selections at 2 per row */
+  .panels-selection .selection-items {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Reduce app modules to 3 per row on smaller screens */
+  .app-modules-selection .selection-items {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .module-subsection {
@@ -528,6 +548,16 @@
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
+  /* Keep panel selections at 2 per row for tablets */
+  .panels-selection .selection-items {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Reduce app modules to 2 per row on tablets */
+  .app-modules-selection .selection-items {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .form-actions {
     flex-direction: column;
   }
@@ -557,6 +587,12 @@
   }
 
   .selection-items {
+    grid-template-columns: 1fr;
+  }
+
+  /* All selection items go to 1 per row on mobile */
+  .panels-selection .selection-items,
+  .app-modules-selection .selection-items {
     grid-template-columns: 1fr;
   }
 

@@ -491,7 +491,7 @@ async function scanDomainStructure(dirPath, depth = 1) {
       new Promise((_, reject) =>
         setTimeout(
           () => reject(new Error("Connection timeout after 10 seconds")),
-          10000
+          20000
         )
       ),
     ]);

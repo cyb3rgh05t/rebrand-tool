@@ -53,7 +53,9 @@
 @import "dns.css";
 
 /* Modal dialogs and overlays */
-@import "modals.css";
+@import "domain.css";
+@import "transfer.css";
+@import "transfer-success.css";
 
 /* ==========================================================================
    UTILITY CLASSES

@@ -1,0 +1,488 @@
+/* ==========================================================================
+     TRANSFER PROGRESS MODAL
+     ========================================================================== */
+#transferModal .modal-header h3::before {
+  content: "⚙️";
+  margin-right: 12px;
+  font-size: 20px;
+}
+
+/* Transfer log styling */
+#transferLog.console-log-box {
+  position: relative;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-md);
+  height: 200px;
+  overflow-y: auto;
+  padding: var(--spacing-xs);
+  box-shadow: var(--shadow-inner);
+}
+
+/* Transfer summary section */
+.transfer-summary {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Success count styling */
+.success-count {
+  font-weight: var(--font-weight-semibold);
+  padding: var(--spacing-xs) 0;
+  transition: color var(--transition-default);
+}
+
+.success-count.success {
+  color: var(--success);
+}
+
+.success-count.partial {
+  color: var(--warning);
+}
+
+.success-count.failure {
+  color: var(--error);
+}
+
+/* Errors list container */
+.errors-list {
+  margin-top: var(--spacing-sm);
+  max-height: 150px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+/* Individual error items */
+.error-item {
+  color: var(--error);
+  padding: var(--spacing-xs) 0;
+  margin-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--error-subtle);
+}
+
+/* Domain link section in transfer summary - ENHANCED */
+.domain-link-section {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-default);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.domain-link-header {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-light);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+}
+
+.domain-link-header::before {
+  content: "🌐";
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.domain-link-container {
+  display: flex;
+  margin: var(--spacing-md) 0;
+}
+
+.domain-link-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--border-radius-md);
+  color: white !important;
+  text-decoration: none !important;
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-default);
+  box-shadow: var(--shadow-sm);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add shimmer effect */
+.domain-link-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.domain-link-button:hover::before {
+  left: 100%;
+}
+
+.domain-link-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  text-decoration: none !important;
+  color: white !important;
+}
+
+.domain-link-text {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.domain-link-button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.domain-link-icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.domain-link-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+  background-color: var(--bg-surface-dark);
+  padding: 10px;
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid var(--primary-light);
+}
+
+/* ENHANCED: Transferred items section */
+.transferred-items-section {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-subtle);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.transferred-items-header {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-light);
+  margin-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+}
+
+.transferred-items-header::before {
+  content: "📦";
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+/* UPDATED: Changed to match selected-items-grid */
+.transferred-items-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Category styling to match selected-category */
+.transfer-category {
+  margin-bottom: var(--spacing-md);
+  animation: fadeIn 0.3s ease-out forwards;
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.transfer-category:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.transfer-category:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.transfer-category:last-child {
+  margin-bottom: 0;
+}
+
+/* UPDATED: Match selected-category h4 */
+.category-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin: 0 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+}
+
+.category-title::after {
+  content: "";
+  display: inline-block;
+  flex-grow: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary-light), transparent);
+  margin-left: 10px;
+}
+
+/* UPDATED: Changed to grid layout like selected-items-grid */
+.item-list {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  height: auto !important;
+  margin-top: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* UPDATED: Styled like selected-item */
+.transfer-item {
+  background-color: var(--bg-surface-hover);
+  border-radius: var(--item-radius);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all var(--transition);
+  border: 1px solid var(--border-subtle);
+  position: relative;
+  overflow: hidden;
+  width: calc(33.333% - 7px); /* 3 items per row with gap */
+  box-sizing: border-box;
+}
+
+.transfer-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.05), transparent);
+  pointer-events: none;
+}
+
+.transfer-item:hover {
+  background-color: var(--bg-surface-highlight);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* UPDATED: Make the icon look like selected-item-icon */
+.item-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 4px;
+  transition: all var(--transition);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 8px;
+}
+
+.transfer-item:hover .item-icon {
+  transform: scale(1.1);
+  background-color: rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
+}
+
+/* UPDATED: Make the name look like selected-item-name */
+.item-name {
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  font-weight: var(--font-weight-medium);
+  margin-top: 4px;
+  transition: all var(--transition);
+}
+
+.transfer-item:hover .item-name {
+  color: var(--primary-light);
+}
+
+/* Improved styling for DNS records */
+.dns-created-section {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-subtle);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.dns-created-header {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-light);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+}
+
+.dns-created-header::before {
+  content: "🔄";
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.dns-records-container {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.dns-info {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  padding: 10px;
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid var(--primary-light);
+}
+
+.domain-highlight {
+  color: var(--accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dns-records-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-sm);
+}
+
+.dns-record-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background-color: var(--bg-surface-dark);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition);
+}
+
+.dns-record-item:hover {
+  background-color: var(--bg-surface-highlight);
+  transform: translateY(-1px);
+}
+
+.dns-record-type {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-light);
+  min-width: 120px;
+}
+
+.dns-record-domain {
+  font-size: var(--font-size-md);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+
+.dns-created-message {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.dns-records-list li {
+  color: var(--text-secondary);
+  padding: 3px 0;
+}
+
+.dns-records-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+/* Improved styling for DNS records */
+.dns-created-header {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-light);
+  margin-bottom: var(--spacing-sm);
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--spacing-xs);
+}
+
+.domain-link-section,
+.transferred-items-section,
+.dns-created-section {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Animation for new content */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .transfer-item {
+    width: calc(50% - 5px); /* 2 items per row on tablets */
+  }
+
+  .dns-record-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .dns-record-type {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 500px) {
+  .transfer-item {
+    width: 100%; /* 1 item per row on mobile */
+  }
+
+  .domain-link-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -9,6 +9,7 @@ import {
   getModuleVersion,
   MODULES,
 } from "../config/module-config.js";
+import { showTransferSuccessDialog } from "./transfer-success-dialog.js";
 
 // Keep track of whether a transfer is in progress and if it was cancelled
 let transferInProgress = false;
@@ -493,7 +494,7 @@ function addDomainLinkSection(domainInfo) {
     }
   }, 100);
 
-  // DISPLAY OF TRANSFERRED ITEMS WITH ORGANIZED SECTIONS - SIMPLIFIED WITHOUT VERSION INFO
+  // DISPLAY OF TRANSFERRED ITEMS WITH ORGANIZED SECTIONS - ENHANCED
   if (domainInfo.transferredItems && domainInfo.transferredItems.length > 0) {
     const getIconHtml = (item) => {
       // Normalize the name to remove spaces, be case insensitive, and remove "Panel" or "API" suffixes
@@ -565,41 +566,41 @@ function addDomainLinkSection(domainInfo) {
 
     // Create the transferred items HTML starting with the header
     let itemsHtml = `
-          <div class="transferred-items-header">Transferred Items:</div>
-          <div class="transferred-items-content">
-        `;
+    <div class="transferred-items-header">Transferred Items</div>
+    <div class="transferred-items-content">
+  `;
 
     // Main Panel section
     if (cockpitPanel.length > 0) {
       itemsHtml += `
-            <div class="transfer-category">
-              <div class="category-title">MAIN PANEL:</div>
-              <div class="item-list">
-          `;
+      <div class="transfer-category">
+        <div class="category-title">MAIN PANEL</div>
+        <div class="item-list">
+    `;
 
       cockpitPanel.forEach((item) => {
         const displayName = "Cockpit Panel";
         itemsHtml += `
-              <div class="transfer-item">
-                ${getIconHtml(item)}
-                <span class="item-name clean-name">${displayName}</span>
-              </div>
-            `;
+        <div class="transfer-item">
+          ${getIconHtml(item)}
+          <span class="item-name">${displayName}</span>
+        </div>
+      `;
       });
 
       itemsHtml += `
-              </div>
-            </div>
-          `;
+        </div>
+      </div>
+    `;
     }
 
     // Brandings section
     if (brandingModules.length > 0) {
       itemsHtml += `
-            <div class="transfer-category">
-              <div class="category-title">BRANDINGS:</div>
-              <div class="item-list">
-          `;
+      <div class="transfer-category">
+        <div class="category-title">BRANDINGS</div>
+        <div class="item-list">
+    `;
 
       // Use a set to prevent duplicates
       const processedModules = new Set();
@@ -619,27 +620,27 @@ function addDomainLinkSection(domainInfo) {
           processedModules.add(moduleKey);
 
           itemsHtml += `
-                <div class="transfer-item">
-                  ${getIconHtml(item)}
-                  <span class="item-name clean-name">${displayName}</span>
-                </div>
-              `;
+          <div class="transfer-item">
+            ${getIconHtml(item)}
+            <span class="item-name">${displayName}</span>
+          </div>
+        `;
         }
       });
 
       itemsHtml += `
-              </div>
-            </div>
-          `;
+        </div>
+      </div>
+    `;
     }
 
     // WebViews section (NEW)
     if (webviewModules.length > 0) {
       itemsHtml += `
-            <div class="transfer-category">
-              <div class="category-title">WEBVIEWS:</div>
-              <div class="item-list">
-          `;
+      <div class="transfer-category">
+        <div class="category-title">WEBVIEWS</div>
+        <div class="item-list">
+    `;
 
       // Use a set to prevent duplicates
       const processedWebviews = new Set();
@@ -667,27 +668,27 @@ function addDomainLinkSection(domainInfo) {
           processedWebviews.add(moduleKey);
 
           itemsHtml += `
-                <div class="transfer-item">
-                  ${getIconHtml(item)}
-                  <span class="item-name clean-name">${displayName}</span>
-                </div>
-              `;
+          <div class="transfer-item">
+            ${getIconHtml(item)}
+            <span class="item-name">${displayName}</span>
+          </div>
+        `;
         }
       });
 
       itemsHtml += `
-              </div>
-            </div>
-          `;
+        </div>
+      </div>
+    `;
     }
 
     // Panel Modules section
     if (otherPanelModules.length > 0) {
       itemsHtml += `
-            <div class="transfer-category">
-              <div class="category-title">PANEL MODULES:</div>
-              <div class="item-list">
-          `;
+      <div class="transfer-category">
+        <div class="category-title">PANEL MODULES</div>
+        <div class="item-list">
+    `;
 
       otherPanelModules.forEach((item) => {
         // Clean up the display name
@@ -698,26 +699,26 @@ function addDomainLinkSection(domainInfo) {
           displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
         itemsHtml += `
-              <div class="transfer-item">
-                ${getIconHtml(item)}
-                <span class="item-name clean-name">${displayName}</span>
-              </div>
-            `;
+        <div class="transfer-item">
+          ${getIconHtml(item)}
+          <span class="item-name">${displayName}</span>
+        </div>
+      `;
       });
 
       itemsHtml += `
-              </div>
-            </div>
-          `;
+        </div>
+      </div>
+    `;
     }
 
     // API Modules section
     if (apiModules.length > 0) {
       itemsHtml += `
-            <div class="transfer-category">
-              <div class="category-title">API MODULES:</div>
-              <div class="item-list">
-          `;
+      <div class="transfer-category">
+        <div class="category-title">API MODULES</div>
+        <div class="item-list">
+    `;
 
       apiModules.forEach((item) => {
         // Clean up the display name
@@ -728,42 +729,42 @@ function addDomainLinkSection(domainInfo) {
           displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
         itemsHtml += `
-              <div class="transfer-item">
-                ${getIconHtml(item)}
-                <span class="item-name clean-name">${displayName}</span>
-              </div>
-            `;
+        <div class="transfer-item">
+          ${getIconHtml(item)}
+          <span class="item-name">${displayName}</span>
+        </div>
+      `;
       });
 
       itemsHtml += `
-              </div>
-            </div>
-          `;
+        </div>
+      </div>
+    `;
     }
 
     // Other items (if any)
     if (otherItems.length > 0) {
       itemsHtml += `
-            <div class="transfer-category">
-              <div class="category-title">OTHER:</div>
-              <div class="item-list">
-          `;
+      <div class="transfer-category">
+        <div class="category-title">OTHER</div>
+        <div class="item-list">
+    `;
 
       otherItems.forEach((item) => {
         const displayName = item.name || item.path || "Unknown";
 
         itemsHtml += `
-              <div class="transfer-item">
-                ${getIconHtml(item)}
-                <span class="item-name clean-name">${displayName}</span>
-              </div>
-            `;
+        <div class="transfer-item">
+          ${getIconHtml(item)}
+          <span class="item-name">${displayName}</span>
+        </div>
+      `;
       });
 
       itemsHtml += `
-              </div>
-            </div>
-          `;
+        </div>
+      </div>
+    `;
     }
 
     itemsHtml += `</div>`;
@@ -900,9 +901,15 @@ export function completeTransfer(result, domainInfo = null) {
     addTransferLog("Transfer failed", "error");
   }
 
-  // Only show domain link section if transfer was successful and we have domain info
+  // Only show success dialog if transfer was successful and we have domain info
   if (result.success && domainInfo) {
-    addDomainLinkSection(domainInfo);
+    // Show only the new success dialog, not the old domain link section
+    showTransferSuccessDialog(domainInfo);
+
+    // Close the transfer dialog after a short delay
+    setTimeout(() => {
+      closeTransferDialog();
+    }, 500);
   }
 
   log.info("Transfer process completed");
