@@ -2,6 +2,14 @@
 
 All notable changes to Rebrands Panel Tool will be documented in this file.
 
+## [2.6.1] - 2025-04-16
+
+### Added
+
+- Cockpit Panel 2.5.2
+- Webviews 2.5.3
+- Smarters Pro 2.5.2
+
 ## [2.6.0] - 2025-04-12
 
 ### Added

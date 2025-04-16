@@ -19,7 +19,7 @@ export const MODULES = {
   cockpitpanel: {
     name: "cockpitpanel",
     displayName: "Cockpit Panel",
-    version: "2.5.1",
+    version: "2.5.2",
     icon: "rocket",
     paths: {
       sourcePath: "cockpitpanel",
@@ -48,7 +48,7 @@ export const MODULES = {
   multiproxy: {
     name: "multiproxy",
     displayName: "MultiProxy",
-    version: "2.5.1",
+    version: "2.5.0",
     icon: "multi",
     paths: {
       api: "api/proxy",
@@ -58,7 +58,7 @@ export const MODULES = {
   webviews: {
     name: "webviews",
     displayName: "Webviews",
-    version: "2.5.2",
+    version: "2.5.3",
     icon: "android",
     paths: {
       api: "api/webview",
@@ -68,7 +68,7 @@ export const MODULES = {
   plexwebview: {
     name: "plexwebview",
     displayName: "Plex Webview",
-    version: "2.5.2",
+    version: "2.5.3",
     icon: "plex",
     paths: {
       //path: "plex",
@@ -101,7 +101,7 @@ export const MODULES = {
   smarterspro: {
     name: "smarterspro",
     displayName: "Smarters Pro",
-    version: "2.5.1",
+    version: "2.5.2",
     icon: "smarters",
     paths: {
       api: "api/smarterspro",
