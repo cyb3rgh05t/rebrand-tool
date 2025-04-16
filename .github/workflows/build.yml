@@ -258,7 +258,7 @@ jobs:
           cat > discord-payload.json << EOF
           {
             "embeds": [{
-              "title": "🚀 New Release: StreamNet Rebrands Panels",
+              "title": "🚀StreamNet Rebrands Panels",
               "color": $BRANCH_COLOR,
               "description": "A new version has been built and released!",
               "fields": [
@@ -287,7 +287,7 @@ jobs:
                 "url": "https://github.com/cyb3rgh05t/rebrand-tool/blob/main/assets/icons/png/256x256.png?raw=true"
               },
               "footer": {
-                "text": "StreamNet Rebrands Panels",
+                "text": "Built with ❤️ by cyb3rgh05t",
                 "icon_url": "https://github.com/${{ github.repository_owner }}.png"
               },
               "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
