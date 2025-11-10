@@ -26,7 +26,7 @@
     "cloudflare": "^4.2.0",
     "electron-updater": "^6.6.2",
     "ssh2": "^1.14.0",
-    "winston": "^3.10.0"
+    "winston": "^3.18.3"
   },
   "build": {
     "appId": "com.streamnet.rebrandspanels",
