@@ -19,7 +19,7 @@
     "electron": "^25.0.0",
     "electron-builder": "^26.0.12",
     "electron-icon-maker": "^0.0.5",
-    "eslint": "^8.44.0",
+    "eslint": "^9.39.1",
     "jest": "^29.5.0"
   },
   "dependencies": {
