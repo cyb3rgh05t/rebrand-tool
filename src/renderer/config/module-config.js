@@ -188,6 +188,16 @@ export const MODULES = {
       panel: "panel/9xtream",
     },
   },
+  mytvonline3: {
+    name: "mytvonline3",
+    displayName: "MyTV Online 3",
+    version: "3.0.0",
+    icon: "mytvonline3",
+    paths: {
+      api: "api/mytvonline3",
+      panel: "panel/mytvonline3",
+    },
+  },
 
   // VOD Applications
   flixvision: {
@@ -403,6 +413,7 @@ export function getModuleCategories() {
       "sparkle",
       "1stream",
       "9xtream",
+      "mytvonline3",
     ],
     vodApps: ["flixvision", "smarttube", "stremio"],
     vpnApps: ["orvpn", "ipvanish", "pia"],
