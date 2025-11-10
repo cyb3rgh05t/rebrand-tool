@@ -25,7 +25,7 @@
   "dependencies": {
     "cloudflare": "^4.2.0",
     "electron-updater": "^6.6.2",
-    "ssh2": "^1.14.0",
+    "ssh2": "^1.17.0",
     "winston": "^3.10.0"
   },
   "build": {
