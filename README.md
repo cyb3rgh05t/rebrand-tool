@@ -161,6 +161,7 @@ The tool supports transferring various application panels and modules:
 - Sparkle
 - 1Stream
 - 9Xtream
+- MyTV Online 3
 - more will be added .....
 
 ### VOD Applications
