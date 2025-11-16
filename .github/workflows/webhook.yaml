@@ -16,8 +16,8 @@ jobs:
           webhook_url: ${{ secrets.WEBHOOK_URL }}
           color: "2105893"
           username: "Rebrand Tool Releases"
-          avatar_url: "https://github.com/cyb3rgh05t/discord-bot/blob/dev/images/webhook.png?raw=true"
+          avatar_url: "https://github.com/cyb3rgh05t/rebrand-tool/blob/main/images/webhook.png?raw=true"
           content: "<@408885990971670531> New Rebrand Tool release published!"
           footer_title: "GitHub Changelog"
-          footer_icon_url: "https://github.com/cyb3rgh05t/discord-bot/blob/dev/images/github-webhook.png?raw=true"
+          footer_icon_url: "https://github.com/cyb3rgh05t/rebrand-tool/blob/main/images/github-webhook.png?raw=true"
           footer_timestamp: true
