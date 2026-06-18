@@ -41,7 +41,7 @@ function initialize() {
     onConfigChanged({ section }) {
       if (section === "cloudflare") {
         logger.info(
-          "Cloudflare configuration changed, refreshing DNS settings"
+          "Cloudflare configuration changed, refreshing DNS settings",
         );
         refreshConfig();
       }
@@ -121,7 +121,7 @@ function refreshConfig() {
     };
 
     logger.debug(
-      `DNS configuration refreshed for domain: ${DNS_CONFIG.dns.rootDomain}`
+      `DNS configuration refreshed for domain: ${DNS_CONFIG.dns.rootDomain}`,
     );
   } catch (error) {
     logger.error(`Error refreshing DNS config: ${error.message}`);
@@ -179,7 +179,7 @@ async function createDnsRecords({ subdomain }) {
     logger.info(
       `Simulated creation of ${
         aRecords.length + aaaaRecords.length
-      } DNS records`
+      } DNS records`,
     );
     return {
       success: true,
@@ -196,7 +196,7 @@ async function createDnsRecords({ subdomain }) {
       logger.debug("Successfully imported Cloudflare API package");
     } catch (importError) {
       logger.error(
-        `Failed to import Cloudflare package: ${importError.message}`
+        `Failed to import Cloudflare package: ${importError.message}`,
       );
       return {
         success: false,
@@ -207,18 +207,18 @@ async function createDnsRecords({ subdomain }) {
     // Initialize the Cloudflare API client with detailed error handling
     logger.debug("Initializing Cloudflare API client");
 
-    // Configure authentication options
+    // Configure authentication options (cloudflare npm v4 API)
     let cfConfig;
     if (DNS_CONFIG.auth.apiToken) {
       logger.debug("Using API token for Cloudflare authentication");
-      cfConfig = { token: DNS_CONFIG.auth.apiToken };
+      cfConfig = { apiToken: DNS_CONFIG.auth.apiToken };
     } else if (DNS_CONFIG.auth.email && DNS_CONFIG.auth.globalApiKey) {
       logger.debug(
-        "Using email and global API key for Cloudflare authentication"
+        "Using email and global API key for Cloudflare authentication",
       );
       cfConfig = {
-        email: DNS_CONFIG.auth.email,
-        key: DNS_CONFIG.auth.globalApiKey,
+        apiEmail: DNS_CONFIG.auth.email,
+        apiKey: DNS_CONFIG.auth.globalApiKey,
       };
     } else {
       logger.error("No valid Cloudflare authentication method available");
@@ -235,7 +235,7 @@ async function createDnsRecords({ subdomain }) {
       logger.debug("Cloudflare API client created successfully");
     } catch (clientError) {
       logger.error(
-        `Failed to create Cloudflare client: ${clientError.message}`
+        `Failed to create Cloudflare client: ${clientError.message}`,
       );
       return {
         success: false,
@@ -243,15 +243,61 @@ async function createDnsRecords({ subdomain }) {
       };
     }
 
-    // Verify that the zones property exists on the client
-    if (!cf.zones) {
+    // Verify that the v4 dns.records API exists on the client
+    if (!cf.dns || !cf.dns.records) {
       logger.error(
-        "Cloudflare client does not have zones property - possible API version mismatch"
+        "Cloudflare client does not have dns.records property - possible API version mismatch",
       );
       return {
         success: false,
-        error: "Cloudflare API version mismatch - missing zones property",
+        error: "Cloudflare API version mismatch - missing dns.records property",
       };
+    }
+
+    // Pre-flight: verify the API token is actually valid before spamming
+    // Cloudflare with N requests that will all fail identically.
+    if (
+      DNS_CONFIG.auth.apiToken &&
+      cf.user &&
+      cf.user.tokens &&
+      cf.user.tokens.verify
+    ) {
+      try {
+        const verifyResult = await cf.user.tokens.verify();
+        logger.debug(
+          `Cloudflare token verify: status=${verifyResult && verifyResult.status}, id=${verifyResult && verifyResult.id}`,
+        );
+        if (
+          verifyResult &&
+          verifyResult.status &&
+          verifyResult.status !== "active"
+        ) {
+          logger.error(
+            `Cloudflare API token is not active (status: ${verifyResult.status})`,
+          );
+          return {
+            success: false,
+            error: `Cloudflare API token is not active (status: ${verifyResult.status})`,
+          };
+        }
+      } catch (verifyError) {
+        const cfErrors = (verifyError && verifyError.errors) || [];
+        const detail =
+          cfErrors.length > 0
+            ? cfErrors.map((e) => `[${e.code}] ${e.message}`).join("; ")
+            : verifyError.message;
+        const tokenLen = (DNS_CONFIG.auth.apiToken || "").length;
+        logger.error(
+          `Cloudflare API token verification failed (token length: ${tokenLen}): ${detail}`,
+        );
+        logger.error(
+          "The token is being rejected by Cloudflare. Most likely it has been revoked, deleted, or is from a different account. Please create a new API token in the Cloudflare dashboard (My Profile -> API Tokens) with permission 'Zone -> DNS -> Edit' for your zone.",
+        );
+        return {
+          success: false,
+          error: `Cloudflare API token rejected: ${detail}. Create a fresh token with Zone:DNS:Edit permission.`,
+        };
+      }
     }
 
     // Prepare records based on templates
@@ -295,124 +341,78 @@ async function createDnsRecords({ subdomain }) {
       }
     });
 
-    // Create records using the modern Cloudflare API pattern
-    for (const record of recordsToCreate) {
+    // Helper: sleep
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    // Helper: create a single record with retry/backoff on 429 rate limits
+    const createWithRetry = async (record, maxAttempts = 5) => {
+      let attempt = 0;
+      // Start with 2s backoff, exponential up to ~32s
+      let delay = 2000;
+      while (true) {
+        attempt++;
+        try {
+          return await cf.dns.records.create({
+            zone_id: zoneId,
+            type: record.type,
+            name: record.name,
+            content: record.content,
+            ttl: record.ttl,
+            proxied: record.proxied,
+          });
+        } catch (err) {
+          const status = err && err.status;
+          const cfErrors = (err && err.errors) || [];
+          const isRateLimit =
+            status === 429 || cfErrors.some((e) => e.code === 10429);
+
+          if (isRateLimit && attempt < maxAttempts) {
+            logger.warn(
+              `Rate limited on ${record.name} (attempt ${attempt}/${maxAttempts}), retrying in ${delay}ms`,
+            );
+            await sleep(delay);
+            delay = Math.min(delay * 2, 32000);
+            continue;
+          }
+          throw err;
+        }
+      }
+    };
+
+    // Create records using the cloudflare npm v4 API (throttled + retried)
+    for (let i = 0; i < recordsToCreate.length; i++) {
+      const record = recordsToCreate[i];
       try {
         logger.debug(`Creating ${record.type} record: ${record.name}`);
 
-        // Check if zones.dns property exists (newer API pattern)
-        if (cf.zones && cf.zones.dns && cf.zones.dns.records) {
-          logger.debug(`Using Cloudflare zones.dns.records API pattern`);
-          const result = await cf.zones.dns.records.add(zoneId, record);
+        const result = await createWithRetry(record);
 
-          results.push({
-            id: result.id,
-            name: result.name,
-            type: result.type,
-            status: "created",
-          });
+        results.push({
+          id: result.id,
+          name: result.name,
+          type: result.type,
+          status: "created",
+        });
 
-          logger.info(`Successfully created record: ${record.name}`);
-        }
-        // If the old API pattern is available
-        else if (cf.dnsRecords) {
-          logger.debug(`Using legacy Cloudflare dnsRecords API pattern`);
-          const result = await cf.dnsRecords.add(zoneId, record);
+        logger.info(`Successfully created record: ${record.name}`);
 
-          results.push({
-            id: result.id,
-            name: result.name,
-            type: result.type,
-            status: "created",
-          });
-
-          logger.info(`Successfully created record: ${record.name}`);
-        }
-        // Manual API call if neither API pattern works
-        else {
-          logger.debug(`Falling back to manual API call pattern`);
-
-          // Import the simple https module for direct API calls
-          const https = require("https");
-
-          // Create a promise-based request
-          const makeRequest = () => {
-            return new Promise((resolve, reject) => {
-              // Prepare the request options
-              const options = {
-                hostname: "api.cloudflare.com",
-                path: `/client/v4/zones/${zoneId}/dns_records`,
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: DNS_CONFIG.auth.apiToken
-                    ? `Bearer ${DNS_CONFIG.auth.apiToken}`
-                    : `X-Auth-Email: ${DNS_CONFIG.auth.email}\nX-Auth-Key: ${DNS_CONFIG.auth.globalApiKey}`,
-                },
-              };
-
-              // Create the request
-              const req = https.request(options, (res) => {
-                let data = "";
-
-                res.on("data", (chunk) => {
-                  data += chunk;
-                });
-
-                res.on("end", () => {
-                  if (res.statusCode >= 200 && res.statusCode < 300) {
-                    try {
-                      const result = JSON.parse(data);
-                      if (result.success) {
-                        resolve(result.result);
-                      } else {
-                        reject(
-                          new Error(
-                            result.errors[0].message || "API request failed"
-                          )
-                        );
-                      }
-                    } catch (e) {
-                      reject(
-                        new Error(`Failed to parse API response: ${e.message}`)
-                      );
-                    }
-                  } else {
-                    reject(
-                      new Error(
-                        `API request failed with status ${res.statusCode}`
-                      )
-                    );
-                  }
-                });
-              });
-
-              req.on("error", (error) => {
-                reject(error);
-              });
-
-              // Send the request data
-              req.write(JSON.stringify(record));
-              req.end();
-            });
-          };
-
-          // Make the API call
-          const result = await makeRequest();
-
-          results.push({
-            id: result.id,
-            name: result.name,
-            type: result.type,
-            status: "created",
-          });
-
-          logger.info(`Successfully created record: ${record.name}`);
+        // Small gap between requests to avoid bursting Cloudflare's rate limiter
+        if (i < recordsToCreate.length - 1) {
+          await sleep(400);
         }
       } catch (recordError) {
+        // Surface Cloudflare's actual error message/code if available
+        const cfErrors = recordError && recordError.errors;
+        if (Array.isArray(cfErrors) && cfErrors.length > 0) {
+          logger.error(
+            `Cloudflare API errors for ${record.name}: ${cfErrors
+              .map((e) => `[${e.code}] ${e.message}`)
+              .join("; ")}`,
+          );
+        }
         logger.error(
           `Error creating record ${record.name}:`,
-          recordError.message
+          recordError.message,
         );
 
         results.push({
@@ -437,7 +437,7 @@ async function createDnsRecords({ subdomain }) {
     }
 
     logger.info(
-      `Successfully created ${successCount} of ${recordsToCreate.length} DNS records`
+      `Successfully created ${successCount} of ${recordsToCreate.length} DNS records`,
     );
     return {
       success: true,
@@ -464,7 +464,7 @@ async function getRootDomain() {
 
     if (!rootDomain) {
       logger.error(
-        "Root domain not configured in CLOUDFLARE_ROOT_DOMAIN environment variable"
+        "Root domain not configured in CLOUDFLARE_ROOT_DOMAIN environment variable",
       );
       throw new Error("Root domain not configured");
     }
